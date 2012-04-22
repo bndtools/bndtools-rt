@@ -1,8 +1,11 @@
 package org.example.tests;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.StringWriter;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -140,6 +143,36 @@ public class RestAdapterTest extends TestCase {
 		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, null);
 		
 		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo4");
+		resource.setRetryOnError(false);
+		StringWriter output = new StringWriter();
+		resource.get(MediaType.TEXT_PLAIN).write(output);
+		assertEquals("NOT NULL", output.toString());
+		
+		svcReg.unregister();
+	}
+	
+	public void testClassInjectionUnsatisfiedFilterRef() throws Exception {
+		Runnable mockRunnable = mock(Runnable.class);
+		
+		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, null);
+		
+		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo5");
+		resource.setRetryOnError(false);
+		StringWriter output = new StringWriter();
+		resource.get(MediaType.TEXT_PLAIN).write(output);
+		assertEquals("NULL", output.toString());
+		
+		svcReg.unregister();
+	}
+	
+	public void testClassInjectionSatisfiedFilterRef() throws Exception {
+		Runnable mockRunnable = mock(Runnable.class);
+		
+		Properties props = new Properties();
+		props.put("foo", "bar");
+		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, props);
+		
+		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo5");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);

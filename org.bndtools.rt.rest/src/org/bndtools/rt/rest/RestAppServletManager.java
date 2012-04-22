@@ -29,6 +29,7 @@ public class RestAppServletManager {
 		Set<Class<?>> defaultClasses = new HashSet<Class<?>>();
 		defaultClasses.add(InjectAnnotationInjectableProvider.class);
 		defaultClasses.add(OptionalAnnotationInjectableProvider.class);
+		defaultClasses.add(TargetFilterAnnotationInjectableProvider.class);
 		defaultApplication = new ImmutableApplication(defaultClasses, null);
 	}
 

@@ -7,7 +7,9 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -15,6 +17,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
 import org.bndtools.inject.Optional;
+import org.bndtools.inject.TargetFilter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -37,18 +40,25 @@ public class BaseInjectableProvider {
 			return null;
 		
 		// Put annotations into a set
-		Set<Class<? extends Annotation>> annotationSet = new HashSet<Class<? extends Annotation>>(annotations.length);
+		Map<Class<? extends Annotation>, Annotation> annotationMap = new HashMap<Class<? extends Annotation>, Annotation>(annotations.length);
 		for (Annotation annotation : annotations) {
-			annotationSet.add(annotation.annotationType());
+			annotationMap.put(annotation.annotationType(), annotation);
 		}
 		
 		// Look for the @Inject annotation & exit if not found
-		if (!annotationSet.contains(Inject.class))
+		if (!annotationMap.containsKey(Inject.class))
 			return null;
 		
 		// Get some other settings from the annotations
-		final boolean optional = annotationSet.contains(Optional.class);
-		final String filter = null; // TODO: read the filter from a @Target annotation
+		final boolean optional = annotationMap.containsKey(Optional.class);
+		
+		Annotation filterAnnot = annotationMap.get(TargetFilter.class);
+		final String filter;
+		if (filterAnnot == null) {
+			filter = null;
+		} else {
+			filter = ((TargetFilter) filterAnnot).value(); 
+		}
 		
 		System.out.printf("getInjectable for type %s, optional=%s", type, optional);
 		
