@@ -1,0 +1,4 @@
+Private-Package: org.example.tests.examples
+
+# REST-Alias left blank... should use "/"
+REST-Classes: org.example.tests.examples.ClassResource1

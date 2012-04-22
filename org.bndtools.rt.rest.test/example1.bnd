@@ -1,0 +1,8 @@
+Private-Package: org.example.tests.examples
+Service-Component: *
+
+REST-Alias: /example3
+REST-Classes: org.example.tests.examples.ClassResource1,\
+	org.example.tests.examples.ClassResource2,\
+	org.example.tests.examples.ClassResource3,\
+	org.example.tests.examples.ClassResource4
