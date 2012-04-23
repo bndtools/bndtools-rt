@@ -6,4 +6,6 @@ REST-Classes: org.example.tests.examples.ClassResource1,\
 	org.example.tests.examples.ClassResource2,\
 	org.example.tests.examples.ClassResource3,\
 	org.example.tests.examples.ClassResource4,\
-	org.example.tests.examples.ClassResource5
+	org.example.tests.examples.ClassResource5,\
+	org.example.tests.examples.ClassResource6,\
+	org.example.tests.examples.ClassResource7

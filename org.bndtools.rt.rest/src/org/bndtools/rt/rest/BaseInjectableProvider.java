@@ -5,10 +5,14 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,7 +64,7 @@ public class BaseInjectableProvider {
 			filter = ((TargetFilter) filterAnnot).value(); 
 		}
 		
-		System.out.printf("getInjectable for type %s, optional=%s", type, optional);
+		System.out.printf("getInjectable for type %s, optional=%s\n", type, optional);
 		
 		// Find the owning bundle
 		Class<?> resourceClass = null;
@@ -78,41 +82,114 @@ public class BaseInjectableProvider {
 		return new AbstractHttpContextInjectable<Object>() {
 			public Object getValue(HttpContext httpContext) {
 				if (type instanceof Class) {
-					try {
-						// Get the service reference
-						@SuppressWarnings("unchecked")
-						Class<Object> serviceClass = (Class<Object>) type;
-						Collection<ServiceReference<Object>> references = bundleContext.getServiceReferences(serviceClass, filter);
-						if (references == null || references.isEmpty())
-							return missingService();
-						ServiceReference<Object> serviceRef = references.iterator().next();
-
-						// Get the underlying service
-						Object service = bundleContext.getService(serviceRef);
-						if (service == null)
-							return missingService();
-						
-						// Create a closeable to release the service
-						addCloseable(httpContext, bundleContext, serviceRef);
-						
-						return service;
-					} catch (InvalidSyntaxException e) {
-						throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+					// SINGLE VALUE
+					Class<?> serviceClass = (Class<?>) type;
+					return singleValueReference(serviceClass, httpContext);
+				} else if (type instanceof ParameterizedType){
+					// Maybe collection?
+					ParameterizedType paramType = (ParameterizedType) type;
+					Type[] typeArgs = paramType.getActualTypeArguments();
+					if (typeArgs == null || typeArgs.length != 1)
+						throw unsupportedType(type);
+					Class<?> serviceClass = (Class<?>) typeArgs[0];
+					Class<?> rawClass = (Class<?>) paramType.getRawType();
+					if (List.class.equals(rawClass)) {
+						return multiValueReference(serviceClass, httpContext, new CollectionFactory() {
+							public Collection<Object> create(int size) {
+								return new ArrayList<Object>(size);
+							}
+						});
+					} else if (Set.class.equals(rawClass)) {
+						return multiValueReference(serviceClass, httpContext, new CollectionFactory() {
+							public Collection<Object> create(int size) {
+								return new HashSet<Object>(size);
+							}
+						});
+					} else if (Collection.class.equals(rawClass)) {
+						return multiValueReference(serviceClass, httpContext, new CollectionFactory() {
+							public Collection<Object> create(int size) {
+								return new ArrayList<Object>(size);
+							}
+						});
 					}
+					throw unsupportedType(type);
 				} else {
-					throw new IllegalArgumentException("Unsupported injectable type: " + type);
+					throw unsupportedType(type);
 				}
 			}
 			
-			Object missingService() {
+			RuntimeException unsupportedType(Type type) {
+				return new IllegalArgumentException("Unsupported injectable type: " + type);
+			}
+			
+			Collection<?> multiValueReference(Class<?> serviceClass, HttpContext httpContext, CollectionFactory factory) {
+				try {
+					// Get the service references
+					@SuppressWarnings("unchecked")
+					Class<Object> narrowedSvcClass = (Class<Object>) serviceClass;
+					Collection<ServiceReference<Object>> references = bundleContext.getServiceReferences(narrowedSvcClass, filter);
+					if (references == null || references.isEmpty())
+						return missingMultipleService(factory);
+					
+					Collection<Object> result = factory.create(references.size());
+					
+					// Get the services
+					List<ServiceReference<?>> refsToRelease = new ArrayList<ServiceReference<?>>(references.size());
+					for (ServiceReference<?> reference : references) {
+						Object service = bundleContext.getService(reference);
+						if (service != null) {
+							result.add(service);
+							refsToRelease.add(reference);
+						}
+					}
+					
+					// Create the closeable to release the services
+					addCloseable(httpContext, bundleContext, refsToRelease);
+					
+					return result;
+				} catch (InvalidSyntaxException e) {
+					throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+				}
+			}
+			
+			Object singleValueReference(Class<?> serviceClass, HttpContext httpContext) {
+				try {
+					// Get the service reference
+					Collection<?> references = bundleContext.getServiceReferences(serviceClass, filter);
+					if (references == null || references.isEmpty())
+						return missingSingularService();
+					@SuppressWarnings("unchecked")
+					ServiceReference<Object> serviceRef = (ServiceReference<Object>) references.iterator().next();
+
+					// Get the underlying service
+					Object service = bundleContext.getService(serviceRef);
+					if (service == null)
+						return missingSingularService();
+					
+					// Create a closeable to release the service
+					addCloseable(httpContext, bundleContext, Collections.singletonList(serviceRef));
+					
+					return service;
+				} catch (InvalidSyntaxException e) {
+					throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+				}				
+			}
+			
+			Object missingSingularService() {
 				if (optional)
 					return null;
+				throw new WebApplicationException(Status.SERVICE_UNAVAILABLE);
+			}
+			
+			Collection<?> missingMultipleService(CollectionFactory factory) {
+				if (optional)
+					return factory.create(0);
 				throw new WebApplicationException(Status.SERVICE_UNAVAILABLE);
 			}
 		};
 	}
 	
-	void addCloseable(HttpContext httpContext, final BundleContext bundleContext, final ServiceReference<?> serviceRef) {
+	void addCloseable(HttpContext httpContext, final BundleContext bundleContext, final Collection<? extends ServiceReference<?>> serviceRefs) {
 		@SuppressWarnings("unchecked")
 		Set<Closeable> closeableSet = (Set<Closeable>) httpContext.getProperties().get(CloseableServiceFactory.class.getName());
 		if (closeableSet == null) {
@@ -121,7 +198,9 @@ public class BaseInjectableProvider {
 		}
 		closeableSet.add(new Closeable() {
 			public void close() throws IOException {
-				bundleContext.ungetService(serviceRef);
+				for (ServiceReference<?> serviceRef : serviceRefs) {
+					bundleContext.ungetService(serviceRef);
+				}
 			}
 		});
 	}

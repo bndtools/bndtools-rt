@@ -180,4 +180,58 @@ public class RestAdapterTest extends TestCase {
 		
 		svcReg.unregister();
 	}
+	
+	public void testClassInjectionCollection() throws Exception {
+		Runnable mockRunnable1 = mock(Runnable.class);
+		Runnable mockRunnable2 = mock(Runnable.class);
+		
+		ServiceRegistration svcReg1 = context.registerService(Runnable.class.getName(), mockRunnable1, null);
+		ServiceRegistration svcReg2 = context.registerService(Runnable.class.getName(), mockRunnable2, null);
+		
+		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo6");
+		resource.setRetryOnError(false);
+		StringWriter output = new StringWriter();
+		resource.get(MediaType.TEXT_PLAIN).write(output);
+		assertEquals("2", output.toString());
+		
+		svcReg1.unregister();
+		svcReg2.unregister();
+	}
+	
+	public void testClassInjectionCollectionUnsatisfied() throws Exception {
+		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo6");
+		resource.setRetryOnError(false);
+		try {
+			resource.get(MediaType.TEXT_PLAIN);
+			fail("Should fail with ResourceException");
+		} catch (ResourceException e) {
+			// expected
+			assertEquals(503, e.getStatus().getCode());
+		}
+	}
+	
+	public void testClassInjectionCollectionOptionalSatisfied() throws Exception {
+		Runnable mockRunnable1 = mock(Runnable.class);
+		Runnable mockRunnable2 = mock(Runnable.class);
+		
+		ServiceRegistration svcReg1 = context.registerService(Runnable.class.getName(), mockRunnable1, null);
+		ServiceRegistration svcReg2 = context.registerService(Runnable.class.getName(), mockRunnable2, null);
+		
+		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo7");
+		resource.setRetryOnError(false);
+		StringWriter output = new StringWriter();
+		resource.get(MediaType.TEXT_PLAIN).write(output);
+		assertEquals("2", output.toString());
+		
+		svcReg1.unregister();
+		svcReg2.unregister();
+	}
+	
+	public void testClassInjectionCollectionOptionalUnsatisfied() throws Exception {
+		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo7");
+		resource.setRetryOnError(false);
+		StringWriter output = new StringWriter();
+		resource.get(MediaType.TEXT_PLAIN).write(output);
+		assertEquals("0", output.toString());
+	}
 }
