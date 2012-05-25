@@ -42,7 +42,7 @@
 	     Test
 	-->
 	<target name="test" depends="compile">
-		<bnd command="test" exceptions="true" basedir="${project}" />
+		<bndtest/>
 	</target>
 
 	<!--
@@ -78,7 +78,7 @@
 		<subant target="release" inheritAll="false" buildpath="${project.dependson}">
 			<property name="donotrecurse" value="true" />
 		</subant>
-		<bnd command="release" exceptions="true" basedir="${project}"/>
+		<bndrelease/>
 	</target>
 
 	<target name="junit" depends="build">
