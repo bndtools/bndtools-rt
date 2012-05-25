@@ -28,7 +28,7 @@ public class HttpServiceTracker extends ServiceTracker {
 	
 	public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
 		@SuppressWarnings("unchecked")
-		HttpService httpService = context.getService(reference);
+		HttpService httpService = (HttpService) context.getService(reference);
 		
 		RestAppServletManager manager = new RestAppServletManager(httpService);
 		ResourceServiceTracker serviceTracker = ResourceServiceTracker.newInstance(context, manager, log);
