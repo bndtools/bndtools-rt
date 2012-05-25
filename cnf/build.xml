@@ -17,7 +17,7 @@
 			<classpath location="${workspacedir}/cnf/ant-contrib-1.0b3.jar" />
 		</taskdef>
 		<timestampselector property="bndlatest">
-			<path><fileset dir="${workspacedir}/cnf/repo/biz.aQute.bnd" includes="biz.aQute.bnd-*.jar"/></path>
+			<path><fileset dir="${workspacedir}/cnf/buildrepo/biz.aQute.bnd" includes="biz.aQute.bnd-*.jar"/></path>
 		</timestampselector>
 		
 		<taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${bndlatest}"/>

@@ -1,0 +1,218 @@
+<?xml version='1.0' encoding='utf-8'?>
+<?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
+
+<repository lastmodified='20120525223904.479' name='Local'>
+  <resource id='javax.inject/1.0.0' presentationname='javax.inject' symbolicname='javax.inject' uri='javax.inject/javax.inject-1.0.0.jar' version='1.0.0'>
+    <size>
+      2954
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='javax.inject'/>
+      <p n='symbolicname' v='javax.inject'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.inject'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+  </resource>
+  <resource id='javax.ws.rs.jsr311-api/1.1.1' presentationname='jsr311-api' symbolicname='javax.ws.rs.jsr311-api' uri='javax.ws.rs.jsr311-api/javax.ws.rs.jsr311-api-1.1.1.jar' version='1.1.1'>
+    <size>
+      47457
+    </size>
+    <license>
+      http://www.opensource.org/licenses/cddl1.php
+    </license>
+    <documentation>
+      http://www.sun.com/
+    </documentation>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='jsr311-api'/>
+      <p n='symbolicname' v='javax.ws.rs.jsr311-api'/>
+      <p n='version' t='version' v='1.1.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs'/>
+      <p n='uses' v='javax.ws.rs.core'/>
+      <p n='version' t='version' v='1.1.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs.ext'/>
+      <p n='uses' v='javax.ws.rs.core,javax.ws.rs'/>
+      <p n='version' t='version' v='1.1.1'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='javax.ws.rs.core'/>
+      <p n='uses' v='javax.ws.rs.ext,javax.ws.rs'/>
+      <p n='version' t='version' v='1.1.1'/>
+    </capability>
+  </resource>
+  <resource id='org.osgi.impl.bundle.bindex/2.2.0' presentationname='org.osgi.impl.bundle.bindex' symbolicname='org.osgi.impl.bundle.bindex' uri='org.osgi.impl.bundle.bindex/org.osgi.impl.bundle.bindex-2.2.0.jar' version='2.2.0'>
+    <description>
+      Provides a command line utility to index a set of bundles.
+       This code can be run from the command line.
+    </description>
+    <size>
+      154617
+    </size>
+    <license>
+      http://www.apache.org/licenses/LICENSE-2.0;description="This
+       material is licensed under the Apache Software License, Version
+       2.0"; link="http://www.apache.org/licenses/LICENSE-2.0"
+    </license>
+    <copyright>
+      (c) Copyright OSGi Alliance, contains licensed code from kXML
+    </copyright>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='org.osgi.impl.bundle.bindex'/>
+      <p n='symbolicname' v='org.osgi.impl.bundle.bindex'/>
+      <p n='version' t='version' v='2.2.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.osgi.service.bindex'/>
+      <p n='version' t='version' v='1.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=org.apache.tools.ant)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package org.apache.tools.ant
+    </require>
+    <require extend='false' filter='(&amp;(package=org.apache.tools.ant.types)(version&gt;=0.0.0))' multiple='false' name='package' optional='true'>
+      Import package org.apache.tools.ant.types
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.service.bindex)(version&gt;=1.0.0)(!(version&gt;=2.0.0)))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.service.bindex ;version=[1.0.0,2.0.0)
+    </require>
+  </resource>
+  <resource id='org.restlet/2.0.11.0' presentationname='Restlet API' symbolicname='org.restlet' uri='org.restlet/org.restlet-2.0.11.jar' version='2.0.11.0'>
+    <size>
+      670713
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='presentationname' v='Restlet API'/>
+      <p n='symbolicname' v='org.restlet'/>
+      <p n='version' t='version' v='2.0.11.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.data'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.application'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.component'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.converter'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.http'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.http.adapter'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.http.connector'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.http.header'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.http.io'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.http.security'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.internal'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.io'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.local'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.log'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.resource'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.riap'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.security'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.engine.util'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.representation'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.resource'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.routing'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.security'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.service'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='org.restlet.util'/>
+      <p n='version' t='version' v='0.0.0'/>
+    </capability>
+    <require extend='false' filter='(&amp;(package=javax.net)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.net
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.net.ssl)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.net.ssl
+    </require>
+    <require extend='false' filter='(&amp;(package=javax.xml.parsers)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package javax.xml.parsers
+    </require>
+    <require extend='false' filter='(&amp;(package=org.osgi.framework)(version&gt;=0.0.0))' multiple='false' name='package' optional='false'>
+      Import package org.osgi.framework
+    </require>
+    <require extend='false' filter='(|(ee=J2SE-1.5))' multiple='false' name='ee' optional='false'>
+      Execution Environment (|(ee=J2SE-1.5))
+    </require>
+  </resource>
+</repository>
