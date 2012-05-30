@@ -8,19 +8,3 @@
 	javax.inject,\
 	org.bndtools.inject;version=latest
 -sub: *.bnd
-
--runvm: -ea
--runfw: org.apache.felix.framework
--runsystempackages: sun.reflect
--runee: JavaSE-1.6
--runbundles: org.mockito.mockito-all,\
-	javax.servlet,\
-	javax.inject,\
-	org.apache.felix.http.jetty,\
-	org.apache.felix.scr,\
-	osgi.cmpn,\
-	org.restlet,\
-	org.apache.felix.gogo.command,\
-	org.apache.felix.gogo.runtime,\
-	org.apache.felix.gogo.shell,\
-	org.bndtools.rt.rest;version=latest
