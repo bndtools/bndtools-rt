@@ -1,12 +1,11 @@
 -pluginpath: ${build}/buildrepo/biz.aQute.repository/biz.aQute.repository-1.0.0.jar,\
 	${build}/buildrepo/org.osgi.impl.bundle.bindex/org.osgi.impl.bundle.bindex-2.2.0.jar
 
--plugin:\
-	aQute.lib.deployer.obr.LocalOBR;name='Release';local=${build}/releaserepo,\
+-plugin: aQute.lib.deployer.obr.LocalOBR;name=Release;local=${build}/releaserepo,\
 	aQute.lib.deployer.FileRepo;location=${build}/buildrepo;name=Build;readonly=false,\
-	aQute.lib.deployer.obr.LocalOBR;name='Local';local=${build}/localrepo,\
-	aQute.lib.deployer.obr.OBR;name='BndtoolsHub';locations='http://bundles.bndtools.org.s3.amazonaws.com/repository.xml',\
-	org.osgi.impl.bundle.bindex.BundleIndexerImpl
-
+	aQute.lib.deployer.obr.OBR;locations=file:${build}/gemini-web/repository.xml;name=Gemini Web,\
+	aQute.lib.deployer.obr.LocalOBR;name=Local;local=${build}/localrepo,\
+	aQute.lib.deployer.obr.OBR;locations=http://bundles.bndtools.org.s3.amazonaws.com/repository.xml;name=BndtoolsHub,\
+	org.osgi.impl.bundle.bindex.BundleIndexerImpl,\
 
 -releaserepo: Release
