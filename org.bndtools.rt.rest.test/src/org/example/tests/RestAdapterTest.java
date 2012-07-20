@@ -22,7 +22,7 @@ public class RestAdapterTest extends TestCase {
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
 	public void testSimpleSingleton() throws Exception {
-		Thread.sleep(600);
+		Thread.sleep(3000);
 		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example1/foo");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
