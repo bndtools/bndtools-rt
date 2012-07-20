@@ -2,3 +2,6 @@
 /*/bin_test/
 /*/generated/
 /cnf/cache/
+
+.*.swp
+*~

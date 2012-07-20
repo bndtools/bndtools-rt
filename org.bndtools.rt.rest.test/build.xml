@@ -3,8 +3,7 @@
 	<import file="../cnf/build.xml"/>
 
 	<!-- override -->
-	<target name="test" depends="compile">
-		<echo message="Hello world"/>
+	<target name="test" depends="build">
 		<bndtest runfiles="test-httpservice.bndrun"/>
 	</target>
 
