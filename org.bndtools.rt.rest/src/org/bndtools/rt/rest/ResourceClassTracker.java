@@ -1,17 +1,14 @@
 package org.bndtools.rt.rest;
 
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.BundleTracker;
-
-import aQute.libg.header.Attrs;
-import aQute.libg.header.Parameters;
 
 public class ResourceClassTracker extends BundleTracker {
 
@@ -44,15 +41,15 @@ public class ResourceClassTracker extends BundleTracker {
 		String classListStr = bundle.getHeaders().get("REST-Classes");
 		if (classListStr == null)
 			return null;
-		Parameters classList = new Parameters(classListStr);
+		StringTokenizer tokenizer = new StringTokenizer(classListStr, ",");
 
 		// Load resource classes
 		Set<Class<?>> resourceClasses = new HashSet<Class<?>>();
-		for (Entry<String, Attrs> entry : classList.entrySet()) {
-			String className = entry.getKey();
-			
+		while (tokenizer.hasMoreTokens()) {
+			String className = tokenizer.nextToken().trim();
 			try {
-				resourceClasses.add(bundle.loadClass(className));
+				if (className.length() > 0)
+					resourceClasses.add(bundle.loadClass(className));
 			} catch (ClassNotFoundException e) {
 				log.log(LogService.LOG_ERROR, String.format("Failed to load REST class '%s' from bundle '%s'.", className, bundle.getSymbolicName()), e);
 			}

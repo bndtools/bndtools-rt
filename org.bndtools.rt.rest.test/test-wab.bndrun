@@ -2,16 +2,16 @@
 -runfw: org.apache.felix.framework;version=4
 -runsystempackages: sun.reflect,javax.activation;version=1.1.0
 -runee: JavaSE-1.6
--runrequire: bundle:(symbolicname=org.eclipse.gemini.web.core),\
-	bundle:(symbolicname=org.eclipse.gemini.web.extender),\
-	bundle:(symbolicname=org.eclipse.gemini.web.tomcat),\
-	bundle:(symbolicname=com.springsource.org.apache.jasper),\
-	bundle:(symbolicname=org.mockito.mockito-all),\
-	bundle:(symbolicname=org.bndtools.rt.rest.test.example1),\
-	bundle:(symbolicname=org.bndtools.rt.rest.test.example2),\
-	bundle:(symbolicname=org.bndtools.rt.rest),\
-	bundle:(symbolicname=org.apache.felix.gogo.command),\
-	bundle:(symbolicname=org.apache.felix.gogo.shell)
+-runrequires: osgi.identity;filter:='(osgi.identity=org.eclipse.gemini.web.core)',\
+	osgi.identity;filter:='(osgi.identity=org.eclipse.gemini.web.extender)',\
+	osgi.identity;filter:='(osgi.identity=org.eclipse.gemini.web.tomcat)',\
+	osgi.identity;filter:='(osgi.identity=com.springsource.org.apache.jasper)',\
+	osgi.identity;filter:='(osgi.identity=org.mockito.mockito-all)',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.rest.test.example1)',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.rest.test.example2)',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.rest)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)'
 
 -runbundles: javax.servlet.jsp;version='[2.2.0,2.2.1)',\
 	slf4j.api;version='[1.6.2,1.6.3)',\
