@@ -85,6 +85,12 @@ public class RestAdapterTest extends TestCase {
 		} catch (ResourceException e) {
 			// expected
 			assertEquals(503, e.getStatus().getCode());
+			assertEquals(MediaType.TEXT_PLAIN, resource.getResponseEntity().getMediaType());
+			
+			StringWriter output = new StringWriter();
+			resource.getResponseEntity().write(output);
+			
+			assertEquals(Runnable.class.getName(), output.toString());
 		}
 	}
 	
@@ -207,6 +213,12 @@ public class RestAdapterTest extends TestCase {
 		} catch (ResourceException e) {
 			// expected
 			assertEquals(503, e.getStatus().getCode());
+			assertEquals(MediaType.TEXT_PLAIN, resource.getResponseEntity().getMediaType());
+
+			StringWriter output = new StringWriter();
+			resource.getResponseEntity().write(output);
+			
+			assertEquals(Runnable.class.getName(), output.toString());
 		}
 	}
 	

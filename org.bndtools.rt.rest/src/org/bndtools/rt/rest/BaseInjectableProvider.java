@@ -18,6 +18,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.bndtools.inject.Optional;
@@ -64,8 +66,6 @@ public class BaseInjectableProvider {
 			filter = ((TargetFilter) filterAnnot).value(); 
 		}
 		
-		System.out.printf("getInjectable for type %s, optional=%s\n", type, optional);
-		
 		// Find the owning bundle
 		Class<?> resourceClass = null;
 		AccessibleObject annotatedObj = context.getAccesibleObject();
@@ -93,26 +93,20 @@ public class BaseInjectableProvider {
 						throw unsupportedType(type);
 					Class<?> serviceClass = (Class<?>) typeArgs[0];
 					Class<?> rawClass = (Class<?>) paramType.getRawType();
-					if (List.class.equals(rawClass)) {
-						return multiValueReference(serviceClass, httpContext, new CollectionFactory() {
-							public Collection<Object> create(int size) {
-								return new ArrayList<Object>(size);
-							}
-						});
-					} else if (Set.class.equals(rawClass)) {
-						return multiValueReference(serviceClass, httpContext, new CollectionFactory() {
-							public Collection<Object> create(int size) {
-								return new HashSet<Object>(size);
-							}
-						});
-					} else if (Collection.class.equals(rawClass)) {
-						return multiValueReference(serviceClass, httpContext, new CollectionFactory() {
-							public Collection<Object> create(int size) {
-								return new ArrayList<Object>(size);
-							}
-						});
-					}
-					throw unsupportedType(type);
+					
+					@SuppressWarnings("rawtypes")
+					CollectionFactory factory;
+					
+					if (Set.class.equals(rawClass))
+						factory = new HashSetFactory<Object>();
+					else if (List.class.equals(rawClass) || Collection.class.equals(rawClass))
+						factory = new ArrayListFactory<Object>();
+					else
+						throw unsupportedType(type);
+					
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					Collection reference = multiValueReference(serviceClass, httpContext, factory);
+					return reference;
 				} else {
 					throw unsupportedType(type);
 				}
@@ -122,21 +116,19 @@ public class BaseInjectableProvider {
 				return new IllegalArgumentException("Unsupported injectable type: " + type);
 			}
 			
-			Collection<?> multiValueReference(Class<?> serviceClass, HttpContext httpContext, CollectionFactory factory) {
+			<S> Collection<S> multiValueReference(Class<S> serviceClass, HttpContext httpContext, CollectionFactory<S> factory) {
 				try {
 					// Get the service references
-					@SuppressWarnings("unchecked")
-					Class<Object> narrowedSvcClass = (Class<Object>) serviceClass;
-					Collection<ServiceReference<Object>> references = bundleContext.getServiceReferences(narrowedSvcClass, filter);
+					Collection<ServiceReference<S>> references = bundleContext.getServiceReferences(serviceClass, filter);
 					if (references == null || references.isEmpty())
-						return missingMultipleService(factory);
+						return missingMultipleService(serviceClass, factory);
 					
-					Collection<Object> result = factory.create(references.size());
+					Collection<S> result = factory.create(references.size());
 					
 					// Get the services
-					List<ServiceReference<?>> refsToRelease = new ArrayList<ServiceReference<?>>(references.size());
-					for (ServiceReference<?> reference : references) {
-						Object service = bundleContext.getService(reference);
+					List<ServiceReference<S>> refsToRelease = new ArrayList<ServiceReference<S>>(references.size());
+					for (ServiceReference<S> reference : references) {
+						S service = bundleContext.getService(reference);
 						if (service != null) {
 							result.add(service);
 							refsToRelease.add(reference);
@@ -157,14 +149,14 @@ public class BaseInjectableProvider {
 					// Get the service reference
 					Collection<?> references = bundleContext.getServiceReferences(serviceClass, filter);
 					if (references == null || references.isEmpty())
-						return missingSingularService();
+						return missingSingularService(serviceClass);
 					@SuppressWarnings("unchecked")
 					ServiceReference<Object> serviceRef = (ServiceReference<Object>) references.iterator().next();
 
 					// Get the underlying service
 					Object service = bundleContext.getService(serviceRef);
 					if (service == null)
-						return missingSingularService();
+						return missingSingularService(serviceClass);
 					
 					// Create a closeable to release the service
 					addCloseable(httpContext, bundleContext, Collections.singletonList(serviceRef));
@@ -175,16 +167,18 @@ public class BaseInjectableProvider {
 				}				
 			}
 			
-			Object missingSingularService() {
+			Object missingSingularService(Class<?> serviceClass) {
 				if (optional)
 					return null;
-				throw new WebApplicationException(Status.SERVICE_UNAVAILABLE);
+				Response response = Response.status(Status.SERVICE_UNAVAILABLE).entity(serviceClass.getName()).type(MediaType.TEXT_PLAIN).build();
+				throw new WebApplicationException(response);
 			}
 			
-			Collection<?> missingMultipleService(CollectionFactory factory) {
+			<S> Collection<S> missingMultipleService(Class<S> serviceClass, CollectionFactory<S> factory) {
 				if (optional)
 					return factory.create(0);
-				throw new WebApplicationException(Status.SERVICE_UNAVAILABLE);
+				Response response = Response.status(Status.SERVICE_UNAVAILABLE).entity(serviceClass.getName()).type(MediaType.TEXT_PLAIN).build();
+				throw new WebApplicationException(response);
 			}
 		};
 	}
