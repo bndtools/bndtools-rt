@@ -1,0 +1,7 @@
+Private-Package: org.bndtools.rt.repository.rest,\
+	org.bndtools.rt.repository.marshall
+REST-Alias: /repo
+REST-Classes: ${classes;CONCRETE;ANNOTATION;javax.ws.rs.Path}
+Export-Package: org.bndtools.rt.repository.api,\
+	org.osgi.resource,\
+	org.osgi.service.repository

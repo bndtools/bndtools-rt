@@ -1,6 +1,7 @@
 Private-Package: org.bndtools.rt.repository.rest.test,\
-	org.bndtools.rt.repository.rest,\
+	org.bndtools.rt.repository.marshall,\
 	aQute.lib.io
+
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 
 -buildpath:\

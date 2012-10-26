@@ -1,9 +1,9 @@
-package org.bndtools.rt.repository.rest;
+package org.bndtools.rt.repository.marshall;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bndtools.rt.repository.rest.CapReq.MODE;
+import org.bndtools.rt.repository.marshall.CapReq.MODE;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;

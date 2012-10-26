@@ -8,6 +8,9 @@ import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.service.repository.Repository;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface QueryCache {
 
 	UUID createQuery(Collection<? extends Requirement> requirements) throws Exception;

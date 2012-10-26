@@ -1,0 +1,4 @@
+Export-Package: org.bndtools.rt.repository.api,\
+	org.osgi.service.repository;-split-package:=first,\
+	org.osgi.resource;-split-package:=first
+

@@ -1,4 +1,4 @@
-package org.bndtools.rt.repository.rest;
+package org.bndtools.rt.repository.marshall;
 
 public enum ScalarType {
 	String, Version, Long, Double;

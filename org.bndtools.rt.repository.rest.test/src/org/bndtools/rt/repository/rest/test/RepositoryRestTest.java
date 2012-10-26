@@ -8,7 +8,7 @@ import java.util.UUID;
 import junit.framework.TestCase;
 
 import org.bndtools.rt.repository.api.QueryCache;
-import org.bndtools.rt.repository.rest.CapReqBuilder;
+import org.bndtools.rt.repository.marshall.CapReqBuilder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;

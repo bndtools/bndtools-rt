@@ -1,4 +1,4 @@
-package org.bndtools.rt.repository.rest;
+package org.bndtools.rt.repository.marshall;
 
 import java.util.*;
 
