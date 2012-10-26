@@ -31,43 +31,51 @@ import org.restlet.resource.ClientResource;
 import aQute.lib.io.IO;
 
 public class RepositoryRestTest extends TestCase {
+	
+	static {
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+		}
+	}
 
     private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
-    @SuppressWarnings("unchecked")
 	public void testPostQueryAndReadBack() throws Exception {
-    	Thread.sleep(3000);
-    	
-    	UUID uuid = UUID.randomUUID();
-    	String queryText = IO.collect(RepositoryRestTest.class.getResourceAsStream("query1.json"));
-    	
+    	// Setup the mock cache
     	MockQueryCache mockCache = new MockQueryCache();
+    	UUID uuid = UUID.randomUUID();
     	mockCache.setUuid(uuid);
+    	Collection<Requirement> mockResponse = Collections.singletonList(new CapReqBuilder("osgi.extender").addDirective("filter", "(osgi.extender=osgi.ds)").buildSyntheticRequirement());
+    	mockCache.setRequirements(mockResponse);
+    	
+    	// Registry the mocks
     	ServiceRegistration cacheReg = context.registerService(QueryCache.class.getName(), mockCache, null);
     	ServiceRegistration repoReg = context.registerService(Repository.class.getName(), new MockRepository(), null);
     	
+    	// POST the query
+    	String queryText = IO.collect(RepositoryRestTest.class.getResourceAsStream("query1.json")).replaceAll("\\s", "");
     	ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/query");
     	client.setRetryOnError(false);
-    	
     	client.post(new StringRepresentation(queryText, MediaType.APPLICATION_JSON));
     	Response response = client.getResponse();
-    	String location = response.getLocationRef().toString();
+    	Reference queryLocation = response.getLocationRef();
     	
+    	// Check the POST result
     	assertEquals(Status.SUCCESS_CREATED.getCode(), response.getStatus().getCode());
-		assertEquals("http://127.0.0.1:8080/repo/query/" + uuid, location);
+		assertEquals("http://127.0.0.1:8080/repo/query/" + uuid, queryLocation.toString());
 		
-		// Get the new resource
-		Collection<Requirement> mockResponse = Collections.singletonList(new CapReqBuilder("osgi.extender").addDirective("filter", "(osgi.extender=osgi.ds)").buildSyntheticRequirement());
-		mockCache.setRequirements(mockResponse);
-		
-		client = new ClientResource(location);
+		// GET the query back
+		client = new ClientResource(queryLocation);
 		client.setRetryOnError(false);
 		Representation rep = client.get(MediaType.APPLICATION_JSON);
+		
+		// Check the GET result
 		StringWriter writer = new StringWriter();
 		rep.write(writer);
-		
 		assertEquals(queryText.trim(), writer.toString().trim());
     	
+		// Tidy up
     	cacheReg.unregister();
     	repoReg.unregister();
     }
