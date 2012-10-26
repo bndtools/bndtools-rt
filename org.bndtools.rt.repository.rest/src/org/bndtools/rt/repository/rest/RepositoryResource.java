@@ -19,6 +19,7 @@ import javax.ws.rs.core.UriInfo;
 import org.bndtools.rt.repository.api.QueryCache;
 import org.bndtools.rt.repository.marshall.CapReqJson;
 import org.osgi.resource.Requirement;
+import org.osgi.service.repository.Repository;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -30,6 +31,9 @@ public class RepositoryResource {
 	
 	@Inject
 	QueryCache queryCache;
+	
+	@Inject
+	Repository repository;
 	
 	@Context
 	private UriInfo uriInfo;

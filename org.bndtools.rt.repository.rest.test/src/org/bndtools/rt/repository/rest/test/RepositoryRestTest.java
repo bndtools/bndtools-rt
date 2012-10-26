@@ -13,6 +13,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.resource.Requirement;
+import org.osgi.service.repository.Repository;
 import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -35,8 +36,8 @@ public class RepositoryRestTest extends TestCase {
     	
     	MockQueryCache mockCache = new MockQueryCache();
     	mockCache.setUuid(uuid);
-    	
-    	ServiceRegistration reg = context.registerService(QueryCache.class.getName(), mockCache, null);
+    	ServiceRegistration cacheReg = context.registerService(QueryCache.class.getName(), mockCache, null);
+    	ServiceRegistration repoReg = context.registerService(Repository.class.getName(), new MockRepository(), null);
     	
     	ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/query");
     	client.setRetryOnError(false);
@@ -60,9 +61,9 @@ public class RepositoryRestTest extends TestCase {
 		rep.write(writer);
 		
 		assertEquals(queryText.trim(), writer.toString().trim());
-		
     	
-    	reg.unregister();
+    	cacheReg.unregister();
+    	repoReg.unregister();
     }
     
 }
