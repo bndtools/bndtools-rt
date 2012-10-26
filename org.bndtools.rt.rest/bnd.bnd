@@ -8,6 +8,7 @@
 	org.bndtools.inject;version=latest,\
 	ee.j2se;version='[1.5,1.6)'
 
+Bundle-Version: 1.0.0
 Private-Package: org.bndtools.rt.rest
 Export-Package: org.bndtools.inject,\
 	javax.ws.rs;version=1.1.1,\
@@ -52,3 +53,5 @@ Import-Package:\
 	org.objectweb.asm;resolution:=optional,\
 	*
 Bundle-Activator: org.bndtools.rt.rest.Activator
+
+Provide-Capability: osgi.extender;osgi.extender=bndtools.rt.rest;version:Version=${Bundle-Version}
