@@ -73,7 +73,9 @@ public class RepositoryRestTest extends TestCase {
 		// Check the GET result
 		StringWriter writer = new StringWriter();
 		rep.write(writer);
-		assertEquals(queryText.trim(), writer.toString().trim());
+		String actualOutput = writer.toString().trim();
+		String expectedOutput = IO.collect(RepositoryRestTest.class.getResourceAsStream("query1-saved.json")).replaceAll("\\s", "").replaceAll("%QUERY_ID%", uuid.toString());
+		assertEquals(expectedOutput, actualOutput);
     	
 		// Tidy up
     	cacheReg.unregister();

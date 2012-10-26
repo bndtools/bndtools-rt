@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +23,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bndtools.rt.repository.api.QueryCache;
 import org.bndtools.rt.repository.marshall.CapReqJson;
+import org.bndtools.rt.repository.marshall.Link;
+import org.bndtools.rt.repository.marshall.LinkGenerator;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.service.repository.Repository;
@@ -62,7 +65,17 @@ public class RepositoryResource {
 		
 		StringWriter writer = new StringWriter();
 		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
+		
+		generator.writeStartObject();
+		generator.writeStringField("id", queryId);
+		
+		URI providersUri = uriInfo.getAbsolutePathBuilder().path("providers").build();
+		new LinkGenerator(generator).writeLinkArrayField(Collections.singletonList(new Link("providers", providersUri)));
+		
+		generator.writeFieldName("reqs");
 		CapReqJson.writeRequirementArray(query, generator);
+		generator.writeEndObject();
+		
 		generator.close();
 		
 		return writer.toString();

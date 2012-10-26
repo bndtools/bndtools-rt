@@ -1,0 +1,17 @@
+{
+	"id" : "%QUERY_ID%",
+	"links" : [
+		{ "rel" : "providers", "href" : "http://127.0.0.1:8080/repo/query/%QUERY_ID%/providers" } 
+	],
+	"reqs" : [
+		{
+			"ns" : "osgi.extender",
+			"dirs" : [
+				{
+					"name" : "filter",
+					"value" : "(osgi.extender=osgi.ds)"
+				}
+			]
+		}
+	]
+}
