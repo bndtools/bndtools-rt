@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.osgi.framework.Version;
+import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 
 import aQute.lib.io.IO;
@@ -23,7 +25,15 @@ public final class CapReqJson {
 	public static void writeRequirementArray(Collection<? extends Requirement> requirements, JsonGenerator generator) throws IOException {
 		generator.writeStartArray();
 		for (Requirement req : requirements) {
-			CapReqJson.writeRequirement(req, generator);
+			writeRequirement(req, generator);
+		}
+		generator.writeEndArray();
+	}
+	
+	public static void writeCapabilityArray(Collection<? extends Capability> capabilities, JsonGenerator generator) throws IOException {
+		generator.writeStartArray();
+		for (Capability cap : capabilities) {
+			writeCapability(cap, generator);
 		}
 		generator.writeEndArray();
 	}
@@ -53,8 +63,69 @@ public final class CapReqJson {
 		generator.writeEndObject();
 	}
 	
+	public static void writeCapability(Capability capability, JsonGenerator generator) throws IOException {
+		generator.writeStartObject();
+		generator.writeStringField("ns", capability.getNamespace());
+		
+		Map<String, Object> attrs = capability.getAttributes();
+		if (!attrs.isEmpty()) {
+			generator.writeArrayFieldStart("attrs");
+			for (Entry<String, Object> entry : attrs.entrySet()) {
+				writeAttribute(entry.getKey(), entry.getValue(), generator);
+			}
+			generator.writeEndArray();
+		}
+		
+		Map<String, String> dirs = capability.getDirectives();
+		if (!dirs.isEmpty()) {
+			generator.writeArrayFieldStart("dirs");
+			for (Entry<String, String> entry : dirs.entrySet()) {
+				writeDirective(entry.getKey(), entry.getValue(), generator);
+			}
+			generator.writeEndArray();
+		}
+		
+		generator.writeEndObject();
+	}
+	
+	public static void writeProviderArray(Map<Requirement, Collection<Capability>> providers, JsonGenerator generator) throws IOException {
+		generator.writeStartArray();
+		
+		for (Entry<Requirement, Collection<Capability>> provider : providers.entrySet()) {
+			generator.writeStartObject();
+			
+			generator.writeFieldName("req");
+			writeRequirement(provider.getKey(), generator);
+			
+			generator.writeFieldName("providers");
+			writeCapabilityArray(provider.getValue(), generator);
+			
+			generator.writeEndObject();
+		}
+		
+		generator.writeEndArray();
+	}
+	
 	private static void writeAttribute(String key, Object value, JsonGenerator generator) throws IOException {
-		throw new UnsupportedOperationException("TODO");
+		generator.writeStartObject();
+		generator.writeStringField("name", key);
+		if (value instanceof Version) {
+			generator.writeStringField("value", value.toString());
+			generator.writeStringField("type", "Version");
+		} else if (value instanceof Double || value instanceof Float) {
+			generator.writeStringField("value", value.toString());
+			generator.writeStringField("type", "Double");
+		} else if (value instanceof Long || value instanceof Integer) {
+			generator.writeStringField("value", value.toString());
+			generator.writeStringField("type", "Long");
+		} else if (value instanceof String) {
+			generator.writeStringField("value", (String) value);
+		} else if (value == null) {
+			throw new IOException("null values not supported");
+		} else {
+			throw new IOException("Unsupported value type " + value.getClass());
+		}
+		generator.writeEndObject();
 	}
 	
 	private static void writeDirective(String key, String value, JsonGenerator generator) throws IOException {

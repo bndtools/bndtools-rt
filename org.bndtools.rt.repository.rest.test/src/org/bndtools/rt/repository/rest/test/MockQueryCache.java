@@ -34,8 +34,7 @@ public class MockQueryCache implements QueryCache {
 
 	@Override
 	public Map<Requirement, Collection<Capability>> getSolution(UUID queryId, Repository repository) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return repository.findProviders(requirements);
 	}
 
 }

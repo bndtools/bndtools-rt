@@ -1,4 +1,4 @@
-Private-Package: org.bndtools.rt.repository.rest,\
+Private-Package: org.bndtools.rt.repository.server,\
 	org.bndtools.rt.repository.marshall
 REST-Alias: /repo
 REST-Classes: ${classes;CONCRETE;ANNOTATION;javax.ws.rs.Path}
