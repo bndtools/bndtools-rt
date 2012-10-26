@@ -1,0 +1,14 @@
+Private-Package: org.bndtools.rt.repository.rest.test,\
+	org.bndtools.rt.repository.rest,\
+	aQute.lib.io
+Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
+
+-buildpath:\
+	osgi.core;version='[4.2,5)',\
+	osgi.cmpn,\
+	junit.osgi,\
+	org.mockito.mockito-all,\
+	osgi.r5,\
+	org.restlet,\
+	biz.aQute.bndlib,\
+	org.bndtools.rt.repository.rest;version=project

@@ -1,0 +1,22 @@
+-buildpath: \
+	osgi.r5,\
+	osgi.core,\
+	osgi.cmpn,\
+	biz.aQute.bnd.annotation,\
+	biz.aQute.bndlib,\
+	biz.aQute.repository,\
+	aQute.libg,\
+	junit.osgi,\
+	javax.inject,\
+	javax.ws.rs.jsr311-api,\
+	org.bndtools.inject;version=snapshot,\
+	jackson-databind;version=2.0.0,\
+	jackson-core;version=2.0.0
+
+Private-Package: org.bndtools.rt.repository.rest
+Conditional-Package: aQute.lib*
+Export-Package: org.bndtools.rt.repository.api,\
+	org.osgi.resource;-split-package:=first
+
+REST-Alias: /repo
+REST-Classes: ${classes;CONCRETE;ANNOTATION;javax.ws.rs.Path}

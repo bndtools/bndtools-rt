@@ -1,0 +1,20 @@
+
+-runsystempackages: sun.reflect
+-runbundles: org.bndtools.rt.repository.rest;version=latest,\
+	org.bndtools.rt.repository.rest.test;version=latest,\
+	org.bndtools.rt.rest;version=latest,\
+	org.bndtools.inject;version=latest,\
+	jackson-annotations,\
+	jackson-core,\
+	jackson-databind,\
+	javax.inject,\
+	javax.ws.rs.jsr311-api,\
+	org.restlet,\
+	org.mockito.mockito-all,\
+	org.apache.felix.http.jetty,\
+	javax.servlet;version=2.5,\
+	osgi.cmpn;version=4.2
+-runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'
+-runee: JavaSE-1.6
+#-runproperties: org.osgi.framework.bootdelegation=sun.reflect
+-runvm: -ea
