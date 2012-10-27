@@ -7,8 +7,6 @@
 	jackson-core,\
 	jackson-databind,\
 	javax.inject,\
-	javax.ws.rs.jsr311-api,\
-	org.restlet,\
 	org.mockito.mockito-all,\
 	org.apache.felix.http.jetty,\
 	javax.servlet;version=2.5,\

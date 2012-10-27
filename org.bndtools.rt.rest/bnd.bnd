@@ -27,7 +27,7 @@ Import-Package:\
 	javax.mail;resolution:=optional,\
 	javax.mail.internet;resolution:=optional,\
 	javax.mail.util;resolution:=optional,\
-	com.sun.jersey.core.osgi;resolution:=optional,\
+	!com.sun.jersey.core.osgi,\
 	com.sun.net.httpserver;resolution:=optional,\
 	javax.xml.bind;resolution:=optional,\
 	javax.xml.bind.annotation;resolution:=optional,\

@@ -1,51 +1,57 @@
 package org.bndtools.rt.repository.rest.test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.StringWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Map.Entry;
+import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+
+import javax.ws.rs.core.MediaType;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
-import org.bndtools.rt.repository.api.QueryCache;
-import org.bndtools.rt.repository.marshall.CapReqBuilder;
-import org.bndtools.rt.repository.marshall.ResourceBuilder;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.Version;
-import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
-import org.osgi.resource.Resource;
-import org.osgi.service.repository.Repository;
-import org.restlet.Response;
-import org.restlet.data.MediaType;
-import org.restlet.data.Reference;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.ClientResource;
+import org.w3c.dom.Document;
 
-import aQute.bnd.service.IndexProvider;
 import aQute.lib.io.IO;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.WebResource;
 
 public class RepositoryRestTest extends TestCase {
 	
 	static {
 		try {
-			Thread.sleep(3000);
+			IO.deleteWithException(new File("generated/repodir1"));
+			IO.deleteWithException(new File("generated/repodir2"));
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
     private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-
+    
+    /*
 	public void testPostQueryAndReadBack() throws Exception {
     	// Setup the mock cache
     	MockQueryCache mockCache = new MockQueryCache();
@@ -137,86 +143,128 @@ public class RepositoryRestTest extends TestCase {
 		repoReg.unregister();
     }
     
-    public void testGetIndexes() throws Exception {
-    	// Setup the mocks
-    	MockIndexedRepository mockRepo = new MockIndexedRepository();
-    	
-    	List<URI> indexes = new ArrayList<URI>();
-    	indexes.add(new URI("file:///Users/njbartlett/repos/index.xml"));
-    	indexes.add(new URI("http://central.org/index.xml"));
-    	mockRepo.setIndexes(indexes);
-    	
-    	// Register the mocks
-		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
+    */
     
-		// GET the index list
-		ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/index");
-		client.setRetryOnError(false);
-		Representation rep = client.get(MediaType.APPLICATION_JSON);
-		
-		// Check the GET result
-		assertEquals(Status.SUCCESS_OK, client.getResponse().getStatus());
-		StringWriter writer = new StringWriter();
-		rep.write(writer);
-		String expectedOutput = IO.collect(RepositoryRestTest.class.getResourceAsStream("indexes.json")).replaceAll("\\s", "").replace("%REPO_URI%", "http://127.0.0.1:8080/repo/index/0");
-		String actualOutput = writer.toString().trim();
-		assertEquals(expectedOutput, actualOutput);
-		
-		// Tidy up
-		repoReg.unregister();
-    }
-    
-    public void testGetIndexContents() throws Exception {
-    	// Setup the mocks
-    	MockIndexedRepository mockRepo = new MockIndexedRepository();
-    	
-    	List<URI> indexes = new ArrayList<URI>();
-    	indexes.add(new URI("http://central.org/index.xml"));
-    	indexes.add(new File("testdata/index.xml").toURI());
-    	mockRepo.setIndexes(indexes);
-    	
-    	// Register the mocks
-		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
-		
+    public void testGetIndexContentsZippedToPlain() throws Exception {
 		// GET the index content
-		ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/index/1");
-		client.setRetryOnError(false);
-		Representation rep = client.get();
-		
-		// Check the GET result
-		assertEquals(Status.SUCCESS_OK, client.getResponse().getStatus());
-		StringWriter writer = new StringWriter();
-		rep.write(writer);
-		String expectedOutput = IO.collect(new File("testdata/index.xml"));
-		String actualOutput = writer.toString().trim();
-		assertEquals(expectedOutput, actualOutput);
-		
-		// Tidy up
-		repoReg.unregister();
-    }
-    
-    public void testGetExternalIndexContentNotAllowed() throws Exception {
-    	// Setup the mocks
-    	MockIndexedRepository mockRepo = new MockIndexedRepository();
-    	List<URI> indexes = new ArrayList<URI>();
-    	indexes.add(new URI("http://central.org/index.xml"));
-    	indexes.add(new File("testdata/index.xml").toURI());
-    	mockRepo.setIndexes(indexes);
+    	Client c = Client.create();
+    	WebResource resource = c.resource("http://127.0.0.1:8080/repo1/index");
+    	String result = resource.accept(MediaType.APPLICATION_XML).get(String.class);
     	
-    	// Register the mocks
-		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
-		
-		// Try to GET the index content
-		ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/index/0");
-		client.setRetryOnError(false);
-		client.setFollowingRedirects(false);
-		
-		client.get();
-		assertEquals(303, client.getResponse().getStatus().getCode());
-		assertEquals("http://central.org/index.xml", client.getResponse().getLocationRef().toString());
-		
-		// Tidy up
-		repoReg.unregister();
+		// Check the index XML
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(new ByteArrayInputStream(result.getBytes()));
+		assertEquals("repository", doc.getDocumentElement().getNodeName());
     }
     
+    public void testGetIndexContentsUnzipped() throws Exception {
+		// GET the index content
+    	Client c = Client.create();
+    	WebResource resource = c.resource("http://127.0.0.1:8080/repo2/index");
+    	String result = resource.accept(MediaType.APPLICATION_XML).get(String.class);
+    	
+		// Check the index XML
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(new ByteArrayInputStream(result.getBytes()));
+		assertEquals("repository", doc.getDocumentElement().getNodeName());
+    }
+    
+    public void testGetIndexContentsZipped() throws Exception {
+    	/*
+    	 * TODO
+    	 * 
+		// GET the index content
+    	Client c = Client.create();
+    	WebResource resource = c.resource("http://127.0.0.1:8080/repo1/index");
+    	ClientResponse response = resource
+    			.accept(MediaType.APPLICATION_XML)
+    			.header("Accept-Encoding", "compress, gzip")
+    			.get(ClientResponse.class);
+    	
+		// Check the index XML
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(new GZIPInputStream(response.getEntityInputStream()));
+		assertEquals("repository", doc.getDocumentElement().getNodeName());
+    	 */
+    }
+    
+    public void testPostNonBundle() throws Exception {
+		// Generate a JAR in memory
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Foo", "foo");
+		ByteArrayOutputStream bundleBuffer = new ByteArrayOutputStream();
+		generateJar(bundleBuffer, headers, 10, 10);
+		InputStream bundleInput = new ByteArrayInputStream(bundleBuffer.toByteArray());
+		
+		// POST the bundle
+		WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1");
+		ClientResponse response = resource.entity(bundleInput, MediaType.APPLICATION_OCTET_STREAM_TYPE)
+			.post(ClientResponse.class);
+		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    public void testPostBundle() throws Exception {
+		// Generate a JAR in memory
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
+		headers.put(Constants.BUNDLE_SYMBOLICNAME, "org.example.foo");
+		headers.put(Constants.BUNDLE_VERSION, "1.2.3.qualifier");
+		ByteArrayOutputStream bundleBuffer = new ByteArrayOutputStream();
+		generateJar(bundleBuffer, headers, 10, 10);
+		InputStream bundleInput = new ByteArrayInputStream(bundleBuffer.toByteArray());
+		
+		// POST the bundle
+		WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1");
+		ClientResponse response = resource.entity(bundleInput, new MediaType("application", "vnd.osgi.bundle"))
+				.post(ClientResponse.class);
+		URI location = response.getLocation();
+    	
+    	// Check the POST result
+		assertEquals(Status.CREATED.getStatusCode(), response.getStatus());
+    	assertEquals("http://127.0.0.1:8080/repo1/org.example.foo/org.example.foo-1.2.3.jar", location.toString());
+    }
+    
+    public void testReadBackBundle() throws Exception {
+    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1/org.example.foo/org.example.foo-1.2.3.jar");
+    	ClientResponse response = resource.get(ClientResponse.class);
+    	
+    	JarInputStream stream = new JarInputStream(response.getEntityInputStream());
+    	Manifest manifest = stream.getManifest();
+    	
+    	assertEquals("org.example.foo", manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME));
+    	assertEquals("1.2.3.qualifier", manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+    	
+    	stream.close();
+    }
+    
+	void generateJar(OutputStream output, Map<String, String> headers, int entryCount, int entryKb) throws IOException {
+		Manifest manifest = new Manifest();
+		Attributes attribs = manifest.getMainAttributes();
+		attribs.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+		for (Entry<String, String> entry : headers.entrySet()) {
+			attribs.putValue(entry.getKey(), entry.getValue());
+		}
+		
+		try {
+			JarOutputStream zipStream = new JarOutputStream(output, manifest);
+			zipStream.setLevel(Deflater.NO_COMPRESSION);
+			
+			for (int i = 0; i < entryCount; i++) {
+				String name = String.format("name%05d", i);
+				zipStream.putNextEntry(new ZipEntry(name));
+				
+				for (int j = 0 ; j < entryKb ; j++) {
+					byte[] buf = new byte[1024];
+					Arrays.fill(buf, (byte) 0xFF);
+					zipStream.write(buf);
+				}
+			}
+			zipStream.close();
+		} finally {
+			output.close();
+		}
+	}
 }

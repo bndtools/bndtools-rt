@@ -1,7 +1,12 @@
 Private-Package: org.bndtools.rt.repository.server,\
 	org.bndtools.rt.repository.marshall
-REST-Alias: /repo
-REST-Classes: ${classes;CONCRETE;ANNOTATION;javax.ws.rs.Path}
+	
+Include-Resource: @${repo;biz.aQute.repository;2.0.4}
+
 Export-Package: org.bndtools.rt.repository.api,\
 	org.osgi.resource,\
 	org.osgi.service.repository
+
+Service-Component: org.bndtools.rt.*
+
+Require-Capability: osgi.extender;filter:="(&(osgi.extender=bndtools.rt.rest)(version>=1.0)(!(version>=2.0)))"
