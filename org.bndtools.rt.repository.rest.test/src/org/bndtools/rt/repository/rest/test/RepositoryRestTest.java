@@ -31,7 +31,6 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 
 import aQute.bnd.service.IndexProvider;
 import aQute.lib.io.IO;
@@ -207,19 +206,17 @@ public class RepositoryRestTest extends TestCase {
     	// Register the mocks
 		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
 		
-		// GET the index content
+		// Try to GET the index content
 		ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/index/0");
 		client.setRetryOnError(false);
-		try {
-			client.get();
-			fail("Should throw BAD REQUEST");
-		} catch (ResourceException e) {
-			assertTrue(client.getResponse().getStatus().isClientError());
-		} finally {
-			// Tidy up
-			repoReg.unregister();
-		}
+		client.setFollowingRedirects(false);
 		
+		client.get();
+		assertEquals(303, client.getResponse().getStatus().getCode());
+		assertEquals("http://central.org/index.xml", client.getResponse().getLocationRef().toString());
+		
+		// Tidy up
+		repoReg.unregister();
     }
     
 }

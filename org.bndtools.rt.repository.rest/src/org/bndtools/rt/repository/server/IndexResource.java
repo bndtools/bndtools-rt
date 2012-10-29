@@ -75,20 +75,20 @@ public class IndexResource {
 	@GET
 	@Path("/{id}")
 	public Response getIndexContent(@PathParam("id") int id) throws Exception {
-		Response response;
-		
 		List<URI> locations = indexProvider.getIndexLocations();
 		if (id < 0 || id >= locations.size())
-			throw new WebApplicationException(Status.BAD_REQUEST);
+			throw new WebApplicationException(Status.NOT_FOUND);
 		
+		Response response;
 		URI location = locations.get(id);
 		if ("file".equals(location.getScheme())) {
 			File file = new File(location);
 			response = Response.ok(new FileInputStream(file), MediaType.APPLICATION_XML_TYPE).build();
-			return response;
+		} else {
+			response = Response.status(Status.SEE_OTHER).location(location).build();
 		}
 		
-		throw new WebApplicationException(Status.BAD_REQUEST);
+		return response;
 	}
 	
 }
