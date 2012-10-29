@@ -1,9 +1,12 @@
 package org.bndtools.rt.repository.rest.test;
 
 import java.io.StringWriter;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,6 +31,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ClientResource;
 
+import aQute.bnd.service.IndexProvider;
 import aQute.lib.io.IO;
 
 public class RepositoryRestTest extends TestCase {
@@ -74,7 +78,7 @@ public class RepositoryRestTest extends TestCase {
 		StringWriter writer = new StringWriter();
 		rep.write(writer);
 		String actualOutput = writer.toString().trim();
-		String expectedOutput = IO.collect(RepositoryRestTest.class.getResourceAsStream("query1-saved.json")).replaceAll("\\s", "").replaceAll("%QUERY_ID%", uuid.toString());
+		String expectedOutput = IO.collect(RepositoryRestTest.class.getResourceAsStream("query1-saved.json")).replaceAll("\\s", "").replace("%QUERY_ID%", uuid.toString());
 		assertEquals(expectedOutput, actualOutput);
     	
 		// Tidy up
@@ -126,6 +130,38 @@ public class RepositoryRestTest extends TestCase {
 		String expectedOutput = IO.collect(RepositoryRestTest.class.getResourceAsStream("result1.json")).replaceAll("\\s", "");
  		String actualOutput = providerOutput.toString().trim();
 		assertEquals(expectedOutput.trim(), actualOutput);
+		
+		// Tidy up
+		cacheReg.unregister();
+		repoReg.unregister();
+    }
+    
+    public void testGetIndexes() throws Exception {
+    	// Setup the mocks
+    	MockQueryCache mockCache = new MockQueryCache();
+    	MockIndexedRepository mockRepo = new MockIndexedRepository();
+    	
+    	List<URI> indexes = new ArrayList<URI>();
+    	indexes.add(new URI("file:///Users/njbartlett/repos/index.xml"));
+    	indexes.add(new URI("http://central.org/index.xml"));
+    	mockRepo.setIndexes(indexes);
+    	
+    	// Register the mocks
+    	ServiceRegistration cacheReg = context.registerService(QueryCache.class.getName(), mockCache, null);
+		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
+    
+		// GET the index list
+		ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/index");
+		client.setRetryOnError(false);
+		Representation rep = client.get(MediaType.APPLICATION_JSON);
+		
+		// Check the GET result
+		assertEquals(Status.SUCCESS_OK, client.getResponse().getStatus());
+		StringWriter writer = new StringWriter();
+		rep.write(writer);
+		String expectedOutput = IO.collect(RepositoryRestTest.class.getResourceAsStream("indexes.json")).replaceAll("\\s", "").replace("%REPO_URI%", "http://127.0.0.1:8080/repo/index/0");
+		String actualOutput = writer.toString().trim();
+		assertEquals(expectedOutput, actualOutput);
 		
 		// Tidy up
 		cacheReg.unregister();

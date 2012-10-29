@@ -13,7 +13,8 @@
 	org.apache.felix.http.jetty,\
 	javax.servlet;version=2.5,\
 	osgi.cmpn;version=4.2,\
-	org.bndtools.rt.repository.rest.server;version=latest
+	org.bndtools.rt.repository.rest.server;version=latest,\
+	biz.aQute.bndlib
 -runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'
 -runee: JavaSE-1.6
 #-runproperties: org.osgi.framework.bootdelegation=sun.reflect

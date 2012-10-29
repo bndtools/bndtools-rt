@@ -1,0 +1,10 @@
+[
+	{
+		"type" : "hosted",
+		"href" : "%REPO_URI%"
+	},
+	{
+		"type" : "ext",
+		"href" : "http://central.org/index.xml"
+	}
+]
