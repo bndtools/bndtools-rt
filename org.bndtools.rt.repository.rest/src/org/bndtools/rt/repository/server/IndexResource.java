@@ -1,5 +1,7 @@
 package org.bndtools.rt.repository.server;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.List;
@@ -7,9 +9,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.Status;
 
 import aQute.bnd.service.IndexProvider;
 
@@ -63,6 +70,25 @@ public class IndexResource {
 		gen.close();
 		
 		return writer.toString();
+	}
+	
+	@GET
+	@Path("/{id}")
+	public Response getIndexContent(@PathParam("id") int id) throws Exception {
+		Response response;
+		
+		List<URI> locations = indexProvider.getIndexLocations();
+		if (id < 0 || id >= locations.size())
+			throw new WebApplicationException(Status.BAD_REQUEST);
+		
+		URI location = locations.get(id);
+		if ("file".equals(location.getScheme())) {
+			File file = new File(location);
+			response = Response.ok(new FileInputStream(file), MediaType.APPLICATION_XML_TYPE).build();
+			return response;
+		}
+		
+		throw new WebApplicationException(Status.BAD_REQUEST);
 	}
 	
 }

@@ -1,5 +1,6 @@
 package org.bndtools.rt.repository.rest.test;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ClientResource;
+import org.restlet.resource.ResourceException;
 
 import aQute.bnd.service.IndexProvider;
 import aQute.lib.io.IO;
@@ -138,7 +140,6 @@ public class RepositoryRestTest extends TestCase {
     
     public void testGetIndexes() throws Exception {
     	// Setup the mocks
-    	MockQueryCache mockCache = new MockQueryCache();
     	MockIndexedRepository mockRepo = new MockIndexedRepository();
     	
     	List<URI> indexes = new ArrayList<URI>();
@@ -147,7 +148,6 @@ public class RepositoryRestTest extends TestCase {
     	mockRepo.setIndexes(indexes);
     	
     	// Register the mocks
-    	ServiceRegistration cacheReg = context.registerService(QueryCache.class.getName(), mockCache, null);
 		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
     
 		// GET the index list
@@ -164,8 +164,62 @@ public class RepositoryRestTest extends TestCase {
 		assertEquals(expectedOutput, actualOutput);
 		
 		// Tidy up
-		cacheReg.unregister();
 		repoReg.unregister();
+    }
+    
+    public void testGetIndexContents() throws Exception {
+    	// Setup the mocks
+    	MockIndexedRepository mockRepo = new MockIndexedRepository();
+    	
+    	List<URI> indexes = new ArrayList<URI>();
+    	indexes.add(new URI("http://central.org/index.xml"));
+    	indexes.add(new File("testdata/index.xml").toURI());
+    	mockRepo.setIndexes(indexes);
+    	
+    	// Register the mocks
+		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
+		
+		// GET the index content
+		ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/index/1");
+		client.setRetryOnError(false);
+		Representation rep = client.get();
+		
+		// Check the GET result
+		assertEquals(Status.SUCCESS_OK, client.getResponse().getStatus());
+		StringWriter writer = new StringWriter();
+		rep.write(writer);
+		String expectedOutput = IO.collect(new File("testdata/index.xml"));
+		String actualOutput = writer.toString().trim();
+		assertEquals(expectedOutput, actualOutput);
+		
+		// Tidy up
+		repoReg.unregister();
+    }
+    
+    public void testGetExternalIndexContentNotAllowed() throws Exception {
+    	// Setup the mocks
+    	MockIndexedRepository mockRepo = new MockIndexedRepository();
+    	List<URI> indexes = new ArrayList<URI>();
+    	indexes.add(new URI("http://central.org/index.xml"));
+    	indexes.add(new File("testdata/index.xml").toURI());
+    	mockRepo.setIndexes(indexes);
+    	
+    	// Register the mocks
+		ServiceRegistration repoReg = context.registerService(new String[] { Repository.class.getName(), IndexProvider.class.getName() }, mockRepo, null);
+		
+		// GET the index content
+		ClientResource client = new ClientResource("http://127.0.0.1:8080/repo/index/0");
+		client.setRetryOnError(false);
+		try {
+			client.get();
+			fail("Should throw BAD REQUEST");
+		} catch (ResourceException e) {
+			assertTrue(client.getResponse().getStatus().isClientError());
+		} finally {
+			// Tidy up
+			repoReg.unregister();
+		}
+		
     }
     
 }
