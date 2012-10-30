@@ -12,6 +12,7 @@
 
 	<target name="test">
 		<ant dir="org.bndtools.rt.rest.test" target="test"/>
+		<ant dir="org.bndtools.rt.repository.rest.test" target="test"/>
 	</target>
 
 	<target name="release">
