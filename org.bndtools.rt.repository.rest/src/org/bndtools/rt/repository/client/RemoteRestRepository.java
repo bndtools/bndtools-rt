@@ -1,6 +1,7 @@
 package org.bndtools.rt.repository.client;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
@@ -12,7 +13,13 @@ import java.util.TreeSet;
 
 import javax.ws.rs.core.UriBuilder;
 
+import aQute.bnd.deployer.http.DefaultURLConnector;
+import aQute.bnd.deployer.repository.CachingUriResourceHandle;
+import aQute.bnd.deployer.repository.CachingUriResourceHandle.CachingMode;
+import aQute.bnd.service.Registry;
+import aQute.bnd.service.RegistryPlugin;
 import aQute.bnd.service.RepositoryPlugin;
+import aQute.bnd.service.url.URLConnector;
 import aQute.bnd.version.Version;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -21,14 +28,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-public class RemoteRestRepository implements RepositoryPlugin {
+public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 	
 	public static String PROP_URL = "url";
 	public static String PROP_NAME = "name";
+	public static final String PROP_CACHE = "cache";
 	
+	private static final String DEFAULT_CACHE_DIR = ".bnd" + File.separator + "cache";
+
 	private final JsonFactory jsonFactory = new JsonFactory();
+	
+	private File cacheDir = new File(System.getProperty("user.home") + File.separator + DEFAULT_CACHE_DIR);
 	private URI baseUri;
 	private String name;
+	
+	private Registry registry;
 
 	public void setProperties(Map<String, String> configProps) throws Exception {
 		String baseUrlStr = configProps.get(PROP_URL);
@@ -37,6 +51,24 @@ public class RemoteRestRepository implements RepositoryPlugin {
 		baseUri = new URI(baseUrlStr);
 		
 		name = configProps.get(PROP_NAME);
+
+		String cachePath = configProps.get(PROP_CACHE);
+		if (cachePath != null) {
+			cacheDir = new File(cachePath);
+			if (!cacheDir.isDirectory())
+				try {
+					throw new IllegalArgumentException(String.format(
+							"Cache path '%s' does not exist, or is not a directory.", cacheDir.getCanonicalPath()));
+				}
+				catch (IOException e) {
+					throw new IllegalArgumentException("Could not get cacheDir canonical path", e);
+				}
+		}
+}
+	
+	@Override
+	public void setRegistry(Registry registry) {
+		this.registry = registry;
 	}
 
 	@Override
@@ -46,8 +78,12 @@ public class RemoteRestRepository implements RepositoryPlugin {
 
 	@Override
 	public File get(String bsn, Version version, Map<String, String> properties, DownloadListener... listeners) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		URLConnector connector = registry != null ? registry.getPlugin(URLConnector.class) : null;
+		if (connector == null) connector = new DefaultURLConnector();
+		
+		URI bundleUri = UriBuilder.fromUri(baseUri).path("bundles/{bsn}/{version}").build(bsn, version);
+		CachingUriResourceHandle handle = new CachingUriResourceHandle(bundleUri, cacheDir, connector, CachingMode.PreferRemote);
+		return handle.request();
 	}
 
 	@Override

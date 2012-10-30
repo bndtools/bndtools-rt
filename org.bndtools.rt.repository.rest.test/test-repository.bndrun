@@ -1,5 +1,5 @@
 
--runsystempackages: sun.reflect
+-runsystempackages: sun.reflect,javax.xml.stream;version=1.0
 -runbundles: org.bndtools.rt.repository.rest.test;version=latest,\
 	org.bndtools.rt.rest;version=latest,\
 	org.bndtools.inject;version=latest,\
