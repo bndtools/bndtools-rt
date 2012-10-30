@@ -25,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -74,22 +75,31 @@ public class RepositoryResourceComponent {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response list(@Context UriInfo uriInfo) throws Exception {
-		String query = uriInfo.getRequestUri().getQuery();
-		if (query == null || query.isEmpty())
-			throw new IllegalArgumentException("Empty query not allowed");
+	public Response query(@Context UriInfo uriInfo) throws Exception {
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		
-		List<String> list = repo.list(query);
+		List<String> patterns = queryParams.get("pattern");
+		if (patterns != null && !patterns.isEmpty()) {
+			return listBsns(patterns, uriInfo);
+		} else {
+			throw new IllegalArgumentException("Expected query parameters: 'pattern'.");
+		}
+	}
+	
+	private Response listBsns(List<String> patterns, UriInfo uriInfo) throws Exception {
 		UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder().path("{bsn}");
-		
 		StringWriter writer = new StringWriter();
 		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
 		generator.writeStartArray();
-		for (String bsn : list) {
-			generator.writeStartObject();
-			generator.writeStringField("bsn", bsn);
-			generator.writeStringField("href", uriBuilder.build(bsn).toString());
-			generator.writeEndObject();
+		
+		for (String pattern : patterns) {
+			List<String> list = repo.list(pattern);
+			for (String bsn : list) {
+				generator.writeStartObject();
+				generator.writeStringField("bsn", bsn);
+				generator.writeStringField("href", uriBuilder.build(bsn).toString());
+				generator.writeEndObject();
+			}
 		}
 		generator.writeEndArray();
 		generator.close();

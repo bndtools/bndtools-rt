@@ -60,7 +60,7 @@ public class RemoteRestRepository implements RepositoryPlugin {
 	public List<String> list(String pattern) throws Exception {
 		LinkedList<String> result = new LinkedList<String>();
 		
-		URI requestUri = UriBuilder.fromUri(baseUri).replaceQuery(pattern).build();
+		URI requestUri = UriBuilder.fromUri(baseUri).queryParam("pattern", pattern).build();
 		WebResource resource = Client.create().resource(requestUri);
 		String response = resource.get(String.class);
 		
