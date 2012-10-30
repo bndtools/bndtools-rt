@@ -159,6 +159,16 @@ public class RepositoryRestTest extends TestCase {
     	assertEquals(expected, result);
     }
     
+    public void testGetBundleContextByBsnAndVersion() {
+    	Client client = Client.create();
+    	client.setFollowRedirects(false);
+		WebResource resource = client.resource("http://127.0.0.1:8080/testrepo/bundles/org.example.foo/1.2.3.qualifier");
+    	ClientResponse response = resource.get(ClientResponse.class);
+    	assertEquals(Status.SEE_OTHER.getStatusCode(), response.getStatus());
+    	String location = response.getLocation().toString();
+		assertEquals("http://127.0.0.1:8080/testrepo/org.example.foo/org.example.foo-1.2.3.jar", location);
+    }
+    
     public void testGetIndexContentsZippedToPlain() throws Exception {
 		// GET the index content
     	Client c = Client.create();

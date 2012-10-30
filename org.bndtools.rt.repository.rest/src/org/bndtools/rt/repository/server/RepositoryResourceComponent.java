@@ -39,7 +39,10 @@ import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.metatype.Meta;
 import aQute.bnd.deployer.repository.LocalIndexedRepo;
 import aQute.bnd.service.RepositoryPlugin;
+import aQute.bnd.service.ResourceHandle;
+import aQute.bnd.service.Strategy;
 import aQute.bnd.service.RepositoryPlugin.PutResult;
+import aQute.bnd.service.ResourceHandle.Location;
 import aQute.bnd.version.Version;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -100,6 +103,29 @@ public class RepositoryResourceComponent {
 	}
 	
 	@GET
+	@Path("bundles/{bsn}/{version}")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getBundleByBsnAndVersion(@PathParam("bsn") String bsn, @PathParam("version") String versionStr) throws Exception {
+		ResourceHandle handle = repo.getHandle(bsn, versionStr, Strategy.EXACT, null);
+		if (handle == null)
+			return Response.status(Status.NOT_FOUND).build();
+		
+		UriBuilder uriBuilder = UriBuilder.fromResource(RepositoryResourceComponent.class).path("{bundlePath}");
+		
+		if (handle.getLocation() == Location.local) {
+			String bundlePath = handle.request().getCanonicalPath();
+			String prefix = storageDir.getAbsolutePath() + File.separatorChar;
+			if (bundlePath.startsWith(prefix)) {
+				bundlePath = bundlePath.substring(prefix.length());
+				URI bundleUri = uriBuilder.build(bundlePath);
+				
+				return Response.seeOther(bundleUri).build();
+			}
+		}
+		return Response.serverError().entity("Bundle is not available in the repository storage area").build();
+	}
+
+	@GET
 	@Path("bundles/{bsn}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response listVersions(@Context UriInfo uriInfo, @PathParam("bsn") String bsn) throws Exception {
@@ -111,7 +137,6 @@ public class RepositoryResourceComponent {
 		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
 		generator.writeStartArray();
 		for (Version version : versions) {
-			
 			generator.writeStartObject();
 			generator.writeStringField("bsn", bsn);
 			generator.writeStringField("version", version.toString());
@@ -123,7 +148,18 @@ public class RepositoryResourceComponent {
 		
 		return Response.ok(writer.toString(), MediaType.APPLICATION_JSON).build();
 	}
-
+	
+	@GET
+	@Path("{bsn}/{filename}")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getBundleContext(@PathParam("bsn") String bsn, @PathParam("filename") String filename) throws Exception {
+		File bundleFile = new File(storageDir, bsn + File.separatorChar + filename);
+		if (!bundleFile.isFile())
+			return Response.status(Status.NOT_FOUND).build();
+		
+		return Response.ok(new FileInputStream(bundleFile), MediaType.APPLICATION_OCTET_STREAM_TYPE).build();
+	}
+	
 	@GET
 	@Path("index")
 	@Produces(MediaType.APPLICATION_XML)
@@ -209,17 +245,6 @@ public class RepositoryResourceComponent {
 		} else {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("bundle not created as a local file").build();
 		}
-	}
-	
-	@GET
-	@Path("{bsn}/{filename}")
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response getBundle(@PathParam("bsn") String bsn, @PathParam("filename") String filename) throws Exception {
-		File bundleFile = new File(storageDir, bsn + File.separatorChar + filename);
-		if (!bundleFile.isFile())
-			return Response.status(Status.NOT_FOUND).build();
-		
-		return Response.ok(new FileInputStream(bundleFile), MediaType.APPLICATION_OCTET_STREAM_TYPE).build();
 	}
 	
 	private static Manifest readManifest(InputStream stream) throws IOException {
