@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -38,6 +39,10 @@ import aQute.bnd.annotation.metatype.Meta;
 import aQute.bnd.deployer.repository.LocalIndexedRepo;
 import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.service.RepositoryPlugin.PutResult;
+import aQute.bnd.service.ResourceHandle;
+import aQute.bnd.service.ResourceHandle.Location;
+import aQute.bnd.service.Strategy;
+import aQute.bnd.version.Version;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -121,6 +126,41 @@ public class RepositoryResourceComponent {
 		}
 		return response;
 	}
+	
+	@GET
+	@Path("{bsn}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listVersions(@Context UriInfo uriInfo, @PathParam("bsn") String bsn) throws Exception {
+		SortedSet<Version> versions = repo.versions(bsn);
+		
+		UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder().path("{filename}");
+		String prefix = new File(storageDir, bsn).getAbsolutePath() + File.separatorChar;
+		
+		StringWriter writer = new StringWriter();
+		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
+		generator.writeStartArray();
+		for (Version version : versions) {
+			ResourceHandle handle = repo.getHandle(bsn, version.toString(), Strategy.EXACT, null);
+			if (Location.local.equals(handle.getLocation())) {
+				String bundlePath = handle.request().getCanonicalPath();
+				if (bundlePath.startsWith(prefix)) {
+					bundlePath = bundlePath.substring(prefix.length());
+					URI bundleUri = uriBuilder.build(bundlePath);
+					
+					generator.writeStartObject();
+					generator.writeStringField("bsn", bsn);
+					generator.writeStringField("version", version.toString());
+					generator.writeStringField("href", bundleUri.toString());
+					generator.writeEndObject();
+				}
+			}
+		}
+		generator.writeEndArray();
+		generator.close();
+		
+		return Response.ok(writer.toString(), MediaType.APPLICATION_JSON).build();
+	}
+
 	
 	private static boolean isGZip(InputStream bufferedStream) throws IOException {
 		assert bufferedStream.markSupported();

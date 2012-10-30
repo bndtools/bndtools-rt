@@ -152,6 +152,13 @@ public class RepositoryRestTest extends TestCase {
     	assertEquals(expected, result);
     }
     
+    public void testVersions() throws Exception {
+    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/testrepo/org.example.foo");
+    	String result = resource.get(String.class);
+    	String expected = IO.collect(RepositoryRestTest.class.getResourceAsStream("versions.json")).replaceAll("\\s", "").replace("%REPO_URI_PREFIX%", "http://127.0.0.1:8080/testrepo");
+    	assertEquals(expected, result);
+    }
+    
     public void testGetIndexContentsZippedToPlain() throws Exception {
 		// GET the index content
     	Client c = Client.create();

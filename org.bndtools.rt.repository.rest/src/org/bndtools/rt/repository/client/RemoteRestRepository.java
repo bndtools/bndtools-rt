@@ -73,8 +73,21 @@ public class RemoteRestRepository implements RepositoryPlugin {
 
 	@Override
 	public SortedSet<Version> versions(String bsn) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		SortedSet<Version> result = new TreeSet<Version>();
+		
+		URI requestUri = UriBuilder.fromUri(baseUri).path(bsn).build();
+		WebResource resource = Client.create().resource(requestUri);
+		String response = resource.get(String.class);
+		
+		JsonNode rootNode = new ObjectMapper(jsonFactory).readTree(response);
+		Iterable<JsonNode> iterable = rootNode.isArray() ? rootNode : Collections.singletonList(rootNode);
+		for (JsonNode node : iterable) {
+			String versionStr = node.get("version").asText();
+			Version version = new Version(versionStr);
+			result.add(version);
+		}		
+		
+		return result;
 	}
 
 	@Override

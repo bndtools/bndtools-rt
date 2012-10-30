@@ -3,10 +3,13 @@ package org.bndtools.rt.repository.rest.test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 
 import junit.framework.TestCase;
 
 import org.bndtools.rt.repository.client.RemoteRestRepository;
+
+import aQute.bnd.version.Version;
 
 public class ClientPluginTest extends TestCase {
 	
@@ -31,5 +34,11 @@ public class ClientPluginTest extends TestCase {
 		List<String> list = repoPlugin.list("org.*");
 		assertEquals(1, list.size());
 		assertEquals("org.example.foo", list.get(0));
+	}
+	
+	public void testVersions() throws Exception {
+		SortedSet<Version> versions = repoPlugin.versions("org.example.foo");
+		assertEquals(1, versions.size());
+		assertEquals("1.2.3.qualifier", versions.iterator().next().toString());
 	}
 }
