@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -23,18 +24,20 @@ import com.sun.jersey.api.client.WebResource;
 public class RemoteRestRepository implements RepositoryPlugin {
 	
 	public static String PROP_URL = "url";
+	public static String PROP_NAME = "name";
 	
 	private final JsonFactory jsonFactory = new JsonFactory();
 	private URI baseUri;
+	private String name;
 
 	public void setProperties(Map<String, String> configProps) throws Exception {
 		String baseUrlStr = configProps.get(PROP_URL);
 		if (baseUrlStr == null)
 			throw new IllegalArgumentException(String.format("Attribute '%s' must be set on plugin %s.", PROP_URL, getClass()));
-	
 		baseUri = new URI(baseUrlStr);
+		
+		name = configProps.get(PROP_NAME);
 	}
-
 
 	@Override
 	public PutResult put(InputStream stream, PutOptions options) throws Exception {
@@ -92,14 +95,12 @@ public class RemoteRestRepository implements RepositoryPlugin {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return name != null ? name : baseUri.toString();
 	}
 
 	@Override
 	public String getLocation() {
-		// TODO Auto-generated method stub
-		return null;
+		return baseUri.toString();
 	}
 
 }
