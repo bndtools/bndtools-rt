@@ -146,14 +146,14 @@ public class RepositoryRestTest extends TestCase {
     */
     
     public void testList() throws Exception {
-    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/testrepo?pattern=org.*");
+    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/testrepo/bundles?pattern=org.*");
     	String result = resource.get(String.class);
     	String expected = IO.collect(RepositoryRestTest.class.getResourceAsStream("bsns.json")).replaceAll("\\s", "").replace("%REPO_URI_PREFIX%", "http://127.0.0.1:8080/testrepo");
     	assertEquals(expected, result);
     }
     
     public void testVersions() throws Exception {
-    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/testrepo/org.example.foo");
+    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/testrepo/bundles/org.example.foo");
     	String result = resource.get(String.class);
     	String expected = IO.collect(RepositoryRestTest.class.getResourceAsStream("versions.json")).replaceAll("\\s", "").replace("%REPO_URI_PREFIX%", "http://127.0.0.1:8080/testrepo");
     	assertEquals(expected, result);

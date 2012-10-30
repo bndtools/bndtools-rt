@@ -1,6 +1,6 @@
 [
  {
 	 "bsn" : "org.example.foo",
-	 "href" : "%REPO_URI_PREFIX%/org.example.foo"
+	 "href" : "%REPO_URI_PREFIX%/bundles/org.example.foo"
  }
 ]

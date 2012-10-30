@@ -60,7 +60,7 @@ public class RemoteRestRepository implements RepositoryPlugin {
 	public List<String> list(String pattern) throws Exception {
 		LinkedList<String> result = new LinkedList<String>();
 		
-		URI requestUri = UriBuilder.fromUri(baseUri).queryParam("pattern", pattern).build();
+		URI requestUri = UriBuilder.fromUri(baseUri).path("bundles").queryParam("pattern", pattern).build();
 		WebResource resource = Client.create().resource(requestUri);
 		String response = resource.get(String.class);
 		
@@ -78,7 +78,7 @@ public class RemoteRestRepository implements RepositoryPlugin {
 	public SortedSet<Version> versions(String bsn) throws Exception {
 		SortedSet<Version> result = new TreeSet<Version>();
 		
-		URI requestUri = UriBuilder.fromUri(baseUri).path(bsn).build();
+		URI requestUri = UriBuilder.fromUri(baseUri).path("bundles/{bsn}").build(bsn);
 		WebResource resource = Client.create().resource(requestUri);
 		String response = resource.get(String.class);
 		

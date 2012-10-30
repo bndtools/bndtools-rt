@@ -40,9 +40,6 @@ import aQute.bnd.annotation.metatype.Meta;
 import aQute.bnd.deployer.repository.LocalIndexedRepo;
 import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.service.RepositoryPlugin.PutResult;
-import aQute.bnd.service.ResourceHandle;
-import aQute.bnd.service.ResourceHandle.Location;
-import aQute.bnd.service.Strategy;
 import aQute.bnd.version.Version;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -74,19 +71,14 @@ public class RepositoryResourceComponent {
 	}
 	
 	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response query(@Context UriInfo uriInfo) throws Exception {
+	@Path("bundles")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listBundles(@Context UriInfo uriInfo) throws Exception {
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-		
 		List<String> patterns = queryParams.get("pattern");
-		if (patterns != null && !patterns.isEmpty()) {
-			return listBsns(patterns, uriInfo);
-		} else {
-			throw new IllegalArgumentException("Expected query parameters: 'pattern'.");
-		}
-	}
-	
-	private Response listBsns(List<String> patterns, UriInfo uriInfo) throws Exception {
+		if (patterns == null || patterns.isEmpty())
+			return Response.status(Status.BAD_REQUEST).entity("Bundle listing requires 'pattern' query parameter.").build();
+		
 		UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder().path("{bsn}");
 		StringWriter writer = new StringWriter();
 		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
@@ -107,6 +99,31 @@ public class RepositoryResourceComponent {
 		return Response.ok(writer.toString(), MediaType.APPLICATION_JSON).build();
 	}
 	
+	@GET
+	@Path("bundles/{bsn}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listVersions(@Context UriInfo uriInfo, @PathParam("bsn") String bsn) throws Exception {
+		SortedSet<Version> versions = repo.versions(bsn);
+		
+		UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder().path("{version}");
+		
+		StringWriter writer = new StringWriter();
+		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
+		generator.writeStartArray();
+		for (Version version : versions) {
+			
+			generator.writeStartObject();
+			generator.writeStringField("bsn", bsn);
+			generator.writeStringField("version", version.toString());
+			generator.writeStringField("href", uriBuilder.build(version).toString());
+			generator.writeEndObject();
+		}
+		generator.writeEndArray();
+		generator.close();
+		
+		return Response.ok(writer.toString(), MediaType.APPLICATION_JSON).build();
+	}
+
 	@GET
 	@Path("index")
 	@Produces(MediaType.APPLICATION_XML)
@@ -136,41 +153,6 @@ public class RepositoryResourceComponent {
 		}
 		return response;
 	}
-	
-	@GET
-	@Path("{bsn}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response listVersions(@Context UriInfo uriInfo, @PathParam("bsn") String bsn) throws Exception {
-		SortedSet<Version> versions = repo.versions(bsn);
-		
-		UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder().path("{filename}");
-		String prefix = new File(storageDir, bsn).getAbsolutePath() + File.separatorChar;
-		
-		StringWriter writer = new StringWriter();
-		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
-		generator.writeStartArray();
-		for (Version version : versions) {
-			ResourceHandle handle = repo.getHandle(bsn, version.toString(), Strategy.EXACT, null);
-			if (Location.local.equals(handle.getLocation())) {
-				String bundlePath = handle.request().getCanonicalPath();
-				if (bundlePath.startsWith(prefix)) {
-					bundlePath = bundlePath.substring(prefix.length());
-					URI bundleUri = uriBuilder.build(bundlePath);
-					
-					generator.writeStartObject();
-					generator.writeStringField("bsn", bsn);
-					generator.writeStringField("version", version.toString());
-					generator.writeStringField("href", bundleUri.toString());
-					generator.writeEndObject();
-				}
-			}
-		}
-		generator.writeEndArray();
-		generator.close();
-		
-		return Response.ok(writer.toString(), MediaType.APPLICATION_JSON).build();
-	}
-
 	
 	private static boolean isGZip(InputStream bufferedStream) throws IOException {
 		assert bufferedStream.markSupported();
