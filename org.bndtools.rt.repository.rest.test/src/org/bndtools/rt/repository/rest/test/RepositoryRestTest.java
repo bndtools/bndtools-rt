@@ -145,6 +145,13 @@ public class RepositoryRestTest extends TestCase {
     
     */
     
+    public void testList() throws Exception {
+    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/testrepo?org.*");
+    	String result = resource.get(String.class);
+    	String expected = IO.collect(RepositoryRestTest.class.getResourceAsStream("bsns.json")).replaceAll("\\s", "").replace("%REPO_URI_PREFIX%", "http://127.0.0.1:8080/testrepo");
+    	assertEquals(expected, result);
+    }
+    
     public void testGetIndexContentsZippedToPlain() throws Exception {
 		// GET the index content
     	Client c = Client.create();

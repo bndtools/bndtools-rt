@@ -1,0 +1,6 @@
+[
+ {
+	 "bsn" : "org.example.foo",
+	 "href" : "%REPO_URI_PREFIX%/org.example.foo"
+ }
+]

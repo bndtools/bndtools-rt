@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<?xml-stylesheet type='text/xsl' href='http://www.osgi.org/www/obr2html.xsl'?>
+
+<repository lastmodified='20121029232108.260' name='Untitled'>
+  <resource id='org.example.foo/1.2.3.qualifier' symbolicname='org.example.foo' uri='org.example.foo/org.example.foo-1.2.3.jar' version='1.2.3.qualifier'>
+    <size>
+      103801
+    </size>
+    <capability name='bundle'>
+      <p n='manifestversion' v='2'/>
+      <p n='symbolicname' v='org.example.foo'/>
+      <p n='version' t='version' v='1.2.3.qualifier'/>
+    </capability>
+  </resource>
+</repository>

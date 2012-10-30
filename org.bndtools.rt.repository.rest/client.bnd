@@ -1,7 +1,4 @@
-Private-Package: org.bndtools.rt.repository.rest.test,\
-	org.bndtools.rt.repository.marshall,\
-	aQute.lib.io
-
+Export-Package: org.bndtools.rt.repository.client
 Include-Resource: @${repo;com.sun.jersey.jersey-client;[1.12,1.13)},\
 	@${repo;com.sun.jersey.jersey-core;[1.12,1.13)}
 Import-Package: javax.activation;resolution:=optional,\
@@ -14,15 +11,3 @@ Import-Package: javax.activation;resolution:=optional,\
 	javax.xml.bind;resolution:=optional,\
 	javax.xml.bind.annotation;resolution:=optional,\
 	*
-
-Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
-
--buildpath: osgi.core;version='[4.2,5)',\
-	osgi.cmpn,\
-	junit.osgi,\
-	org.mockito.mockito-all,\
-	osgi.r5,\
-	biz.aQute.bndlib,\
-	org.bndtools.rt.repository.rest;version=project,\
-	com.sun.jersey.jersey-client,\
-	javax.ws.rs.jsr311-api

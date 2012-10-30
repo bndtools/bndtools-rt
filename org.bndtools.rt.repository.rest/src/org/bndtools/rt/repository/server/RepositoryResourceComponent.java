@@ -67,48 +67,29 @@ public class RepositoryResourceComponent {
 		storageDir = repo.getRoot().getCanonicalFile();
 	}
 	
-	private static enum RepoLinkType {
-		hosted, ext
-	}
-	
 	@GET
-	public String listIndexes(@Context UriInfo uriInfo) throws Exception {
-		List<URI> locations = repo.getIndexLocations();
+	@Produces(MediaType.APPLICATION_XML)
+	public Response list(@Context UriInfo uriInfo) throws Exception {
+		String query = uriInfo.getRequestUri().getQuery();
+		if (query == null || query.isEmpty())
+			throw new IllegalArgumentException("Empty query not allowed");
+		
+		List<String> list = repo.list(query);
+		UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder().path("{bsn}");
 		
 		StringWriter writer = new StringWriter();
-		JsonGenerator gen = jsonFactory.createJsonGenerator(writer);
-		
-		UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder().path("{filename}");
-		
-		gen.writeStartArray();
-		for (URI location : locations) {
-			RepoLinkType linkType;
-			URI hrefUri;
-			if ("file".equals(location.getScheme())) {
-				linkType = RepoLinkType.hosted;
-				File indexFile = new File(location).getCanonicalFile();
-				if (indexFile.getParentFile().equals(storageDir)) {
-					hrefUri = uriBuilder.build(indexFile.getName());
-				} else {
-					// Cannot provide file: URIs outside the storage dir
-					hrefUri = null;
-				}
-			} else {
-				linkType = RepoLinkType.ext;
-				hrefUri = location;
-			}
-
-			if (hrefUri != null) {
-				gen.writeStartObject();
-				gen.writeStringField("type", linkType.toString());
-				gen.writeStringField("href", hrefUri.toString());
-				gen.writeEndObject();
-			}
+		JsonGenerator generator = jsonFactory.createJsonGenerator(writer);
+		generator.writeStartArray();
+		for (String bsn : list) {
+			generator.writeStartObject();
+			generator.writeStringField("bsn", bsn);
+			generator.writeStringField("href", uriBuilder.build(bsn).toString());
+			generator.writeEndObject();
 		}
-		gen.writeEndArray();
-		gen.close();
+		generator.writeEndArray();
+		generator.close();
 		
-		return writer.toString();
+		return Response.ok(writer.toString(), MediaType.APPLICATION_JSON).build();
 	}
 	
 	@GET
