@@ -17,6 +17,7 @@
 
 	<target name="release">
 		<ant dir="org.bndtools.rt.rest" target="release"/>
+		<ant dir="org.bndtools.rt.repository.rest" target="release"/>
 	</target>
 
 	<target name="findbugs">

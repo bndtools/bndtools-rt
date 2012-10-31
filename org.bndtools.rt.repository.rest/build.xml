@@ -4,4 +4,15 @@
 	<!-- -->
 	
 	<import file="../cnf/build.xml"/>
+	
+    <target name="release" depends="template.release">
+    	<bndpackage runfile="run-repository.bndrun" output="${target}/main.jar"/>
+    	
+    	<zip file="${target}/repository.zip">
+    		<zipfileset file="${target}/main.jar"/>
+    		<zipfileset dir="load" prefix="load"/>
+    	</zip>
+    </target>
+
+	
 </project>
