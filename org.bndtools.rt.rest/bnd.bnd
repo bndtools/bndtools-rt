@@ -54,4 +54,7 @@ Import-Package:\
 	*
 Bundle-Activator: org.bndtools.rt.rest.Activator
 
-Provide-Capability: osgi.extender;osgi.extender=bndtools.rt.rest;version:Version=${Bundle-Version}
+Provide-Capability: osgi.extender;\
+	osgi.extender=bndtools.rt.rest;\
+	uses:="org.bndtools.inject,javax.ws.rs,javax.ws.rs.core,javax.ws.rs.ext";\
+	version:Version=${Bundle-Version}
