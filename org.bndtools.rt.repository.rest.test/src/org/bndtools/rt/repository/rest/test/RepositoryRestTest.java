@@ -224,7 +224,7 @@ public class RepositoryRestTest extends TestCase {
 		InputStream bundleInput = new ByteArrayInputStream(bundleBuffer.toByteArray());
 		
 		// POST the bundle
-		WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1");
+		WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1/bundles");
 		ClientResponse response = resource.entity(bundleInput, MediaType.APPLICATION_OCTET_STREAM_TYPE)
 			.post(ClientResponse.class);
 		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
@@ -241,18 +241,18 @@ public class RepositoryRestTest extends TestCase {
 		InputStream bundleInput = new ByteArrayInputStream(bundleBuffer.toByteArray());
 		
 		// POST the bundle
-		WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1");
+		WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1/bundles");
 		ClientResponse response = resource.entity(bundleInput, new MediaType("application", "vnd.osgi.bundle"))
 				.post(ClientResponse.class);
 		URI location = response.getLocation();
     	
     	// Check the POST result
 		assertEquals(Status.CREATED.getStatusCode(), response.getStatus());
-    	assertEquals("http://127.0.0.1:8080/repo1/org.example.foo/org.example.foo-1.2.3.jar", location.toString());
+    	assertEquals("http://127.0.0.1:8080/repo1/bundles/org.example.foo/1.2.3.qualifier", location.toString());
     }
     
     public void testReadBackBundle() throws Exception {
-    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1/org.example.foo/org.example.foo-1.2.3.jar");
+    	WebResource resource = Client.create().resource("http://127.0.0.1:8080/repo1/bundles/org.example.foo/1.2.3.qualifier");
     	ClientResponse response = resource.get(ClientResponse.class);
     	
     	JarInputStream stream = new JarInputStream(response.getEntityInputStream());

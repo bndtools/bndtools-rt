@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import aQute.bnd.deployer.http.DefaultURLConnector;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
@@ -73,7 +75,16 @@ public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 
 	@Override
 	public PutResult put(InputStream stream, PutOptions options) throws Exception {
-		return null;
+		URI postUri = UriBuilder.fromUri(baseUri).path("bundles").build();
+		WebResource resource = Client.create().resource(postUri);
+		ClientResponse response = resource.entity(stream, MediaType.APPLICATION_OCTET_STREAM_TYPE).post(ClientResponse.class);
+		URI location = response.getLocation();
+		
+		PutResult result = new PutResult();
+		result.artifact = location;
+		result.digest = null;
+		
+		return result;
 	}
 
 	@Override
@@ -88,8 +99,7 @@ public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 
 	@Override
 	public boolean canWrite() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

@@ -40,9 +40,8 @@ import aQute.bnd.annotation.metatype.Meta;
 import aQute.bnd.deployer.repository.LocalIndexedRepo;
 import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.service.ResourceHandle;
-import aQute.bnd.service.Strategy;
-import aQute.bnd.service.RepositoryPlugin.PutResult;
 import aQute.bnd.service.ResourceHandle.Location;
+import aQute.bnd.service.Strategy;
 import aQute.bnd.version.Version;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -219,6 +218,7 @@ public class RepositoryResourceComponent {
 		
 	
 	@POST
+	@Path("bundles")
 	@Consumes({ MediaType.APPLICATION_OCTET_STREAM, ProvisioningService.MIME_BUNDLE })
 	public Response uploadBundle(@Context UriInfo uriInfo, InputStream stream) throws Exception {
 		if (!repo.canWrite())
@@ -231,20 +231,13 @@ public class RepositoryResourceComponent {
 		String bsn = mainAttribs.getValue(Constants.BUNDLE_SYMBOLICNAME);
 		if (bsn == null)
 			return Response.status(Status.BAD_REQUEST).entity("not a bundle").build();
+		String versionStr = mainAttribs.getValue(Constants.BUNDLE_VERSION);
+		Version version = versionStr != null ? new Version(versionStr) : Version.emptyVersion;
 		
-		PutResult result = repo.put(bufferedStream, RepositoryPlugin.DEFAULTOPTIONS);
-		if ("file".equals(result.artifact.getScheme())) {
-			File bundleFile = new File(result.artifact).getCanonicalFile();
-			String prefix = storageDir.getAbsolutePath() + File.separatorChar;
-			if (!bundleFile.getAbsolutePath().startsWith(prefix))
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("bundle not created inside repository storage location").build();
-			
-			String relativePath = bundleFile.getAbsolutePath().substring(prefix.length());
-			URI location = uriInfo.getAbsolutePathBuilder().path(relativePath).build();
-			return Response.created(location).build();
-		} else {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("bundle not created as a local file").build();
-		}
+		URI bundleLocation = uriInfo.getAbsolutePathBuilder().path("{bsn}/{version}").build(bsn, version);
+		
+		repo.put(bufferedStream, RepositoryPlugin.DEFAULTOPTIONS);
+		return Response.created(bundleLocation).build();
 	}
 	
 	private static Manifest readManifest(InputStream stream) throws IOException {
