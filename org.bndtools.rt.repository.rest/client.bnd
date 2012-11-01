@@ -11,3 +11,5 @@ Import-Package: javax.activation;resolution:=optional,\
 	javax.xml.bind;resolution:=optional,\
 	javax.xml.bind.annotation;resolution:=optional,\
 	*
+Private-Package: org.json.simple,\
+	org.json.simple.parser

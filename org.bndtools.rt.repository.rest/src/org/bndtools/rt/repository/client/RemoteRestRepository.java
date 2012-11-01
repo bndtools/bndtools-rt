@@ -3,7 +3,9 @@ package org.bndtools.rt.repository.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.Collections;
@@ -16,6 +18,10 @@ import java.util.TreeSet;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import aQute.bnd.deployer.http.DefaultURLConnector;
 import aQute.bnd.deployer.repository.CachingUriResourceHandle;
 import aQute.bnd.deployer.repository.CachingUriResourceHandle.CachingMode;
@@ -26,10 +32,6 @@ import aQute.bnd.service.url.URLConnector;
 import aQute.bnd.version.Version;
 import aQute.lib.io.IO;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 	
 	public static String PROP_URL = "url";
@@ -38,8 +40,6 @@ public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 	
 	private static final String DEFAULT_CACHE_DIR = ".bnd" + File.separator + "cache";
 
-	private final JsonFactory jsonFactory = new JsonFactory();
-	
 	private File cacheDir = new File(System.getProperty("user.home") + File.separator + DEFAULT_CACHE_DIR);
 	private URI baseUri;
 	private String name;
@@ -132,13 +132,13 @@ public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 		
 		URI requestUri = new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(), baseUri.getPath() + "/bundles", "pattern=" + pattern, null);
 		InputStream stream = requestUri.toURL().openStream();
-		
 		try {
-			JsonNode rootNode = new ObjectMapper(jsonFactory).readTree(stream);
-			Iterable<JsonNode> iterable = rootNode.isArray() ? rootNode : Collections.singletonList(rootNode);
-			for (JsonNode node : iterable) {
-				String bsn = node.get("bsn").asText();
-				result.add(bsn);
+			Iterable<JSONObject> iterable = parseJSONObjectList(new InputStreamReader(stream));
+			for (JSONObject node : iterable) {
+				Object bsnNode = node.get("bsn");
+				if (bsnNode == null || !(bsnNode instanceof String))
+					throw new Exception("Missing or invalid 'bsn' field.");
+				result.add((String) bsnNode);
 			}
 		} finally {
 			IO.close(stream);
@@ -155,11 +155,12 @@ public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 		InputStream stream = requestUri.toURL().openStream();
 		
 		try {
-			JsonNode rootNode = new ObjectMapper(jsonFactory).readTree(stream);
-			Iterable<JsonNode> iterable = rootNode.isArray() ? rootNode : Collections.singletonList(rootNode);
-			for (JsonNode node : iterable) {
-				String versionStr = node.get("version").asText();
-				Version version = new Version(versionStr);
+			Iterable<JSONObject> iterable = parseJSONObjectList(new InputStreamReader(stream));
+			for (JSONObject node : iterable) {
+				Object versionNode = node.get("version");
+				if (versionNode == null || !(versionNode instanceof String))
+					throw new Exception("Missing or invalid 'version' field.");
+				Version version = new Version((String) versionNode);
 				result.add(version);
 			}
 		} finally {
@@ -167,6 +168,19 @@ public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 		}
 		
 		return result;
+	}
+	
+	private static Iterable<JSONObject> parseJSONObjectList(Reader reader) throws Exception {
+		Object root = new JSONParser().parse(reader);
+		if (root instanceof JSONArray) {
+			@SuppressWarnings("unchecked")
+			Iterable<JSONObject> result = (Iterable<JSONObject>) root;
+			return result;
+		} else if (root instanceof JSONObject) {
+			return Collections.singletonList((JSONObject) root);
+		} else {
+			throw new Exception("Root JSON node is neither an Array nor an Object.");
+		}
 	}
 
 	@Override
