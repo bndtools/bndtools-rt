@@ -10,9 +10,7 @@
 	javax.ws.rs.jsr311-api,\
 	org.bndtools.inject;version=snapshot,\
 	jackson-databind;version=2.0.0,\
-	jackson-core;version=2.0.0,\
-	com.sun.jersey.jersey-client,\
-	com.sun.jersey.jersey-core
+	jackson-core;version=2.0.0
 -sub: *.bnd
 
 Conditional-Package: aQute.lib*
