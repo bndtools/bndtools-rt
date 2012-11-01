@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,14 +26,16 @@ import org.json.simple.parser.JSONParser;
 import aQute.bnd.deployer.http.DefaultURLConnector;
 import aQute.bnd.deployer.repository.CachingUriResourceHandle;
 import aQute.bnd.deployer.repository.CachingUriResourceHandle.CachingMode;
+import aQute.bnd.service.Plugin;
 import aQute.bnd.service.Registry;
 import aQute.bnd.service.RegistryPlugin;
 import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.service.url.URLConnector;
 import aQute.bnd.version.Version;
 import aQute.lib.io.IO;
+import aQute.service.reporter.Reporter;
 
-public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
+public class RemoteRestRepository implements Plugin, RepositoryPlugin, RegistryPlugin {
 	
 	public static String PROP_URL = "url";
 	public static String PROP_NAME = "name";
@@ -40,17 +43,26 @@ public class RemoteRestRepository implements RepositoryPlugin, RegistryPlugin {
 	
 	private static final String DEFAULT_CACHE_DIR = ".bnd" + File.separator + "cache";
 
+	private Reporter reporter;
 	private File cacheDir = new File(System.getProperty("user.home") + File.separator + DEFAULT_CACHE_DIR);
 	private URI baseUri;
 	private String name;
 	
 	private Registry registry;
+	
+	public void setReporter(Reporter reporter) {
+		this.reporter = reporter;
+	}
 
-	public void setProperties(Map<String, String> configProps) throws Exception {
+	public void setProperties(Map<String, String> configProps) {
 		String baseUrlStr = configProps.get(PROP_URL);
 		if (baseUrlStr == null)
 			throw new IllegalArgumentException(String.format("Attribute '%s' must be set on plugin %s.", PROP_URL, getClass()));
-		baseUri = new URI(baseUrlStr);
+		try {
+			baseUri = new URI(baseUrlStr);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(String.format("Attribute '%s' is invalid on plugin %s.", PROP_URL, getClass()), e);
+		}
 		
 		name = configProps.get(PROP_NAME);
 
