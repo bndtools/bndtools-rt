@@ -1,0 +1,2 @@
+Export-Package: org.bndtools.service.endpoint
+Bundle-Name:  Bndtools Service APIs
