@@ -16,8 +16,11 @@
 	aQute.bnd.deployer.repository.FixedIndexedRepo; name=BundleHub;    locations=https://github.com/bndtools/bundle-hub/raw/master/index.xml.gz,\
 	aQute.lib.deployer.FileRepo;                    name=Build;        location=${workspace}/cnf/buildrepo
 
+-make                   =  \
+  (*).(jar);                             type=bnd;  recipe="bnd/$1.bnd"
 
 ## If you use git, you might want to uncomment the following lines:
-# Git-Descriptor: ${system-allow-fail;git describe --dirty --always}
-# Git-SHA: ${system-allow-fail;git rev-list -1 HEAD}
+Git-Descriptor: ${system-allow-fail;git describe --dirty --always}
+Git-SHA: ${system-allow-fail;git rev-list -1 HEAD}
 
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
