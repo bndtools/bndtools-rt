@@ -1,0 +1,9 @@
+Service-Component: *
+
+Private-Package: org.bndtools.rt.packager.mosquitto.guard,\
+	aQute.bnd.annotation.metatype,\
+	org.bndtools.service.mosquitto
+
+Require-Capability: packager.type;filter:="(packager.type=mosquitto)"
+Export-Package: org.bndtools.service.endpoint
+

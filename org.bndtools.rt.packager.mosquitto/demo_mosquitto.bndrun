@@ -1,0 +1,45 @@
+-runfw: org.apache.felix.framework;version='[4,5)'
+-runee: JavaSE-1.6
+
+-runbundles: org.bndtools.rt.packager.manager;version=latest,\
+	biz.aQute.bndlib;version='[2.0.0,2.0.1)',\
+	org.apache.felix.gogo.shell;version='[0.10.0,0.10.1)',\
+	jackson-databind;version='[2.0.0,2.0.1)',\
+	org.apache.felix.fileinstall;version='[3.2.4,3.2.5)',\
+	javax.inject;version='[1.0.0,1.0.1)',\
+	javax.servlet;version='[3.0.0,3.0.1)',\
+	org.bndtools.rt.packager.mosquitto.macos-x86_64;version=latest,\
+	org.apache.felix.configadmin;version='[1.4.0,1.4.1)',\
+	osgi.cmpn;version='[4.2.0,4.2.1)',\
+	org.bndtools.rt.packager.mosquitto.common;version=latest,\
+	jackson-annotations;version='[2.0.0,2.0.1)',\
+	org.bndtools.rt.packager.mosquitto.guard;version=latest,\
+	org.bndtools.rt.packager.mosquitto.client;version=latest,\
+	org.bndtools.rt.repository.rest.server;version=latest,\
+	org.apache.felix.gogo.runtime;version='[0.10.0,0.10.1)',\
+	org.eclipse.paho.client.mqttv3;version='[1.0.0,1.0.1)',\
+	org.apache.felix.scr;version='[1.6.0,1.6.1)',\
+	org.apache.felix.gogo.command;version='[0.12.0,0.12.1)',\
+	jackson-core;version='[2.0.0,2.0.1)',\
+	biz.aQute.repository;version='[2.0.4,2.0.5)',\
+	org.apache.felix.webconsole;version='[3.1.8,3.1.9)',\
+	com.springsource.javax.xml.stream;version='[1.0.1,1.0.2)',\
+	org.apache.felix.log;version='[1.0.1,1.0.2)',\
+	org.bndtools.rt.rest;version=latest,\
+	org.apache.felix.metatype;version='[1.0.4,1.0.5)',\
+	org.apache.felix.http.jetty;version='[2.2.0,2.2.1)'
+
+## Uncomment if you need to change the HTTP port
+#-runproperties: org.osgi.service.http.port=8080
+
+-runrequires: osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.configadmin)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.metatype)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.log)',\
+	osgi.identity;filter:='(&(osgi.identity=osgi.cmpn)(version>=4.2))',\
+	osgi.identity;filter:='(&(osgi.identity=org.apache.felix.scr)(version>=1.6.0))',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.packager.mosquitto.guard)',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.packager.mosquitto.client)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.fileinstall)'

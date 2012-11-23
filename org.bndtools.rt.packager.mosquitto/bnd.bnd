@@ -1,0 +1,10 @@
+-sub: *.bnd
+-buildpath: org.bndtools.service;version=latest,\
+	org.bndtools.rt.packager.manager;version=latest,\
+	biz.aQute.bndlib,\
+	osgi.core,\
+	osgi.cmpn;version=4.3,\
+	org.apache.felix.gogo.runtime,\
+	org.eclipse.paho.client.mqttv3
+
+Conditional-Package: aQute.lib*, aQute.bnd.annotation.metatype

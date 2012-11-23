@@ -1,0 +1,2 @@
+Private-Package: org.bndtools.rt.packager.mosquitto.client
+Service-Component: *
