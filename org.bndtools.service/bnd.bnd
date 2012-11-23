@@ -1,2 +1,3 @@
 Export-Package: org.bndtools.service.endpoint
 Bundle-Name:  Bndtools Service APIs
+-buildpath: biz.aQute.bnd.annotation

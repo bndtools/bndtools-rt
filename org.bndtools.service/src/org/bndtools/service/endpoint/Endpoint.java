@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.bndtools.service.endpoint;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * This is a marker interface for advertising the existence of an endpoint
  * defined by a URI and optionally a version.
@@ -17,6 +19,7 @@ package org.bndtools.service.endpoint;
  * @author Neil Bartlett <njbartlett@gmail.com>
  * 
  */
+@ProviderType
 public interface Endpoint {
 
 	/**
