@@ -1,0 +1,13 @@
+Private-Package: org.bndtools.rt.packager.mongodb.unix
+Include-Resource: data=mongo/linux64
+
+# this isn't supported yet by the resolver
+x-Require-Capability: \
+	packager.manager, \
+	osgi.native.environment;filter:="(& \
+		(osgi.native.environment.osname=Linux) \
+		(osgi.native.environment.processor=x86_64) \
+	)"
+
+Provide-Capability: packager.type;packager.type=mongodb;version:Version=2.2.0
+Service-Component: *

@@ -1,0 +1,9 @@
+# Package org.bndtools.service.mongodb needs to be included in Private-Package due to bnd bug #277
+Private-Package: org.bndtools.rt.packager.mongodb.guard,\
+	aQute.bnd.annotation.metatype,\
+	org.bndtools.service.mongodb
+
+Service-Component: *
+
+Require-Capability: packager.type;filter:="(packager.type=mongodb)"
+Export-Package: org.bndtools.service.endpoint

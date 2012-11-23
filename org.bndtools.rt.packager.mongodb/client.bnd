@@ -1,0 +1,8 @@
+Private-Package: org.bndtools.rt.packager.mongodb.client
+Service-Component: *
+
+Import-Package: org.apache.felix.service.command;resolution:=optional,\
+	*
+
+Bundle-Name: BndtoolsRT Packager Demo: MongoDB Client
+Bundle-Description: This bundle connects to an instance of MongoDB advertised via the Endpoint service interface, and offers a set of GoGo commands in the scope "mongodb:" for manipulating the database.
