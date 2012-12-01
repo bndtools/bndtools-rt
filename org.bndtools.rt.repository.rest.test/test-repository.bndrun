@@ -22,3 +22,6 @@
 -runee: JavaSE-1.6
 #-runproperties: org.osgi.framework.bootdelegation=sun.reflect
 -runvm: -ea
+
+# add to -runvm if debug required
+x-debug: -Xdebug, "-Xrunjdwp:transport=dt_socket,server=y,address=9001,suspend=y"
