@@ -2,8 +2,7 @@
 -runfw: org.apache.felix.framework
 -runsystempackages: sun.reflect
 -runee: JavaSE-1.6
--runbundles:\
-	org.bndtools.rt.rest.test.cases;version=latest,\
+-runbundles: org.bndtools.rt.rest.test.cases;version=latest,\
 	org.bndtools.rt.rest.test.example1;version=latest,\
 	org.bndtools.rt.rest.test.example2;version=latest,\
 	org.mockito.mockito-all,\
@@ -14,4 +13,5 @@
 	osgi.cmpn,\
 	org.restlet,\
 	org.bndtools.rt.rest;version=latest,\
-	org.apache.felix.webconsole;version='[3.1,4)'
+	org.apache.felix.webconsole;version='[3.1,4)',\
+	org.bndtools.service;version=latest

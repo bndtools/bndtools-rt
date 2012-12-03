@@ -5,12 +5,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.StringWriter;
+import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.bndtools.service.endpoint.Endpoint;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
@@ -20,9 +26,30 @@ import org.restlet.resource.ResourceException;
 public class RestAdapterTest extends TestCase {
 
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+	
+	public void testEndpointServiceRegistered() throws Exception {
+		Thread.sleep(5000);
+		
+		ServiceReference[] refs = context.getAllServiceReferences(Endpoint.class.getName(), null);
+		assertNotNull(refs);
+		assertEquals(3, refs.length);
+		
+		Set<String> expectedEndpoints = new HashSet<String>(Arrays.asList(new String[] {
+				"http://" + InetAddress.getLocalHost().getHostAddress() + ":8080/example1",
+				"http://" + InetAddress.getLocalHost().getHostAddress() + ":8080/example3",
+				"http://" + InetAddress.getLocalHost().getHostAddress() + ":8080/"
+		}));
+		
+		Set<String> actualEndpoints = new HashSet<String>();
+		for (ServiceReference ref : refs) {
+			actualEndpoints.add((String) ref.getProperty(Endpoint.URI));
+			assertEquals("*", ref.getProperty("service.exported.interfaces"));
+		}
+		
+		assertEquals(expectedEndpoints, actualEndpoints);
+	}
 
 	public void testSimpleSingleton() throws Exception {
-		Thread.sleep(3000);
 		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example1/foo");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();

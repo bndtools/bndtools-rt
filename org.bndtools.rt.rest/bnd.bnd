@@ -1,19 +1,22 @@
 -buildpath: osgi.core;version=4.3,\
-	osgi.cmpn;version=4.2,\
+	osgi.cmpn;version=4.3,\
 	javax.servlet,\
 	javax.inject,\
 	lib/jersey-core-1.12.jar;version=file,\
 	lib/jersey-server-1.12.jar;version=file,\
 	lib/jersey-servlet-1.12.jar;version=file,\
 	org.bndtools.inject;version=latest,\
-	ee.j2se;version='[1.5,1.6)'
+	org.bndtools.service;version=latest,\
+	ee.j2se;version='[1.5,1.6)',\
+	org.apache.felix.http.jetty
 
 Bundle-Version: 1.0.0
 Private-Package: org.bndtools.rt.rest
 Export-Package: org.bndtools.inject,\
 	javax.ws.rs;version=1.1.1,\
 	javax.ws.rs.core;version=1.1.1,\
-	javax.ws.rs.ext;version=1.1.1
+	javax.ws.rs.ext;version=1.1.1,\
+	org.bndtools.service.endpoint;provide:=true
 Conditional-Package: org.bndtools.rt.utils.*
 Include-Resource: lib=lib
 Bundle-ClassPath: lib/jersey-core-1.12.jar,\

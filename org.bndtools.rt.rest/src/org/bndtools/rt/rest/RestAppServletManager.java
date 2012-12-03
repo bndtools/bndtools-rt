@@ -1,9 +1,12 @@
 package org.bndtools.rt.rest;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,20 +14,38 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
 
+import org.bndtools.service.endpoint.Endpoint;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.service.remoteserviceadmin.RemoteConstants;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 public class RestAppServletManager {
 
-	private final HttpService httpService;
-	private final Map<String, ImmutableApplication> appMap = new HashMap<String, ImmutableApplication>();
+	private static final String SCHEME_HTTP = "http"; //$NON-NLS-1$
+	private static final String SCHEME_HTTPS = "https"; //$NON-NLS-1$
+	private static final String WILDCARD = "*"; //$NON-NLS-1$
 	
+	private final Map<String, ImmutableApplication> appMap = new HashMap<String, ImmutableApplication>();
+	private final Map<String, ServiceRegistration<?>> httpEndpointRegistrations = new HashMap<String, ServiceRegistration<?>>();
+	private final Map<String, ServiceRegistration<?>> httpsEndpointRegistrations = new HashMap<String, ServiceRegistration<?>>();
+	
+	private BundleContext context;
+	private final HttpService httpService;
+	private final int httpPort;
+	private final int httpsPort;
+	private final String hostName;
 	private final ImmutableApplication defaultApplication;
 	
-	public RestAppServletManager(HttpService httpService) {
+	public RestAppServletManager(BundleContext context, HttpService httpService, int httpPort, int httpsPort, String hostName) {
+		this.context = context;
 		this.httpService = httpService;
+		this.httpPort = httpPort;
+		this.httpsPort = httpsPort;
+		this.hostName = hostName;
 		
 		Set<Class<?>> defaultClasses = new HashSet<Class<?>>();
 		defaultClasses.add(InjectAnnotationInjectableProvider.class);
@@ -89,7 +110,7 @@ public class RestAppServletManager {
 		replaceAlias(alias, newApp);
 	}
 	
-	private void replaceAlias(String alias, Application application) throws ServletException, NamespaceException {
+	private synchronized void replaceAlias(String alias, Application application) throws ServletException, NamespaceException {
 		// Unregister old servlet for this alias
 		try {
 			httpService.unregister(alias);
@@ -98,18 +119,60 @@ public class RestAppServletManager {
 		}
 
 		// Register the servlet
-		if (application != null) {
+		if (application == null) {
+			unregisterEndpointServices(alias);
+		} else {
 			ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
 			try {
 				Thread.currentThread().setContextClassLoader(RestAppServletManager.class.getClassLoader());
 				ServletContainer servlet = new ServletContainer(application);
 				httpService.registerServlet(alias, servlet, null, null);
+				registerEndpointServices(alias);
 			} finally {
 				Thread.currentThread().setContextClassLoader(oldLoader);
 			}
 		}
 	}
+	
+	private synchronized void registerEndpointServices(String alias) {
+		if (httpPort > 0) {
+			try {
+				URI uri = new URI(SCHEME_HTTP, null, hostName, httpPort, alias, null, null);
+				Hashtable<String, String> props = new Hashtable<String, String>();
+				props.put(Endpoint.URI, uri.toString());
+				props.put(RemoteConstants.SERVICE_EXPORTED_INTERFACES, WILDCARD);
+				ServiceRegistration<?> reg = context.registerService(Endpoint.class.getName(), new Endpoint() {}, props);
+				httpEndpointRegistrations.put(alias, reg);
+			} catch (URISyntaxException e) {
+				// shouldn't happen
+				throw new RuntimeException(e);
+			}
+		}
+		
+		if (httpsPort > 0) {
+			try {
+				URI uri = new URI(SCHEME_HTTPS, null, hostName, httpsPort, alias, null, null);
+				Hashtable<String, String> props = new Hashtable<String, String>();
+				props.put(Endpoint.URI, uri.toString());
+				ServiceRegistration<?> reg = context.registerService(Endpoint.class.getName(), new Endpoint() {}, props);
+				httpsEndpointRegistrations.put(alias, reg);
+			} catch (URISyntaxException e) {
+				// shouldn't happen
+				throw new RuntimeException(e);
+			}
+		}
+	}
 
+	private synchronized void unregisterEndpointServices(String alias) {
+		ServiceRegistration<?> httpReg = httpEndpointRegistrations.remove(alias);
+		if (httpReg != null)
+			httpReg.unregister();
+
+		ServiceRegistration<?> httpsReg = httpsEndpointRegistrations.remove(alias);
+		if (httpsReg != null)
+			httpsReg.unregister();
+	}
+	
 	public void destroyAll() {
 		List<String> aliases;
 		synchronized (appMap) {
