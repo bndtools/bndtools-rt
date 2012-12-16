@@ -1,0 +1,16 @@
+-buildpath: osgi.core;version=4.1,osgi.cmpn;version=4.2
+Private-Package: org.bndtools.rt.caffeine
+Bundle-Activator: org.bndtools.rt.caffeine.CaffeineActivator
+Bundle-Version: 0.0.1
+Bundle-Name: Bndtools RT Caffeine
+Bundle-Description: This bundle can be used to "wake up" other bundles that incorrectly use the "Bundle-ActivationPolicy: lazy" setting.\n\
+	\n\
+	Some bundles (especially those supplied with Eclipse/Equinox) use lazy activation to avoid initialisation costs when\n\
+	the bundle functionality is not needed. This sometimes works in Eclipse, where the bundle can be activated through\n\
+	other means such as the Extension Registry; however in a pure OSGi there is nothing that will cause these bundles to\n\
+	actually be started. Therefore, this bundle exists to give them a shot of caffeine.\n\
+	\n\
+	The caffeine bundle works by detecting bundles in the STARTING state with lazy activation enabled, and forces them\n\
+	to start eagerly.	
+Bundle-Copyright: Neil Bartlett 2012
+Bundle-License: Eclipse Public Licence
