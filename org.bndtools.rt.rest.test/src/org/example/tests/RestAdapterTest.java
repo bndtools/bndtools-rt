@@ -16,10 +16,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.StringWriter;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -40,27 +41,29 @@ public class RestAdapterTest extends TestCase {
 	public void testEndpointServiceRegistered() throws Exception {
 		Thread.sleep(5000);
 		
+		List<String> endpointUris = new ArrayList<String>();
 		ServiceReference[] refs = context.getAllServiceReferences(Endpoint.class.getName(), null);
 		assertNotNull(refs);
-		assertEquals(3, refs.length);
-		
-		Set<String> expectedEndpoints = new HashSet<String>(Arrays.asList(new String[] {
-				"http://" + InetAddress.getLocalHost().getHostAddress() + ":8080/example1",
-				"http://" + InetAddress.getLocalHost().getHostAddress() + ":8080/example3",
-				"http://" + InetAddress.getLocalHost().getHostAddress() + ":8080/"
-		}));
-		
-		Set<String> actualEndpoints = new HashSet<String>();
 		for (ServiceReference ref : refs) {
-			actualEndpoints.add((String) ref.getProperty(Endpoint.URI));
 			assertEquals("*", ref.getProperty("service.exported.interfaces"));
+			endpointUris.add((String) ref.getProperty(Endpoint.URI));
 		}
+		Collections.sort(endpointUris);
+		String actualUris = endpointUris.toString();
 		
-		assertEquals(expectedEndpoints, actualEndpoints);
+		List<String> expectedEndpoints = new ArrayList<String>(Arrays.asList(new String[] {
+				"http://" + InetAddress.getLocalHost().getHostAddress() + ":18080/example1",
+				"http://" + InetAddress.getLocalHost().getHostAddress() + ":18080/example3",
+				"http://" + InetAddress.getLocalHost().getHostAddress() + ":18080/"
+		}));
+		Collections.sort(expectedEndpoints);
+		String expectedUris = endpointUris.toString();
+		
+		assertEquals(expectedUris, actualUris);
 	}
 
 	public void testSimpleSingleton() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example1/foo");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example1/foo");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -68,7 +71,7 @@ public class RestAdapterTest extends TestCase {
 	}
 	
 	public void testSingletonMissingMandatoryRef() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example2/foo");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example2/foo");
 		resource.setRetryOnError(false);
 		try {
 			resource.get(MediaType.TEXT_PLAIN);
@@ -84,7 +87,7 @@ public class RestAdapterTest extends TestCase {
 		
 		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, null);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example2/foo");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example2/foo");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -97,7 +100,7 @@ public class RestAdapterTest extends TestCase {
 	}
 	
 	public void testSimpleClassResource() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo1");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo1");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -106,7 +109,7 @@ public class RestAdapterTest extends TestCase {
 	
 
 	public void testClassResourceDefaultAlias() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/foo1");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/foo1");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -114,7 +117,7 @@ public class RestAdapterTest extends TestCase {
 	}
 	
 	public void testClassInjectionMissingMandatoryRef() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo2");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo2");
 		resource.setRetryOnError(false);
 		try {
 			resource.get(MediaType.TEXT_PLAIN);
@@ -136,7 +139,7 @@ public class RestAdapterTest extends TestCase {
 		
 		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, null);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo2");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo2");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -149,7 +152,7 @@ public class RestAdapterTest extends TestCase {
 	}
 
 	public void testClassInjectionUnsatisfiedOptionalRef() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo3");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo3");
 		resource.setRetryOnError(false);
 		
 		StringWriter output = new StringWriter();
@@ -162,7 +165,7 @@ public class RestAdapterTest extends TestCase {
 		
 		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, null);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo3");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo3");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -172,7 +175,7 @@ public class RestAdapterTest extends TestCase {
 	}
 
 	public void testClassInjectionUnsatisfiedOptionalRefAlternateOrder() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo4");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo4");
 		resource.setRetryOnError(false);
 		
 		StringWriter output = new StringWriter();
@@ -185,7 +188,7 @@ public class RestAdapterTest extends TestCase {
 		
 		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, null);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo4");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo4");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -199,7 +202,7 @@ public class RestAdapterTest extends TestCase {
 		
 		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, null);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo5");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo5");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -215,7 +218,7 @@ public class RestAdapterTest extends TestCase {
 		props.put("foo", "bar");
 		ServiceRegistration svcReg = context.registerService(Runnable.class.getName(), mockRunnable, props);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo5");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo5");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -231,7 +234,7 @@ public class RestAdapterTest extends TestCase {
 		ServiceRegistration svcReg1 = context.registerService(Runnable.class.getName(), mockRunnable1, null);
 		ServiceRegistration svcReg2 = context.registerService(Runnable.class.getName(), mockRunnable2, null);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo6");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo6");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -242,7 +245,7 @@ public class RestAdapterTest extends TestCase {
 	}
 	
 	public void testClassInjectionCollectionUnsatisfied() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo6");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo6");
 		resource.setRetryOnError(false);
 		try {
 			resource.get(MediaType.TEXT_PLAIN);
@@ -266,7 +269,7 @@ public class RestAdapterTest extends TestCase {
 		ServiceRegistration svcReg1 = context.registerService(Runnable.class.getName(), mockRunnable1, null);
 		ServiceRegistration svcReg2 = context.registerService(Runnable.class.getName(), mockRunnable2, null);
 		
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo7");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo7");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
@@ -277,7 +280,7 @@ public class RestAdapterTest extends TestCase {
 	}
 	
 	public void testClassInjectionCollectionOptionalUnsatisfied() throws Exception {
-		ClientResource resource = new ClientResource("http://127.0.0.1:8080/example3/foo7");
+		ClientResource resource = new ClientResource("http://127.0.0.1:18080/example3/foo7");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
