@@ -164,6 +164,7 @@ public class RestAppServletManager {
 				URI uri = new URI(SCHEME_HTTPS, null, hostName, httpsPort, alias, null, null);
 				Hashtable<String, String> props = new Hashtable<String, String>();
 				props.put(Endpoint.URI, uri.toString());
+				props.put(RemoteConstants.SERVICE_EXPORTED_INTERFACES, WILDCARD);
 				ServiceRegistration<?> reg = context.registerService(Endpoint.class.getName(), new Endpoint() {}, props);
 				httpsEndpointRegistrations.put(alias, reg);
 			} catch (URISyntaxException e) {

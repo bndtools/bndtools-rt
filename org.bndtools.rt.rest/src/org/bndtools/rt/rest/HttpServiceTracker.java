@@ -13,7 +13,6 @@ package org.bndtools.rt.rest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.felix.http.api.ExtHttpService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -45,7 +44,7 @@ public class HttpServiceTracker extends ServiceTracker {
 	
 	private static Filter createFilter(BundleContext context) {
 		try {
-			return context.createFilter(String.format("(&(%s=%s)(org.osgi.service.http.port=*))", Constants.OBJECTCLASS, ExtHttpService.class.getName()));
+			return context.createFilter(String.format("(&(%s=%s)(org.osgi.service.http.port=*))", Constants.OBJECTCLASS, HttpService.class.getName()));
 		} catch (InvalidSyntaxException e) {
 			// shouldn't happen
 			throw new RuntimeException(e);
@@ -69,17 +68,12 @@ public class HttpServiceTracker extends ServiceTracker {
 		@SuppressWarnings("unchecked")
 		HttpService httpService = (HttpService) context.getService(reference);
 		
-		int httpPort = -1;
-		boolean httpEnabled = "true".equals(reference.getProperty("org.apache.felix.http.enable"));
-		Object httpPortObj = reference.getProperty("org.osgi.service.http.port");
-		if (httpEnabled)
-			httpPort = convertIntProperty(httpPortObj, -1);
-			
-		int httpsPort = -1;
-		boolean httpsEnabled = "true".equals(reference.getProperty("org.apache.felix.https.enable"));
-		Object httpsPortObj = reference.getProperty("org.osgi.service.http.port.secure");
-		if (httpsEnabled)
-			httpsPort = convertIntProperty(httpsPortObj, -1);
+		int httpPort = convertIntProperty(reference.getProperty("org.osgi.service.http.port"), -1);
+		if ("false".equals(reference.getProperty("org.apache.felix.http.enable")))
+			httpPort = -1;
+		int httpsPort = convertIntProperty(reference.getProperty("org.osgi.service.http.port.secure"), -1);
+		if ("false".equals(reference.getProperty("org.apache.felix.https.enable")))
+			httpsPort = -1;
 		
 		String localhost;
 		try {
