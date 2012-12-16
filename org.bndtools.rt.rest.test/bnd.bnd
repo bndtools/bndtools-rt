@@ -1,4 +1,5 @@
--dependson: org.bndtools.rt.rest
+-dependson: org.bndtools.rt.rest,\
+	org.bndtools.rt.caffeine
 -buildpath: osgi.core;version='[4.2,5)',\
 	osgi.cmpn,\
 	junit.osgi,\
