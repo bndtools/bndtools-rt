@@ -12,6 +12,10 @@ package org.bndtools.rt.rest;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -24,7 +28,11 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class HttpServiceTracker extends ServiceTracker {
 	
+	private static final String FELIX_EXT_SERVICE = "org.apache.felix.http.api.ExtHttpService";
+	private static final String EQUINOX_EXT_SERVICE = "org.eclipse.equinox.http.servlet.ExtendedHttpService";
+	
 	private final LogService log;
+	
 
 	static final class Endpoint {
 		final RestAppServletManager manager;
@@ -44,7 +52,15 @@ public class HttpServiceTracker extends ServiceTracker {
 	
 	private static Filter createFilter(BundleContext context) {
 		try {
-			return context.createFilter(String.format("(&(%s=%s)(org.osgi.service.http.port=*))", Constants.OBJECTCLASS, HttpService.class.getName()));
+			String template = "" +
+					"(&" +
+					"	(%s=%s)" +
+					"	(|" +
+					"		(org.osgi.service.http.port=*)" +
+					"		(http.port=*)" +
+					"	)" +
+					")";
+			return context.createFilter(String.format(template, Constants.OBJECTCLASS, HttpService.class.getName()));
 		} catch (InvalidSyntaxException e) {
 			// shouldn't happen
 			throw new RuntimeException(e);
@@ -67,13 +83,27 @@ public class HttpServiceTracker extends ServiceTracker {
 	public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
 		@SuppressWarnings("unchecked")
 		HttpService httpService = (HttpService) context.getService(reference);
+
+		int httpPort;
+		int httpsPort;
 		
-		int httpPort = convertIntProperty(reference.getProperty("org.osgi.service.http.port"), -1);
-		if ("false".equals(reference.getProperty("org.apache.felix.http.enable")))
-			httpPort = -1;
-		int httpsPort = convertIntProperty(reference.getProperty("org.osgi.service.http.port.secure"), -1);
-		if ("false".equals(reference.getProperty("org.apache.felix.https.enable")))
+		Set<String> interfaces = getServiceInterfaces(reference);
+		if (interfaces.contains(FELIX_EXT_SERVICE)) {
+			if ("false".equals(reference.getProperty("org.apache.felix.http.enable")))
+				httpPort = -1;
+			else
+				httpPort = convertIntProperty(reference.getProperty("org.osgi.service.http.port"), -1);
+			
+			if ("false".equals(reference.getProperty("org.apache.felix.https.enable")))
+				httpsPort = -1;
+			else
+				httpsPort = convertIntProperty(reference.getProperty("org.osgi.service.http.port.secure"), -1);
+		} else if (interfaces.contains(EQUINOX_EXT_SERVICE)) {
+			httpPort = convertIntProperty(reference.getProperty("http.port"), -1);
 			httpsPort = -1;
+		} else {
+			httpPort = httpsPort = -1;
+		}
 		
 		String localhost;
 		try {
@@ -91,6 +121,15 @@ public class HttpServiceTracker extends ServiceTracker {
 		classTracker.open();
 		
 		return new Endpoint(manager, serviceTracker, classTracker);
+	}
+	
+	private static Set<String> getServiceInterfaces(@SuppressWarnings("rawtypes") ServiceReference ref) {
+		Object prop = ref.getProperty(Constants.OBJECTCLASS);
+		if (prop instanceof String)
+			return Collections.singleton((String) prop);
+		if (prop instanceof String[])
+			return new HashSet<String>(Arrays.asList((String[]) prop));
+		throw new IllegalArgumentException("Service objectclass property is neither a String nor String Array.");
 	}
 	
 	@Override
