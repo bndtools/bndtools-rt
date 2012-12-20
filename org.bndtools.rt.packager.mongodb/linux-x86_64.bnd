@@ -2,7 +2,7 @@ Private-Package: org.bndtools.rt.packager.mongodb.unix
 Include-Resource: data=mongo/linux64
 
 Require-Capability: \
-	packager.manager, \
+	packager.manager;filter:="(!(version>=2.0))", \
 	osgi.native;filter:="(& \
 		(osgi.native.osname=Linux) \
 		(osgi.native.processor=x86-64) \

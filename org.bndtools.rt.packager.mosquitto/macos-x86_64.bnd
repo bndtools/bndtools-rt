@@ -1,9 +1,8 @@
 Private-Package: org.bndtools.rt.packager.mosquitto.unix
 Include-Resource: data=mosquitto/macos64
 
-Require-Capability: packager.manager
-
-Require-Capability:\
+Require-Capability: \
+	packager.manager;filter:="(!(version>=2.0))", \
 	osgi.native;filter:="(& \
 		(osgi.native.osname=MacOSX) \
 		(osgi.native.processor=x86-64) \
