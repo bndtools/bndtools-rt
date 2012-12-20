@@ -3,12 +3,10 @@ Include-Resource: data=mosquitto/macos64
 
 Require-Capability: packager.manager
 
-# this isn't supported yet by the resolver
-x-Require-Capability:\
-	osgi.native.environment;filter:="(& \
-		(osgi.native.environment.osname=MacOSX) \
-		(osgi.native.environment.processor=x86_64) \
+Require-Capability:\
+	osgi.native;filter:="(& \
+		(osgi.native.osname=MacOSX) \
+		(osgi.native.processor=x86-64) \
 	)"
-
 Provide-Capability: packager.type;packager.type=mosquitto;version:Version=1.0.2
 Service-Component: *
