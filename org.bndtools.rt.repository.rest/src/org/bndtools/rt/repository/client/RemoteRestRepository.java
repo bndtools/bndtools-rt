@@ -47,8 +47,8 @@ import aQute.service.reporter.Reporter;
 
 public class RemoteRestRepository implements Plugin, RepositoryPlugin, RegistryPlugin {
 	
-	public static String PROP_URL = "url";
-	public static String PROP_NAME = "name";
+	public static final String PROP_URL = "url";
+	public static final String PROP_NAME = "name";
 	public static final String PROP_CACHE = "cache";
 	
 	private static final String DEFAULT_CACHE_DIR = ".bnd" + File.separator + "cache";
