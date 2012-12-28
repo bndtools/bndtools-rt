@@ -1,5 +1,6 @@
 -sub: *.bnd
--buildpath: org.bndtools.service;version=latest,\
+-buildpath: ee.j2se;version=${javac.ee},\
+	org.bndtools.service;version=latest,\
 	org.bndtools.rt.packager.api;version=latest,\
 	biz.aQute.bndlib,\
 	osgi.core,\

@@ -10,5 +10,5 @@
 	javax.inject,\
 	org.bndtools.inject;version=latest,\
 	org.bndtools.service;version=latest,\
-	ee.j2se;version='[1.5,1.6)'
+	ee.j2se;version=${javac.ee}
 -sub: *.bnd

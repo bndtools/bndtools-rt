@@ -1,4 +1,5 @@
--buildpath: osgi.core;version=4.1,osgi.cmpn;version=4.2
+-buildpath: ee.j2se;version=${javac.ee},\
+	osgi.core;version=4.1,osgi.cmpn;version=4.2
 Private-Package: org.bndtools.rt.caffeine
 Bundle-Activator: org.bndtools.rt.caffeine.CaffeineActivator
 Bundle-Version: 0.0.1

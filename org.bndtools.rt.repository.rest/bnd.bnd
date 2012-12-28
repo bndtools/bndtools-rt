@@ -1,4 +1,5 @@
--buildpath: osgi.r5,\
+-buildpath: ee.j2se;version=${javac.ee},\
+	osgi.r5,\
 	osgi.core,\
 	osgi.cmpn,\
 	biz.aQute.bnd.annotation,\
