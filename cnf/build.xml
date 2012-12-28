@@ -24,6 +24,12 @@
 	
 	<!-- Insert taskdef for findbugs -->
 	<target name="init" depends="template.init">
+		<taskdef resource="net/sf/antcontrib/antlib.xml">
+			<classpath>
+				<pathelement location="${workspacedir}/cnf/ant-contrib/ant-contrib-1.0b3.jar"/>
+			</classpath>
+		</taskdef>
+
 		<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
 			<classpath>
 				<fileset dir="${workspacedir}/cnf/findbugs/lib">
