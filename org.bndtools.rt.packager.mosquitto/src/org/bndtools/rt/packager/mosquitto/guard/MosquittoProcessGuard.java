@@ -39,7 +39,7 @@ public class MosquittoProcessGuard implements ProcessGuard {
 
 	private ServiceRegistration reg = null;
 	
-	void activate(BundleContext context, Map<String, Object> configProps) throws Exception {
+	synchronized void activate(BundleContext context, Map<String, Object> configProps) throws Exception {
 		this.context = context;
 		this.configProps = configProps;
 		this.config = Configurable.createConfigurable(MosquittoProperties.class, configProps);
