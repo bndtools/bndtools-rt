@@ -3,5 +3,6 @@
 /*/generated/
 /cnf/cache/
 .DS_Store
+.ant-targets-build.xml
 .*.swp
 *~
