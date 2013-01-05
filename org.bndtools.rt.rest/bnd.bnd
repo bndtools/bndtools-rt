@@ -58,5 +58,9 @@ Bundle-Activator: org.bndtools.rt.rest.Activator
 
 Provide-Capability: osgi.extender;\
 	osgi.extender=bndtools.rt.rest;\
+	version:Version=${Bundle-Version};\
 	uses:="org.bndtools.inject,javax.ws.rs,javax.ws.rs.core,javax.ws.rs.ext";\
-	version:Version=${Bundle-Version}
+	effective:=active
+Require-Capability: osgi.service;\
+	filter:="(objectClass=org.osgi.service.http.HttpService)";\
+	effective:=active
