@@ -1,0 +1,2 @@
+Private-Package: org.bndtools.rt.timer.test.b1
+Service-Component: org.bndtools.rt.timer.test.b1.*;
