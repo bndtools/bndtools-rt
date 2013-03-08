@@ -1,0 +1,4 @@
+Private-Package: org.bndtools.rt.timer.test
+
+Export-Package: org.osgi.service.deploymentadmin
+Test-Cases: org.bndtools.rt.timer.test.TimerServiceTest
