@@ -3,9 +3,7 @@
 	osgi.cmpn,\
 	biz.aQute.bnd.annotation,\
 	junit.osgi
-Bundle-Version: 1.0.0
-Private-Package: org.bndtools.rt.timer
-Service-Component: *
+
 -runee: J2SE-1.5
 -runrequires: osgi.identity;filter:='(osgi.identity=org.apache.felix.scr)',\
 	osgi.identity;filter:='(osgi.identity=osgi.cmpn)',\
@@ -15,6 +13,10 @@ Service-Component: *
 	org.apache.felix.scr;version='[1.6.2,1.6.3)',\
 	osgi.cmpn;version='[4.2.0,4.2.1)'
 Bundle-Name: Timer bundle
-Bundle-Description: This bundle provides the java.util.Timer as a service in an OSGi environment.
+Bundle-Description: ${cat;README.md}
 Bundle-Category: Utility
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html;description=Eclipse Public License Version 1.0
+Bundle-Version: 1.0.0
+Private-Package: org.bndtools.rt.timer
+Service-Component: *
+Include-Resource: {README.md}
