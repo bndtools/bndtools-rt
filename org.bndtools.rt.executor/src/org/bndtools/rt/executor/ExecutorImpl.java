@@ -12,9 +12,19 @@ import aQute.bnd.annotation.metatype.*;
 
 import static java.lang.Math.*;
 
+/**
+ * This bundle provides an instance/instances of implementations of the java.util.concurrent.Executor 
+ * interface, which is/are shared between all bundles.
+ * 
+ * @see <a href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/Executor.html">java.util.concurrent.Executor</a> 
+ */
 @Component(designateFactory = Config.class, configurationPolicy = ConfigurationPolicy.require, servicefactory = true)
 public class ExecutorImpl implements Executor {
 
+	/**
+	 *  Configuration parameters expected from the Config Admin
+	 *
+	 */
 	interface Config {
 		enum Type {
 			FIXED, CACHED, SINGLE
@@ -29,6 +39,10 @@ public class ExecutorImpl implements Executor {
 		int size();
 	}
 	
+	/**
+	 *  Internal representation of the underlying (shared) instances of the thread pool, associated with the number
+	 *  of bundles using them
+	 */
 	class EsHolder {
 		ExecutorService staticEs;
 		int counter;
@@ -67,9 +81,14 @@ public class ExecutorImpl implements Executor {
 	
 	static Map<String, EsHolder> holders = new HashMap<String,ExecutorImpl.EsHolder>();
 
-	List<Future< ? >>		futures			= new ArrayList<Future< ? >>();
-	ExecutorService			es;
+	List<Future< ? >>		futures			= new ArrayList<Future< ? >>();		// List of tasks submitted by one bundle
+	ExecutorService			es;													// Executor implementation used the bundle
 	
+	/**
+	 * Creates a new instance of the underlying implementation of the executor service (depending on the configuration
+	 * parameters) if needed, or returns a pre-existing instance of this service, shared by all bundles.
+	 * @param properties Configuration parameters, passed by the framework
+	 */
 	@Activate
 	void activate(Map<String,Object> properties) {
 		
@@ -83,6 +102,10 @@ public class ExecutorImpl implements Executor {
 		
 	}
 
+	/**
+	 * Cancels the tasks submitted by the exiting bundle, shutting down the executor service if no more bundle is using it
+	 * @param properties Configuration parameters, passed by the framework
+	 */
 	@Deactivate
 	void deactivate(Map<String,Object> properties) {
 		
