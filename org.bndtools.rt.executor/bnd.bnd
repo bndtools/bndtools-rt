@@ -24,3 +24,8 @@ Service-Component: *
 	org.apache.felix.webconsole;version='[3.1.8,3.1.9)'
 -runtrace: false
 	
+Bundle-Name: Executor bundle
+Bundle-Description: ${cat;README.md}
+Bundle-Category: Utility
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html;description=Eclipse Public License Version 1.0
+Include-Resource: {README.md}
