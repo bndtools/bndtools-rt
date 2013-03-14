@@ -1,8 +1,9 @@
 package org.bndtools.rt.executor;
 
+import static java.lang.Math.*;
+
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
 
 import org.bndtools.rt.executor.ExecutorImpl.Config;
 import org.bndtools.rt.executor.ExecutorImpl.Config.Type;
@@ -10,11 +11,9 @@ import org.bndtools.rt.executor.ExecutorImpl.Config.Type;
 import aQute.bnd.annotation.component.*;
 import aQute.bnd.annotation.metatype.*;
 
-import static java.lang.Math.*;
-
 /**
  * This bundle provides a java.util.concurrent.Executor service that can
- * configured (for multiple instances) and is shared between all bundles.
+ * be configured (for multiple instances) and is shared between all bundles.
  * 
  * @see <a
  *      href="http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/Executor.html">java.util.concurrent.Executor</a>
@@ -31,8 +30,8 @@ public class ExecutorImpl implements Executor {
 		}
 
 		int service_ranking();
-		int service_pid();
-		int service_factoryPid();
+		String service_pid();
+		String service_factoryPid();
 
 		Type type();
 
@@ -48,13 +47,10 @@ public class ExecutorImpl implements Executor {
 	static class EsHolder {
 		ExecutorService	staticEs;
 		int				counter;
-
-		
-		// pk: why not pass the config object? do the createConfigurable in activate? Is cleaner I think
  		
-		EsHolder(Map<String,Object> properties) {
+		EsHolder(Config config) {
 			counter = 0;
-			Config config = Configurable.createConfigurable(Config.class, properties);
+
 			Type t = config.type();
 			if (t == null)
 				t = Config.Type.FIXED;
@@ -84,20 +80,60 @@ public class ExecutorImpl implements Executor {
 		}
 	}
 
-	static Map<String,EsHolder>	holders	= new HashMap<String,ExecutorImpl.EsHolder>();
+	/**
+	 *  Wrapper around the runnable passed by the using bundle
+	 *  This wrapper gets a future object corresponding to its task
+	 *  once it is created, which allows it:
+	 *    - to add it to a per instance list of futures (in order
+	 *    	to be able to cancel tasks pertaining to an exiting bundle
+	 *    - to remove this future from the list of futures once the task
+	 *    	is finished (and does not have to be cancelled anymore)
+	 *
+	 */
+	class Wrapper implements Runnable {
 
-	List<Future< ? >>			futures	= new ArrayList<Future< ? >>();				// List
-																						// of
-																						// tasks
-																						// submitted
-																						// by
-																						// one
-																						// bundle
-	ExecutorService				es;													// Executor
-																						// implementation
-																						// used
-																						// the
-																						// bundle
+		Runnable	runnable;
+		Future< ? >	future	= null;
+
+		boolean		done	= false;
+
+		Wrapper( Runnable command) {
+			runnable = command;
+		}
+
+		void setFuture(Future< ? > f) {
+			this.future = f;
+			synchronized (futures) {
+				if (!done) {
+					futures.add(f);
+				}
+			}
+		}
+
+		@Override
+		public void run() {
+			try {
+				runnable.run();
+			}
+			finally {
+				synchronized (futures) {
+					if (future != null) {
+						futures.remove(future);
+					}
+					done = true;
+				}
+
+			}
+		}
+	}
+
+
+	static ConcurrentHashMap<String,EsHolder> holders = new ConcurrentHashMap<String,ExecutorImpl.EsHolder>();
+	// List of tasks submitted by one bundle
+	List<Future< ? >> futures = new ArrayList<Future< ? >>();
+	String servicePid;
+	// Executor implementation used by the bundle
+	ExecutorService	es;
 
 	/**
 	 * Creates a new instance of the underlying implementation of the executor
@@ -110,16 +146,11 @@ public class ExecutorImpl implements Executor {
 	@Activate
 	void activate(Map<String,Object> properties) {
 
-		// pk: you could use es = ConcurrentHashMap<EsHolder>.getIfAbsent( pid, new EsHolder(config))
-		// does not need synchronized then
+		Config config = Configurable.createConfigurable(Config.class, properties);
+		servicePid = config.service_pid();
 		
-		synchronized (holders) {
-			// pk: user config object ...?
-			String pid = (String) properties.get("service.pid");
-			if (!holders.containsKey(pid)) {
-				holders.put(pid, new EsHolder(properties));
-			}
-			es = holders.get(pid).getEs();
+		synchronized(holders) {
+			es = holders.putIfAbsent(servicePid, new EsHolder(config)).getEs();
 		}
 
 	}
@@ -132,7 +163,7 @@ public class ExecutorImpl implements Executor {
 	 *            Configuration parameters, passed by the framework
 	 */
 	@Deactivate
-	void deactivate(Map<String,Object> properties) {
+	void deactivate() {
 
 		
 		synchronized (futures) {
@@ -142,11 +173,10 @@ public class ExecutorImpl implements Executor {
 		}
 
 		synchronized (holders) {
-			// pk: the pid is used several times, I would make it a field
-			String pid = (String) properties.get("service.pid");
-			holders.get(pid).unget();
-			if (holders.get(pid).counter == 0) {
-				holders.remove(pid);
+			EsHolder holder = holders.get(servicePid);
+			holder.unget();
+			if (holder.counter == 0) {
+				holders.remove(servicePid);
 			}
 		}
 
@@ -159,49 +189,4 @@ public class ExecutorImpl implements Executor {
 		w.setFuture(f);
 	}
 
-	class Wrapper implements Runnable {
-
-		// pk: fields with one name are not very instructive
-		// better to use descriptive names and leave the single
-		// character names for loops, or local vars where their
-		// declaration is in close sight.
-		
-		Runnable		r;
-		Future< ? >		f		= null;
-		
-		// pk: can use normal boolean
-		AtomicBoolean	done	= new AtomicBoolean();
-
-		Wrapper( Runnable command) {
-			
-			// pk: why yet another inner class? Just let Wrapper implement Runnable?
-			
-			r = command;
-		}
-
-		void setFuture(Future< ? > f) {
-			this.f = f;
-			synchronized (futures) {
-				if (!done.get()) {
-					futures.add(f);
-				}
-			}
-		}
-
-		@Override
-		public void run() {
-			try {
-				r.run();
-			}
-			finally {
-				synchronized (futures) {
-					if (f != null) {
-						futures.remove(f);
-					}
-					done.set(true);
-				}
-
-			}
-		}
-	}
 }
