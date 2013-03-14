@@ -22,7 +22,6 @@
 	osgi.cmpn,\
 	biz.aQute.bnd.annotation,\
 	junit.osgi,\
-	aQute.dstest,\
 	org.bndtools.rt.executor;version=latest,\
 	org.mockito.mockito-all
 -runrequires: osgi.identity;filter:='(osgi.identity=org.apache.felix.scr)',\
