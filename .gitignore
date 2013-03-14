@@ -2,6 +2,6 @@
 /*/bin_test/
 /*/generated/
 /cnf/cache/
-
+.DS_Store
 .*.swp
 *~
