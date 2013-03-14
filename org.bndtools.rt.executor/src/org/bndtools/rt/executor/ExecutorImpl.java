@@ -127,7 +127,10 @@ public class ExecutorImpl implements Executor {
 		}
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/pierre
 	static ConcurrentHashMap<String,EsHolder> holders = new ConcurrentHashMap<String,ExecutorImpl.EsHolder>();
 	// List of tasks submitted by one bundle
 	List<Future< ? >> futures = new ArrayList<Future< ? >>();
