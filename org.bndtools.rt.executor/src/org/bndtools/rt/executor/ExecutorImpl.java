@@ -150,7 +150,8 @@ public class ExecutorImpl implements Executor {
 		servicePid = config.service_pid();
 		
 		synchronized(holders) {
-			es = holders.putIfAbsent(servicePid, new EsHolder(config)).getEs();
+			holders.putIfAbsent(servicePid, new EsHolder(config));
+			es = holders.get(servicePid).getEs();
 		}
 
 	}
