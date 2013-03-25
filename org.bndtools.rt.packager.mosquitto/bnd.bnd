@@ -1,6 +1,6 @@
 -sub: *.bnd
 -buildpath: org.bndtools.service;version=latest,\
-	org.bndtools.rt.packager.manager;version=latest,\
+	org.bndtools.rt.packager.api;version=latest,\
 	biz.aQute.bndlib,\
 	osgi.core,\
 	osgi.cmpn;version=4.3,\

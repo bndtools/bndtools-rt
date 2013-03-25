@@ -1,7 +1,0 @@
-Private-Package: org.bndtools.rt.watchdog.process, \
-	aQute.service.reporter,\
-	org.bndtools.service.packager,\
-	org.bndtools.service.watchdog
-	
-Main-Class: org.bndtools.rt.watchdog.process.ProcessWatchDog
-Conditional-Package: aQute.lib*
