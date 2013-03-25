@@ -1,0 +1,19 @@
+-buildpath: osgi.cmpn;version=4.2.1,\
+	osgi.core;version=4.2.1,\
+	org.mongodb.mongo-java-driver,\
+	biz.aQute.bndlib,\
+	aQute.dstest,\
+	org.bndtools.service;version=latest,\
+	junit.osgi
+    
+Conditional-Package: aQute.lib*
+Export-Package: org.bndtools.service.store;provide:=true
+Service-Component: *
+Bundle-Version: 1.0.0
+-runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'
+-runee: J2SE-1.5
+
+Private-Package: org.bndtools.rt.store.mongo
+-runrequires: osgi.identity;filter:='(osgi.identity=org.mongodb.mongo-java-driver)'
+-runbundles: org.mongodb.mongo-java-driver;version='[2.9.1,2.9.2)'
+Import-Package: org.osgi.service.log;resolution:=optional, *
