@@ -10,10 +10,6 @@
  ******************************************************************************/
 package org.bndtools.service.packager;
 
-import org.bndtools.rt.watchdog.manager.WatchDogManager;
-import org.bndtools.rt.watchdog.process.ProcessWatchDog;
-
-
 /**
  * Created by the Package Type from the Process Guard's configuration properties
  * in the {@link PackageType#create(java.util.Map, java.io.File)} method. It is

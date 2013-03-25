@@ -1,0 +1,6 @@
+version: 0.1.0.${tstamp}
+
+Bundle-Version: ${version}
+Export-Package: org.bndtools.service.packager,\
+	aQute.service.reporter,\
+	org.bndtools.service.watchdog

@@ -3,7 +3,7 @@
 	osgi.cmpn;version=4.3,\
 	biz.aQute.bndlib,\
 	junit.osgi,\
-	org.bndtools.rt.packager.manager;version=latest,\
+	org.bndtools.rt.packager.api;version=latest,\
 	org.bndtools.service;version=latest,\
 	org.apache.felix.gogo.runtime,\
 	org.mongodb.mongo-java-driver
