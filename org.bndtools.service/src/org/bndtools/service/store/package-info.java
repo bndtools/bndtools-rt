@@ -11,7 +11,8 @@
  * <li>Only public non-static fields of {@code <T>} can be stored in the database
  * <li>{@code <T>} must have a public non-static {@code _id} field
  * <li>If the {@code _id} field is left empty when inserting the object in the database, 
- * 			this field must be of type {@code String} or {@code byte[]}
+ * 			this field must be of type {@code String} or {@code byte[]} (in this case, the
+ *      service assigns an ID to the document).
  * </ul>
  * 
  * <h3>Serialization process:</h3>
@@ -24,5 +25,10 @@
  * When a document is fetched from the database, every public field is set to the stored value. 
  * If an object is stored as its toString() representation, this object 
  * is re-constructed from the string representation, if possible.
+ * <p>
+ * If the saved object contains a reference to another object in a public non-static field, the 
+ * referenced object is recursively treated as a data field. As a consequence, public non-static
+ * fields of {@code <T>} must not contain a reference (direct or recursive) to "this", which
+ * would prevent the insertion of the document in the database.
  */
 package org.bndtools.service.store;

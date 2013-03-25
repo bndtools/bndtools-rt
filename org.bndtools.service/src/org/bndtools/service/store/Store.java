@@ -85,9 +85,10 @@ public interface Store<T> {
 
 	
 	/**
-	 * Performs optimistic locking for updating a document in the database. The method acts is similar to 
-	 * {@link Store#find(Object)}, except that if the element was modified 
-	 * since it was retrieved from the database, a {@code ConcurrentModificationException} is thrown
+	 * Performs optimistic locking for updating a document in the database. This method is similar to 
+	 * {@link Store#find(Object)}, except that if the element was modified in the database
+	 * between the document retrieval and the document update, 
+	 * a {@code ConcurrentModificationException} is thrown
 	 * when {@link Cursor#update()} is called for this document. {@code Cursor#or(Object)} cannot be used
 	 * on the cursor obtained from this method.  
 	 * @param p
