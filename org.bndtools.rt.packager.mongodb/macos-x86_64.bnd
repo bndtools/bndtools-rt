@@ -7,5 +7,5 @@ Require-Capability: \
 		(osgi.native.osname=MacOSX) \
 		(osgi.native.processor=x86-64) \
 	)"
-Provide-Capability: packager.type;packager.type=mongodb;version:Version=2.2.0
+Provide-Capability: packager.type; packager.type=mongodb; version:Version=2.2.0
 Service-Component: *
