@@ -1,4 +1,4 @@
-Private-Package: org.bndtools.rt.packager.mongodb.client
+Private-Package: org.bndtools.rt.packager.mongodb.commands
 Conditional-Package: com.mongodb.*, org.bson.*
 Service-Component: *
 
