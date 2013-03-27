@@ -8,7 +8,7 @@
  * Contributors:
  *     Neil Bartlett - initial API and implementation
  ******************************************************************************/
-package org.bndtools.rt.packager.mongodb.client;
+package org.bndtools.rt.packager.mongodb.commands;
 
 import java.util.List;
 import java.util.Map;
