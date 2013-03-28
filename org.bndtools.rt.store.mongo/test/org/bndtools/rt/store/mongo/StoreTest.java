@@ -327,4 +327,31 @@ public class StoreTest extends TestCase {
 		
 		assertEquals(0, store.versions.size()); // May not always be true, depending on the gc
 	}
+	
+	/**
+	 * Test bug ! misparse in filter()
+	 */
+	public void testFilterBugNot() throws Exception {
+		MongoStoreImpl<Simple> store = mongo.getStore(Simple.class, "simple");
+		
+		for(int i=0; i<10; i++) {
+			Simple simple = new Simple();
+			simple.value = i;
+			store.insert(simple);
+		}
+		String ldap = ("&(!(value<3))(value<6)");
+		DBObject filter = store.filter(ldap);
+		assertTrue(filter.keySet().contains("$and"));
+		assertEquals(2, ((List)filter.get("$and")).size());
+		
+		DBObject part1 = (DBObject) ((List)filter.get("$and")).get(0);
+		DBObject part2 = (DBObject) ((List)filter.get("$and")).get(1);
+		
+		assertEquals(1, ((Map)part1).size());
+		assertEquals(1, ((Map)part2).size());
+		assertTrue(part1.keySet().contains("$nor"));
+		assertTrue(part2.keySet().contains("value"));
+		
+		assertEquals(3, store.where(ldap).count());
+	}
 }

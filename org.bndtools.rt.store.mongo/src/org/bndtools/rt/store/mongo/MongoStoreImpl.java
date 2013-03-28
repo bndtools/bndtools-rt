@@ -206,8 +206,8 @@ public class MongoStoreImpl<T> implements Store<T> {
 			}
 
 			case '!' : {
-				DBObject expr = expr(ldap, ldap.read());
-				query.put("$nor", Arrays.asList(expr));
+				List<DBObject> exprs = exprs(ldap);
+				query.put("$nor", exprs);
 				break;
 			}
 
