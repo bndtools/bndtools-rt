@@ -10,8 +10,10 @@
  ******************************************************************************/
 package org.bndtools.service.packager;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Map;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * A Package Type service is responsible for creating scripts and other
@@ -20,6 +22,7 @@ import java.util.*;
  * 
  * TODO handle versioning
  */
+@ProviderType
 public interface PackageType {
 	/**
 	 * Service property identifying the process type TODO create namespace for

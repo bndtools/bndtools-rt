@@ -61,6 +61,17 @@ public class PackageDescriptor {
 	 * requests.
 	 */
 	public String	statusScript;
+	
+	/**
+	 * Contains a script generator to tell the process to reconfigure itself. This is an optional
+	 * field. If the process needs to be reconfigured -- and if the {@code reconfigure} field is non-null --
+	 * then {@link ScriptGenerator#generate(java.util.Map, java.io.File)} method will be called and the
+	 * resulting script will be executed by the watchdog. For example the script could send a UNIX signal
+	 * to the process.
+	 * 
+	 * @since 1.1
+	 */
+	public ScriptGenerator	reconfigure;
 
 	/**
 	 * Provide a textual description.

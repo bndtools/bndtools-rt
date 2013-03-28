@@ -12,6 +12,9 @@ package org.bndtools.service.packager;
 
 import java.util.*;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface ProcessGuard {
 	String	TYPE	= "type";
 	String	VERSION	= "version";
