@@ -1,0 +1,89 @@
+<FindBugsFilter>
+     <Match>
+       <Package name="org.bndtools.inject" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.caffeine" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.executor" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.executor.test" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.packager.mongodb.commands" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.packager.mongodb.guard" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.packager.mongodb.unix" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.packager.mosquitto.client" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.packager.mosquitto.guard" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.packager.mosquitto.unix" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.repository.api" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.repository.client" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.repository.marshall" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.repository.rest.test" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.repository.server" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.rest" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.store.mongo" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.store.test" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.timer" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.timer.test" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.timer.test.b1" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.rt.utils.log" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.service.endpoint" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.service.mongodb" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.service.mosquitto" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.service.packager" />
+     </Match>
+     <Match>
+       <Package name="org.bndtools.service.store" />
+     </Match>
+     <Match>
+       <Package name="org.example.tests" />
+     </Match>
+     <Match>
+       <Package name="org.example.tests.examples" />
+     </Match>
+</FindBugsFilter>

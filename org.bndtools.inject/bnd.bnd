@@ -1,2 +1,2 @@
--buildpath: ee.j2se;version='[1.5,1.6)'
+-buildpath: ee.j2se;version=${javac.ee}
 Export-Package: org.bndtools.inject

@@ -1,5 +1,6 @@
 -sub: *.bnd
--buildpath: osgi.core,\
+-buildpath: ee.j2se;version=${javac.ee},\
+	osgi.core,\
 	osgi.cmpn;version=4.3,\
 	biz.aQute.bndlib,\
 	junit.osgi,\

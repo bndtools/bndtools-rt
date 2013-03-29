@@ -188,7 +188,7 @@ public class RepositoryRestTest extends TestCase {
 		// Check the index XML
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(new ByteArrayInputStream(result.getBytes()));
+		Document doc = db.parse(new ByteArrayInputStream(result.getBytes("UTF-8")));
 		assertEquals("repository", doc.getDocumentElement().getNodeName());
     }
     
@@ -201,7 +201,7 @@ public class RepositoryRestTest extends TestCase {
 		// Check the index XML
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(new ByteArrayInputStream(result.getBytes()));
+		Document doc = db.parse(new ByteArrayInputStream(result.getBytes("UTF-8")));
 		assertEquals("repository", doc.getDocumentElement().getNodeName());
     }
     

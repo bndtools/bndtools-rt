@@ -64,7 +64,7 @@ public class MQTTCommands {
 	@Descriptor("Publish a message to an MQTT topic")
 	public void publish(@Descriptor("The MQTT topic name") String topicName, @Descriptor("The message") String message) throws Exception {
 		MqttTopic topic = client.getTopic(topicName);
-		topic.publish(message.getBytes(), 0, false);
+		topic.publish(message.getBytes("UTF-8"), 0, false);
 		System.out.println("Message delivered");
 	}
 	

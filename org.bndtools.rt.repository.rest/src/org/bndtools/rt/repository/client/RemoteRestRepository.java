@@ -47,8 +47,8 @@ import aQute.service.reporter.Reporter;
 
 public class RemoteRestRepository implements Plugin, RepositoryPlugin, RegistryPlugin {
 	
-	public static String PROP_URL = "url";
-	public static String PROP_NAME = "name";
+	public static final String PROP_URL = "url";
+	public static final String PROP_NAME = "name";
 	public static final String PROP_CACHE = "cache";
 	
 	private static final String DEFAULT_CACHE_DIR = ".bnd" + File.separator + "cache";
@@ -155,7 +155,7 @@ public class RemoteRestRepository implements Plugin, RepositoryPlugin, RegistryP
 		URI requestUri = new URI(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(), baseUri.getPath() + "/bundles", "pattern=" + pattern, null);
 		InputStream stream = requestUri.toURL().openStream();
 		try {
-			Iterable<JSONObject> iterable = parseJSONObjectList(new InputStreamReader(stream));
+			Iterable<JSONObject> iterable = parseJSONObjectList(new InputStreamReader(stream, "UTF-8"));
 			for (JSONObject node : iterable) {
 				Object bsnNode = node.get("bsn");
 				if (bsnNode == null || !(bsnNode instanceof String))
@@ -177,7 +177,7 @@ public class RemoteRestRepository implements Plugin, RepositoryPlugin, RegistryP
 		InputStream stream = requestUri.toURL().openStream();
 		
 		try {
-			Iterable<JSONObject> iterable = parseJSONObjectList(new InputStreamReader(stream));
+			Iterable<JSONObject> iterable = parseJSONObjectList(new InputStreamReader(stream, "UTF-8"));
 			for (JSONObject node : iterable) {
 				Object versionNode = node.get("version");
 				if (versionNode == null || !(versionNode instanceof String))

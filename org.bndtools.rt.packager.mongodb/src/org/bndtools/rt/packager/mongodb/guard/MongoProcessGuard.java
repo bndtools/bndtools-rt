@@ -49,7 +49,7 @@ public class MongoProcessGuard implements ProcessGuard {
 	private ServiceRegistration reg;
 
 	@Activate
-	void activate(BundleContext context, Map<String, Object> props) throws Exception {
+	synchronized void activate(BundleContext context, Map<String, Object> props) throws Exception {
 		this.context = context;
 		this.props = props;
 		this.config = Configurable.createConfigurable(MongoProperties.class, props);
