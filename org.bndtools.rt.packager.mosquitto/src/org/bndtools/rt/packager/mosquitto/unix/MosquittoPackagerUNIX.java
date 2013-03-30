@@ -37,8 +37,8 @@ public class MosquittoPackagerUNIX implements PackageType {
 		installIfAbsent(new File(data, "libssl.1.0.0.dylib"), false);
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("exec ");
-		sb.append(mosquitto.getAbsolutePath());
+		sb.append("export DYLD_LIBRARY_PATH=\"").append(data.getAbsolutePath()).append("\"\n");
+		sb.append("exec ").append(mosquitto.getAbsolutePath());
 		if (config.port() > 0)
 			sb.append(" -p ").append(config.port());
 		pd.startScript = sb.toString();
