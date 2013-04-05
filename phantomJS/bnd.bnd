@@ -1,0 +1,22 @@
+
+
+-runbundles: org.apache.felix.configadmin;version='[1.4.0,1.4.1)',\
+	org.apache.felix.gogo.command;version='[0.12.0,0.12.1)',\
+	org.apache.felix.gogo.runtime;version='[0.10.0,0.10.1)',\
+	org.apache.felix.gogo.shell;version='[0.10.0,0.10.1)',\
+	org.apache.felix.scr;version='[1.6.2,1.6.3)'
+-runee: JavaSE-1.6
+-runfw: org.apache.felix.framework
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	biz.aQute.bnd.annotation,\
+	junit.osgi,\
+	aQute.libg,\
+	org.bndtools.service;version=latest,\
+	org.bndtools.rt.packager.api;version=latest
+-runrequires: osgi.identity;filter:='(osgi.identity=org.apache.felix.scr)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)'
+
+Conditional-Package: aQute.lib*
+-sub: *.bnd

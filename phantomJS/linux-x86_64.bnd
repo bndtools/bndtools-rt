@@ -1,0 +1,7 @@
+Private-Package: aQute.bnd.annotation.metatype,\
+	org.bndtools.rt.headlessJS.phantomJS,\
+	org.bndtools.rt.headlessJS.phantomJS.guard,\
+	org.bndtools.rt.headlessJS.phantomJS.unix
+Service-Component: *
+Export-Package: headlessJS;provide:=true
+Include-Resource: data=phantom/linux64
