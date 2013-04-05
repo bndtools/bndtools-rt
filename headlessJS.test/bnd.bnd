@@ -1,0 +1,8 @@
+-buildpath: junit.osgi,\
+	org.bndtools.service;version=latest,\
+	biz.aQute.bnd.annotation,\
+	javax.servlet,\
+	osgi.core,\
+	osgi.cmpn
+Private-Package: org.bndtools.rt.headlessJS.test,\
+	org.bndtools.rt.headlessJS.test.testPages
