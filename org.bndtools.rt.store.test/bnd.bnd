@@ -17,7 +17,6 @@ Test-Cases: org.bndtools.rt.store.test.TestStore,\
 	biz.aQute.bndlib;version='[2.0.0,2.0.1)',\
 	biz.aQute.repository;version='[2.0.4,2.0.5)',\
 	com.springsource.javax.xml.stream;version='[1.0.1,1.0.2)',\
-	javax.inject;version='[1.0.0,1.0.1)',\
 	javax.servlet;version='[3.0.0,3.0.1)',\
 	javax.servlet;version='[3.0.0,3.0.1)',\
 	org.apache.felix.configadmin;version='[1.4.0,1.4.1)',\
@@ -25,7 +24,7 @@ Test-Cases: org.bndtools.rt.store.test.TestStore,\
 	org.apache.felix.metatype;version='[1.0.4,1.0.5)',\
 	org.apache.felix.scr;version='[1.6.2,1.6.3)',\
 	org.apache.felix.webconsole;version='[3.1.8,3.1.9)',\
-	org.bndtools.rt.packager.manager;version=latest,\
 	org.bndtools.rt.store.mongo;version=latest,\
+	org.bndtools.service;version='[1.0.0,1.0.1)',\
 	org.mongodb.mongo-java-driver;version='[2.9.1,2.9.2)',\
--runproperties: name=
+	org.osgi.impl.bundle.bindex;version='[2.2.0,2.2.1)'

@@ -1,4 +1,6 @@
 Export-Package: org.bndtools.service.endpoint,\
-	org.bndtools.service.store
+	org.bndtools.service.store,\
+	org.bndtools.service.headlessJS
 Bundle-Name:  Bndtools Service APIs
 -buildpath: biz.aQute.bnd.annotation
+Bundle-Version: 1.0.0
