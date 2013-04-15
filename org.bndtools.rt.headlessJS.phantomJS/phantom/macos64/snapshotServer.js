@@ -66,6 +66,7 @@ var service = server.listen(port, function(request, response) {
 		if(url.substring(0,7) == 'https:/') {	
 			url = 'https://' + url.substring(7)
 			flag = true
+		}
 		
 		// If the requested URI is absolute, retrieve and interpret the corresponding page
 		if(flag) {

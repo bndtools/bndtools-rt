@@ -26,7 +26,6 @@ import aQute.bnd.annotation.component.Reference;
 public class TestServlet extends HttpServlet implements HttpContext {
 	
 	public static String rawPage;
-	public static String interpretedPage;
 	
 	/**
 	 * 
@@ -39,24 +38,15 @@ public class TestServlet extends HttpServlet implements HttpContext {
 	@Activate
 	public void activate() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<html>\n");
+		sb.append("<html><head></head><body>\n");
 		sb.append("Normal page<br/>\n");
 		sb.append("<hr />");
-		sb.append("External script: <script type='text/javascript' src='static/test.js'></script><br />\n");
+		sb.append("External script: <script type=\"text/javascript\" src=\"static/test.js\"></script><br />\n");
 		sb.append("<hr />\n");
-		sb.append("Internal script: <script type='text/javascript'>document.write('Hello, World!')</script><br />\n");
-		sb.append("</html>");
+		sb.append("Internal script: <script type=\"text/javascript\">document.write(\"Hello, World!\")</script><br />\n");
+		sb.append("</body></html>");
 		
 		rawPage = sb.toString();
-		
-		sb = new StringBuilder();
-		sb.append("<html>\n");
-		sb.append("Normal page<br/>\n");
-		sb.append("<hr />");
-		sb.append("External script: <script type='text/javascript' src='static/test.js'></script>Hello, World!<br />\n");
-		sb.append("<hr />\n");
-		sb.append("Internal script: <script type='text/javascript'>document.write('Hello, World!')</script>Hello, World!<br />\n");
-		sb.append("</html>");
 
 	}
 	

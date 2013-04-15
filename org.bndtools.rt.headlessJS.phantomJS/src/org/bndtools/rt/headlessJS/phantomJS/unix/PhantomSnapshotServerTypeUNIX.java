@@ -62,10 +62,10 @@ public class PhantomSnapshotServerTypeUNIX implements PackageType {
 		 * sends a "ping" command to the phantomJS server, expecting a "pong" response
 		 */
 		sb = new StringBuilder();
-		sb.append("if [ \"$(curl -d \"command=ping\" 127.0.0.1:" + port + ")\" == \"pong\" ]; then").append("\n");
+		sb.append("if [ \"$(curl -d \"command=ping\" 127.0.0.1:" + port + ")\" = \"pong\" ]; then").append("\n");
 		sb.append("exit 0").append("\n");
 		sb.append("else").append("\n");
-		sb.append("exit -1").append("\n");
+		sb.append("exit 1").append("\n");
 		sb.append("fi");
 		pd.statusScript = sb.toString();
 		
@@ -74,10 +74,10 @@ public class PhantomSnapshotServerTypeUNIX implements PackageType {
 		 *  sends an "exit" command to the phantomJS server, expecting "exiting" in response 
 		 */
 		sb = new StringBuilder();
-		sb.append("if [ \"$(curl -d \"command=exit\" 127.0.0.1:" + port + ")\" == \"exiting\" ]; then\n");
+		sb.append("if [ \"$(curl -d \"command=exit\" 127.0.0.1:" + port + ")\" = \"exiting\" ]; then\n");
 		sb.append("exit 0\n");
 		sb.append("else\n");
-		sb.append("exit -1\n");
+		sb.append("exit 1\n");
 		sb.append("fi");
 		pd.stopScript = sb.toString();
 
