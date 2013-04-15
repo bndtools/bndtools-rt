@@ -13,7 +13,8 @@ Service-Component: *
 	osgi.identity;filter:='(osgi.identity=aQute.xray.plugin)'
 Test-Cases: org.bndtools.rt.store.test.TestStore,\
 	org.bndtools.rt.store.test.TestCursor
--runbundles: aQute.xray.plugin;version='[1.0.3,1.0.4)',\
+-runbundles: aQute.dstest;version='[1.0.0,1.0.1)',\
+	aQute.xray.plugin;version='[1.0.3,1.0.4)',\
 	biz.aQute.bndlib;version='[2.0.0,2.0.1)',\
 	biz.aQute.repository;version='[2.0.4,2.0.5)',\
 	com.springsource.javax.xml.stream;version='[1.0.1,1.0.2)',\
@@ -25,6 +26,5 @@ Test-Cases: org.bndtools.rt.store.test.TestStore,\
 	org.apache.felix.scr;version='[1.6.2,1.6.3)',\
 	org.apache.felix.webconsole;version='[3.1.8,3.1.9)',\
 	org.bndtools.rt.store.mongo;version=latest,\
-	org.bndtools.service;version='[1.0.0,1.0.1)',\
 	org.mongodb.mongo-java-driver;version='[2.9.1,2.9.2)',\
 	org.osgi.impl.bundle.bindex;version='[2.2.0,2.2.1)'

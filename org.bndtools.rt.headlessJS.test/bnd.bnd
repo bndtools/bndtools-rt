@@ -1,8 +1,45 @@
 -buildpath: junit.osgi,\
-	org.bndtools.service;version=latest,\
 	biz.aQute.bnd.annotation,\
 	javax.servlet,\
-	osgi.core,\
-	osgi.cmpn
-Private-Package: org.bndtools.rt.headlessJS.test,\
-	org.bndtools.rt.headlessJS.test.testPages
+	org.bndtools.service;version=latest,\
+	osgi.compendium,\
+	osgi.core;version=5.0.0
+Private-Package: org.bndtools.rt.headlessJS.test.testPages,\
+	org.bndtools.rt.headlessJS.test
+	
+Include-Resource: static=static
+-runrequires: osgi.identity;filter:='(osgi.identity=org.apache.felix.http.whiteboard)',\
+	osgi.identity;filter:='(&(osgi.identity=aQute.xray.plugin)(version>=1.0.9))',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.metatype)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+	osgi.identity;filter:='(&(osgi.identity=org.apache.felix.log)(version>=1.0.1))',\
+	osgi.identity;filter:='(osgi.identity=com.paremus.packager.manager)',\
+	osgi.identity;filter:='(osgi.identity=com.paremus.packager.watchdog.manager)',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.headlessJS.phantomJS.linux-x86_64)'
+-runfw: org.apache.felix.framework;version='[4.2.0,4.2.0]'
+-runee: JavaSE-1.6
+-runbundles: aQute.xray.plugin;version='[1.0.9,1.0.10)',\
+	biz.aQute.bndlib;version='[2.0.0,2.0.1)',\
+	biz.aQute.repository;version='[2.0.4,2.0.5)',\
+	com.paremus.packager.manager;version='[0.0.2,0.0.3)',\
+	com.paremus.packager.watchdog.manager;version='[0.0.2,0.0.3)',\
+	com.springsource.javax.xml.stream;version='[1.0.1,1.0.2)',\
+	javax.servlet;version='[3.0.0,3.0.1)',\
+	org.apache.felix.configadmin;version='[1.4.0,1.4.1)',\
+	org.apache.felix.gogo.command;version='[0.12.0,0.12.1)',\
+	org.apache.felix.gogo.runtime;version='[0.10.0,0.10.1)',\
+	org.apache.felix.gogo.shell;version='[0.10.0,0.10.1)',\
+	org.apache.felix.http.jetty;version='[2.2.0,2.2.1)',\
+	org.apache.felix.http.whiteboard;version='[2.2.0,2.2.1)',\
+	org.apache.felix.log;version='[1.0.1,1.0.2)',\
+	org.apache.felix.metatype;version='[1.0.4,1.0.5)',\
+	org.apache.felix.scr;version='[1.6.2,1.6.3)',\
+	org.apache.felix.webconsole;version='[3.1.8,3.1.9)',\
+	org.bndtools.rt.headlessJS.phantomJS.linux-x86_64;version=latest,\
+	org.bndtools.rt.packager.api;version=latest,\
+	org.bndtools.service;version=latest,\
+	org.osgi.impl.bundle.bindex;version='[2.2.0,2.2.1)'
+	
+Service-Component: *
+Test-Cases: org.bndtools.rt.headlessJS.test.HeadlessJsTests
