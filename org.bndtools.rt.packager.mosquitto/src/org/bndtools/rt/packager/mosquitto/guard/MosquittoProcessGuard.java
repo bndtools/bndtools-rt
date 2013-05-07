@@ -22,16 +22,23 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.remoteserviceadmin.RemoteConstants;
 
+import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
+import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.metatype.Configurable;
 
 @Component(
 		designateFactory = MosquittoProperties.class,
-		properties = {"type=mosquitto"},
-		name="org.bndtools.rt.packager.mosquitto.guard")
+		configurationPolicy = ConfigurationPolicy.optional,
+		properties = {
+			"type=mosquitto",
+			"service.pid=" + MosquittoProcessGuard.NAME
+		},
+		name = MosquittoProcessGuard.NAME)
 public class MosquittoProcessGuard implements ProcessGuard {
 	
-	private static final String MOSQUITTO_URI_SCHEME = "mqtt";
+	static final String NAME="org.bndtools.rt.packager.mosquitto.guard";
+	static final String MOSQUITTO_URI_SCHEME = "mqtt";
 	
 	private BundleContext context;
 	private Map<String, Object> configProps;
@@ -39,6 +46,7 @@ public class MosquittoProcessGuard implements ProcessGuard {
 
 	private ServiceRegistration reg = null;
 	
+	@Activate
 	void activate(BundleContext context, Map<String, Object> configProps) throws Exception {
 		this.context = context;
 		this.configProps = configProps;
