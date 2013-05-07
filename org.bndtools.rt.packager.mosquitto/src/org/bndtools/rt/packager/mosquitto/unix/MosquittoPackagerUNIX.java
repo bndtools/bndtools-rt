@@ -17,13 +17,11 @@ import org.bndtools.service.mosquitto.MosquittoProperties;
 import org.bndtools.service.packager.PackageDescriptor;
 import org.bndtools.service.packager.PackageType;
 
-import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.metatype.Configurable;
 import aQute.lib.io.IO;
 import aQute.libg.command.Command;
 
-@Component(properties = "package.type=mosquitto")
-public class MosquittoPackagerUNIX implements PackageType {
+public abstract class MosquittoPackagerUNIX implements PackageType {
 
 	@Override
 	public PackageDescriptor create(Map<String, Object> properties, File data) throws Exception {
@@ -33,11 +31,10 @@ public class MosquittoPackagerUNIX implements PackageType {
 		
 		File mosquitto = new File(data, "mosquitto");
 		installIfAbsent(mosquitto, true);
-		installIfAbsent(new File(data, "libcrypto.1.0.0.dylib"), false);
-		installIfAbsent(new File(data, "libssl.1.0.0.dylib"), false);
+		installDynamicLibs(data);
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("export DYLD_LIBRARY_PATH=\"").append(data.getAbsolutePath()).append("\"\n");
+		appendDynamicLibConfig(sb, data);
 		sb.append("exec ").append(mosquitto.getAbsolutePath());
 		if (config.port() > 0)
 			sb.append(" -p ").append(config.port());
@@ -48,14 +45,29 @@ public class MosquittoPackagerUNIX implements PackageType {
 		return pd;
 	}
 	
-	private void installIfAbsent(File file, boolean executable) throws Exception {
+	/**
+	 * Install any dynamic-linked libraries required by the executable. This
+	 * implementation does nothing; subclasses may override.
+	 */
+	protected void installDynamicLibs(File dataDir) throws Exception {
+	}
+
+	/**
+	 * Append dynamic-linked library configuration to the start command, e.g.
+	 * "export LD_LIBRARY_PATH" or "export DYLD_LIBRARY_PATH". This
+	 * implementation does nothing; subclasses may override.
+	 */
+	protected void appendDynamicLibConfig(StringBuilder sb, File dataDir) {
+	}
+
+	protected void installIfAbsent(File file, boolean executable) throws Exception {
 		if (!file.isFile()) {
 			IO.copy(getClass().getResource("/data/" + file.getName()), file);
 			if (executable)
 				run("chmod a+x " + file.getAbsolutePath());
 		}
 	}
-
+	
 	private void run(String string) throws Exception {
 		Command command = new Command("sh");
 		StringBuilder out = new StringBuilder();
