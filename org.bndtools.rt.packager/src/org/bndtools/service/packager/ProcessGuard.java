@@ -16,7 +16,7 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface ProcessGuard {
-	String	TYPE	= "type";
+	String	PACKAGE_TYPE	= "package.type";
 	String	VERSION	= "version";
 
 	public enum State {

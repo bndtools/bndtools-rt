@@ -31,7 +31,7 @@ import aQute.bnd.annotation.metatype.Configurable;
 		designateFactory = MosquittoProperties.class,
 		configurationPolicy = ConfigurationPolicy.optional,
 		properties = {
-			"type=mosquitto",
+			"package.type=mosquitto",
 			"service.pid=" + MosquittoProcessGuard.NAME
 		},
 		name = MosquittoProcessGuard.NAME)

@@ -44,5 +44,5 @@ public interface PackagerStandardProperties {
 	 * The Package Type
 	 * @return
 	 */
-	String type();
+	String packageType();
 }

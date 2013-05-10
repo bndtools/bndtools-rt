@@ -5,5 +5,5 @@ Private-Package: org.bndtools.rt.packager.mongodb.guard,\
 
 Service-Component: *
 
-Require-Capability: packager.type;filter:="(packager.type=mongodb)"
+Require-Capability: packager.type;filter:="(package.type=mongodb)"
 Export-Package: org.bndtools.service.endpoint

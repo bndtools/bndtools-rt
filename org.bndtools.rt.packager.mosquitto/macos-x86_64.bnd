@@ -8,5 +8,5 @@ Require-Capability: \
 		(osgi.native.osname=MacOSX) \
 		(osgi.native.processor=x86-64) \
 	)"
-Provide-Capability: packager.type;packager.type=mosquitto;version:Version=1.0.2
+Provide-Capability: packager.type;package.type=mosquitto;version:Version=1.0.2
 Service-Component: *

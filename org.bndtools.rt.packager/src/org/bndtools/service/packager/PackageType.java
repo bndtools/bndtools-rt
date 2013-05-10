@@ -29,6 +29,10 @@ public interface PackageType {
 	 * this
 	 */
 	String	PACKAGE_TYPE	= "package.type";
+	/**
+	 * Service property identifying the process version
+	 */
+	String	VERSION			= "version";	
 
 	/**
 	 * Called by the Packager Manager to create scripts used to start, stop, and query

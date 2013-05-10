@@ -34,7 +34,7 @@ import aQute.bnd.annotation.metatype.Configurable;
 		designateFactory = MongoProperties.class,
 		configurationPolicy = ConfigurationPolicy.optional,
 		properties = {
-			"type=mongodb",
+			"package.type=mongodb",
 			Constants.SERVICE_PID + "=" + MongoProcessGuard.PID
 		})
 public class MongoProcessGuard implements ProcessGuard {
