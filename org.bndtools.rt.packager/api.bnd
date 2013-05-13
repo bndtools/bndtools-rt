@@ -3,4 +3,7 @@ baseversion: 0.2.0
 Bundle-Version: ${baseversion}.${tstamp}
 Export-Package: org.bndtools.service.packager,\
 	aQute.service.reporter,\
-	org.bndtools.service.watchdog
+	org.bndtools.service.watchdog,\
+	org.osgi.resource
+Import-Package: org.osgi.resource,\
+	*

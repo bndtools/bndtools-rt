@@ -25,14 +25,13 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface PackageType {
 	/**
-	 * Service property identifying the process type TODO create namespace for
-	 * this
+	 * Service property identifying the process type 
 	 */
-	String	PACKAGE_TYPE	= "package.type";
+	String	PACKAGE_TYPE	= PackagerNamespace.CAPABILITY_PACKAGE_TYPE_ATTRIBUTE;
 	/**
 	 * Service property identifying the process version
 	 */
-	String	VERSION			= "version";	
+	String	VERSION			= PackagerNamespace.CAPABILITY_VERSION_ATTRIBUTE;	
 
 	/**
 	 * Called by the Packager Manager to create scripts used to start, stop, and query
