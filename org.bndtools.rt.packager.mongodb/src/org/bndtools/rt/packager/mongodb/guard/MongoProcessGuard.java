@@ -20,27 +20,21 @@ import org.bndtools.service.endpoint.Endpoint;
 import org.bndtools.service.mongodb.MongoProperties;
 import org.bndtools.service.packager.ProcessGuard;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.remoteserviceadmin.RemoteConstants;
 
 import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
-import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.metatype.Configurable;
 
 @Component(
-		name = MongoProcessGuard.PID, 
+		name = MongoProcessGuard.NAME, 
 		designateFactory = MongoProperties.class,
-		configurationPolicy = ConfigurationPolicy.optional,
-		properties = {
-			"package.type=mongodb",
-			Constants.SERVICE_PID + "=" + MongoProcessGuard.PID
-		})
+		properties = "package.type=mongodb")
 public class MongoProcessGuard implements ProcessGuard {
 	
-	static final String PID = "org.bndtools.rt.packager.mongodb.guard";
-	
+	static final String NAME = "org.bndtools.rt.packager.mongodb.guard";
+
 	private static final String MONGO_URI_SCHEME = "mongodb";
 
 	private BundleContext context;

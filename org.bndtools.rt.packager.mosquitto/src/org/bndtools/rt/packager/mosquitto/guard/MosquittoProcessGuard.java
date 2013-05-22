@@ -29,15 +29,11 @@ import aQute.bnd.annotation.metatype.Configurable;
 
 @Component(
 		designateFactory = MosquittoProperties.class,
-		configurationPolicy = ConfigurationPolicy.optional,
-		properties = {
-			"package.type=mosquitto",
-			"service.pid=" + MosquittoProcessGuard.NAME
-		},
+		properties = "package.type=mosquitto",
 		name = MosquittoProcessGuard.NAME)
 public class MosquittoProcessGuard implements ProcessGuard {
 	
-	static final String NAME="org.bndtools.rt.packager.mosquitto.guard";
+	static final String NAME = "org.bndtools.rt.packager.mosquitto.guard";
 	static final String MOSQUITTO_URI_SCHEME = "mqtt";
 	
 	private BundleContext context;
