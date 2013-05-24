@@ -13,5 +13,28 @@
 	osgi.identity;filter:='(&(osgi.identity=osgi.cmpn)(version>=4.2))',\
 	osgi.identity;filter:='(&(osgi.identity=org.apache.felix.scr)(version>=1.6.0))',\
 	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.packager.mongodb.guard)',\
-	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.packager.mongodb.client)',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.packager.mongodb.commands)',\
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.fileinstall)'
+-runbundles: biz.aQute.bndlib;version='[2.0.0,2.0.1)',\
+	biz.aQute.repository;version='[2.0.4,2.0.5)',\
+	com.springsource.javax.xml.stream;version='[1.0.1,1.0.2)',\
+	javax.inject;version='[1.0.0,1.0.1)',\
+	javax.servlet;version='[3.0.0,3.0.1)',\
+	org.apache.felix.configadmin;version='[1.4.0,1.4.1)',\
+	org.apache.felix.fileinstall;version='[3.2.4,3.2.5)',\
+	org.apache.felix.gogo.command;version='[0.12.0,0.12.1)',\
+	org.apache.felix.gogo.runtime;version='[0.10.0,0.10.1)',\
+	org.apache.felix.gogo.shell;version='[0.10.0,0.10.1)',\
+	org.apache.felix.log;version='[1.0.1,1.0.2)',\
+	org.apache.felix.metatype;version='[1.0.4,1.0.5)',\
+	org.apache.felix.scr;version='[1.6.2,1.6.3)',\
+	org.apache.felix.webconsole;version='[3.1.8,3.1.9)',\
+	org.bndtools.rt.packager.api;version=latest,\
+	org.bndtools.rt.packager.mongodb.commands;version=latest,\
+	org.bndtools.rt.packager.mongodb.common;version=latest,\
+	org.bndtools.rt.packager.mongodb.guard;version=latest,\
+	org.bndtools.rt.packager.mongodb.macos-x86_64;version=latest,\
+	org.bndtools.rt.rest;version=latest,\
+	osgi.cmpn;version='[4.2.0,4.2.1)',\
+	osgi.cmpn;version='[4.3.0,4.3.1)',\
+	osgi.enterprise;version='[5.0.0,5.0.1)'

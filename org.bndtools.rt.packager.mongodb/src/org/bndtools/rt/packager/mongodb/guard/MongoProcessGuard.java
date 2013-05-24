@@ -25,11 +25,13 @@ import org.osgi.service.remoteserviceadmin.RemoteConstants;
 
 import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
+import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.metatype.Configurable;
 
 @Component(
 		name = MongoProcessGuard.NAME, 
 		designateFactory = MongoProperties.class,
+		configurationPolicy = ConfigurationPolicy.optional,
 		properties = "package.type=mongodb")
 public class MongoProcessGuard implements ProcessGuard {
 	

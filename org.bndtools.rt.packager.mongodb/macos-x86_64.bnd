@@ -2,7 +2,9 @@ Private-Package: org.bndtools.rt.packager.mongodb.unix
 Include-Resource: data=mongo/macos64
 
 Require-Capability: \
-	packager.manager; filter:="(!(version>=2.0))"; effective:=active, \
+	packager.manager; \
+		filter:="(&(version>=0.0.3)(!(version>=2.0)))"; \
+		effective:=active, \
 	osgi.native;filter:="(osgi.native.osname=MacOSX)"; effective:=active
 Provide-Capability: packager.type; package.type=mongodb; version:Version=2.2.0
 Service-Component: *
