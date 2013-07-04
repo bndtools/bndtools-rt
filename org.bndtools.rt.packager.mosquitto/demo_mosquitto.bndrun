@@ -1,6 +1,7 @@
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runee: JavaSE-1.6
 -runsystemcapabilities: ${native_capability}
+-resolve.effective: active
 
 ## Uncomment if you need to change the HTTP port
 #-runproperties: org.osgi.service.http.port=8080
