@@ -28,9 +28,10 @@ import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.metatype.Configurable;
 
 @Component(
+		name = MosquittoProcessGuard.NAME,
 		designateFactory = MosquittoProperties.class,
-		properties = "package.type=mosquitto",
-		name = MosquittoProcessGuard.NAME)
+		configurationPolicy = ConfigurationPolicy.optional,
+		properties = "package.type=mosquitto")
 public class MosquittoProcessGuard implements ProcessGuard {
 	
 	static final String NAME = "org.bndtools.rt.packager.mosquitto.guard";
