@@ -1,0 +1,18 @@
+-runfw: org.apache.felix.framework;version='[4,5)'
+-runee: JavaSE-1.6
+-runsystemcapabilities: ${native_capability}
+-runvm: -XstartOnFirstThread -Djava.awt.headless=true -Dorg.eclipse.swt.internal.carbon.smallFonts
+
+-resolve.effective: active
+
+-runbundles: org.apache.felix.gogo.command;version='[0.12.0,0.12.1)',\
+	org.apache.felix.gogo.runtime;version='[0.10.0,0.10.1)',\
+	org.apache.felix.gogo.shell;version='[0.10.0,0.10.1)',\
+	org.bndtools.rt.browserkit.example;version=latest,\
+	org.bndtools.rt.browserkit.macosx;version=latest,\
+	org.bndtools.service;version='[0.0.0,0.0.1)'
+
+-runrequires: osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+	osgi.identity;filter:='(osgi.identity=org.bndtools.rt.browserkit.example)'
+	

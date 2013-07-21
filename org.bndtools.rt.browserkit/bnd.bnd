@@ -1,0 +1,15 @@
+-buildpath: swt/org.eclipse.swt.cocoa.macosx.x86_64_3.102.0.v20130605-1544.jar; version=file,\
+	osgi.core; version=4.2, \
+	osgi.cmpn; version=4.2, \
+	org.bndtools.service
+
+-sub: *.bnd
+
+baseversion: 0.0.1
+
+Bundle-Version: ${baseversion}.${tstamp} 
+
+Private-Package: org.bndtools.rt.browserkit
+Export-Package: org.bndtools.rt.browserkit.api
+Bundle-Activator: org.bndtools.rt.browserkit.BrowserKitActivator
+Provide-Capability: org.bndtools.rt.browserkit; version:Version=${baseversion}
