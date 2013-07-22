@@ -58,7 +58,7 @@ public class EndpointTracker extends ServiceTracker {
 				shell.setText(title);
 				final Browser browser;
 				try {
-					browser = new Browser(shell, SWT.WEBKIT);
+					browser = new Browser(shell, SWT.NONE);
 				} catch (SWTError e) {
 					System.out.println("Could not instantiate Browser: " + e.getMessage());
 					display.dispose();
