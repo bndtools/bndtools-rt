@@ -1,0 +1,12 @@
+swt: swt/org.eclipse.swt.gtk.linux.x86_3.102.0.v20130605-1544.jar
+Include-Resource: \
+	@${swt}!/org/*, \
+	@${swt}!/*.so
+Import-Package: !org.mozilla.xpcom, *
+Require-Capability: osgi.native; filter:= " \
+	(& \
+		(osgi.native.osname=Linux) \
+		(osgi.native.processor=x86) \
+	)"
+
+Bundle-Name: BrowserKit for Linux/Gtk x86

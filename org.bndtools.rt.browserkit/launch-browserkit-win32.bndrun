@@ -1,7 +1,6 @@
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runee: JavaSE-1.6
--runsystemcapabilities: ${native_capability}
--runvm: -XstartOnFirstThread -Djava.awt.headless=true
+-runsystemcapabilities: osgi.native; osgi.native.osname=Win32; osgi.native.processor=x86
 
 -resolve.effective: active
 
@@ -9,8 +8,8 @@
 	org.apache.felix.gogo.runtime;version='[0.10.0,0.10.1)',\
 	org.apache.felix.gogo.shell;version='[0.10.0,0.10.1)',\
 	org.bndtools.rt.browserkit.example;version=latest,\
-	org.bndtools.rt.browserkit.macosx;version=latest,\
-	org.bndtools.service;version='[0.0.0,0.0.1)'
+	org.bndtools.rt.browserkit.win32;version=latest,\
+	org.bndtools.service;version=latest
 
 -runrequires: osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
