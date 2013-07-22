@@ -53,7 +53,7 @@ public class EndpointTracker extends ServiceTracker {
 				
 				String title = (String) reference.getProperty(BrowserKitConstants.WINDOW_TITLE);
 				if (title == null)
-					title = "SWT Kit";
+					title = "BrowserKit";
 				
 				shell.setText(title);
 				final Browser browser;

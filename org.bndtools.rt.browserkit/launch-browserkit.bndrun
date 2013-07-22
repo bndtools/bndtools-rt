@@ -1,7 +1,7 @@
 -runfw: org.apache.felix.framework;version='[4,5)'
 -runee: JavaSE-1.6
 -runsystemcapabilities: ${native_capability}
--runvm: -XstartOnFirstThread -Djava.awt.headless=true -Dorg.eclipse.swt.internal.carbon.smallFonts
+-runvm: -XstartOnFirstThread -Djava.awt.headless=true
 
 -resolve.effective: active
 
