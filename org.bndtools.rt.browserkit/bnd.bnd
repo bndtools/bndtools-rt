@@ -1,7 +1,7 @@
 -buildpath: swt/org.eclipse.swt.cocoa.macosx.x86_64_3.102.0.v20130605-1544.jar; version=file,\
 	osgi.core; version=4.2, \
 	osgi.cmpn; version=4.2, \
-	org.bndtools.service
+	org.bndtools.service; version=latest
 
 -sub: *.bnd
 
