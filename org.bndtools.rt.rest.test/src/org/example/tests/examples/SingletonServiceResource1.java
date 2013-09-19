@@ -14,9 +14,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
 
-@Component(provide = Object.class, properties = "osgi.rest.alias=/example1")
+@Component(provide = Object.class, properties = "osgi.rest.alias=/singleton1")
 @Path("/foo")
 public class SingletonServiceResource1 {
 

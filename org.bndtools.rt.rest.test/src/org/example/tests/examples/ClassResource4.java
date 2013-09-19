@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import org.bndtools.inject.Optional;
+import org.example.tests.api.MyRunnable;
 
 // Exactly the same as ClassResource3, but the @Optional and @Inject annotations are the other way around
 @Path("/foo4")
@@ -23,7 +24,7 @@ public class ClassResource4 {
 
 	@Inject
 	@Optional
-	private Runnable runnable;
+	private MyRunnable runnable;
 
 	@GET
 	@Produces("text/plain")

@@ -13,12 +13,14 @@ package org.bndtools.rt.rest;
 import java.util.Collections;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
+@SuppressWarnings("rawtypes")
 public class ResourceServiceTracker extends ServiceTracker {
 	
 	static final class RegisteredResource {
@@ -38,23 +40,24 @@ public class ResourceServiceTracker extends ServiceTracker {
 	private final RestAppServletManager manager;
 	private final LogService log;
 	
-	public static ResourceServiceTracker newInstance(BundleContext context, RestAppServletManager manager, LogService log) {
-		try {
-			return new ResourceServiceTracker(context, manager, log);
-		} catch (InvalidSyntaxException e) {
-			// can't happen (?)
-			throw new RuntimeException(e);
-		}
-	}
-
-	private ResourceServiceTracker(BundleContext context, RestAppServletManager manager, LogService log) throws InvalidSyntaxException {
-		super(context, FrameworkUtil.createFilter(FILTER_STRING), null);
+	@SuppressWarnings("unchecked")
+	public ResourceServiceTracker(BundleContext context, RestAppServletManager manager, LogService log) throws InvalidSyntaxException {
+		super(context, createFilter(), null);
 		this.manager = manager;
 		this.log = log;
 	}
 	
+	private static Filter createFilter() {
+		try {
+			return FrameworkUtil.createFilter(FILTER_STRING);
+		} catch (InvalidSyntaxException e) {
+			// Can't happen...
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
-	public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
+	public Object addingService(ServiceReference reference) {
 		Object result = null;
 		
 		Object aliasObj = reference.getProperty(PROP_ALIAS);
@@ -74,7 +77,7 @@ public class ResourceServiceTracker extends ServiceTracker {
 	}
 	
 	@Override
-	public void removedService(@SuppressWarnings("rawtypes") ServiceReference reference, Object service) {
+	public void removedService(ServiceReference reference, Object service) {
 		context.ungetService(reference);
 		
 		RegisteredResource registered = (RegisteredResource) service;

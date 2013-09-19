@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 
 import org.bndtools.inject.Optional;
 import org.bndtools.inject.TargetFilter;
+import org.example.tests.api.MyRunnable;
 
 @Path("/foo5")
 public class ClassResource5 {
@@ -24,7 +25,7 @@ public class ClassResource5 {
 	@Optional
 	@Inject
 	@TargetFilter("(foo=bar)")
-	private Runnable runnable;
+	private MyRunnable runnable;
 
 	@GET
 	@Produces("text/plain")

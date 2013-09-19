@@ -18,13 +18,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import org.bndtools.inject.Optional;
+import org.example.tests.api.MyRunnable;
 
 @Path("/foo7")
 public class ClassResource7 {
 
 	@Inject
 	@Optional
-	private List<Runnable> runnables;
+	private List<MyRunnable> runnables;
 
 	@GET
 	@Produces("text/plain")

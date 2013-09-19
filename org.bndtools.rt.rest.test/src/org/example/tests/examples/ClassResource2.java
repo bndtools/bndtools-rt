@@ -15,11 +15,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.example.tests.api.MyRunnable;
+
 @Path("/foo2")
 public class ClassResource2 {
 
 	@Inject
-	private Runnable runnable;
+	private MyRunnable runnable;
 
 	@GET
 	@Produces("text/html")

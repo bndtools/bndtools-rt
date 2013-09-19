@@ -1,15 +1,12 @@
--runvm: -ea
+-runvm: -ea,-Djava.util.logging.config.file=logging.properties
 -runfw: org.apache.felix.framework
 -runsystempackages: sun.reflect
 -runee: JavaSE-1.6
--runproperties: org.osgi.service.http.port=18080
 -runbundles: org.bndtools.rt.rest.test.cases;version=latest,\
 	org.bndtools.rt.rest.test.example1;version=latest,\
 	org.bndtools.rt.rest.test.example2;version=latest,\
 	org.mockito.mockito-all,\
-	javax.servlet;version="[2.5,3.0)",\
 	javax.inject,\
-	org.apache.felix.http.jetty,\
 	org.apache.felix.scr,\
 	osgi.cmpn,\
 	org.restlet,\

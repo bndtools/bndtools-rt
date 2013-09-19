@@ -14,20 +14,23 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.example.tests.api.MyRunnable;
+
+import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.component.Reference;
 
-@Component(provide = Object.class, properties = "osgi.rest.alias=/example2")
+@Component(provide = Object.class, properties = "osgi.rest.alias=/singleton2")
 @Path("/foo")
 public class SingletonServiceResource2 {
 
-	private Runnable runnable;
+	private MyRunnable runnable;
 
 	@Reference
-	public void setRunnable(Runnable runnable) {
+	public void bind(MyRunnable runnable) {
 		this.runnable = runnable;
 	}
-
+	
 	@GET
 	@Produces("text/html")
 	public String getHtml() {
