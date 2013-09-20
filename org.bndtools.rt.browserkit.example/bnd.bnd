@@ -1,0 +1,9 @@
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	junit.osgi,\
+	org.bndtools.service; version=latest
+
+Private-Package: org.bndtools.rt.browserkit.example
+Bundle-Activator: org.bndtools.rt.browserkit.example.ExampleActivator
+
+Require-Capability: osgi.extender; filter:="(&(osgi.extender=browserkit)(version>=0.0))"; effective:=active

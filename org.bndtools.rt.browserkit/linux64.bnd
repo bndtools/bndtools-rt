@@ -3,10 +3,6 @@ Include-Resource: \
 	@${swt}!/org/*, \
 	@${swt}!/*.so
 Import-Package: !org.mozilla.xpcom, *
-Require-Capability: osgi.native; filter:= " \
-	(& \
-		(osgi.native.osname=Linux) \
-		(osgi.native.processor=x86-64) \
-	)"
+Require-Capability: osgi.native; filter:="(&(osgi.native.osname=Linux)(osgi.native.processor=x86-64))"
 
 Bundle-Name: BrowserKit for Linux/Gtk x86

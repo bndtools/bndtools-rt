@@ -3,10 +3,6 @@ Include-Resource: \
 	@${swt}!/org/*, \
 	@${swt}!/*.jnilib
 Import-Package: !org.mozilla.xpcom, *
-Require-Capability: osgi.native; filter:= " \
-	(& \
-		(osgi.native.osname=MacOSX) \
-		(osgi.native.processor=x86-64) \
-	)"
+Require-Capability: osgi.native; filter:="(&(osgi.native.osname=MacOSX)(osgi.native.processor=x86-64))"
 
 Bundle-Name: BrowserKit for Mac OSX/x86_64

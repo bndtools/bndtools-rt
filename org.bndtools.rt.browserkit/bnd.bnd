@@ -8,8 +8,7 @@
 baseversion: 0.0.1
 
 Bundle-Version: ${baseversion}.${tstamp} 
-
 Private-Package: org.bndtools.rt.browserkit
 Export-Package: org.bndtools.rt.browserkit.api
 Bundle-Activator: org.bndtools.rt.browserkit.BrowserKitActivator
-Provide-Capability: org.bndtools.rt.browserkit; version:Version=${baseversion}
+Provide-Capability: osgi.extender; osgi.extender=browserkit; version:Version=${baseversion}

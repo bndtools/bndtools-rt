@@ -29,6 +29,13 @@ Therefore to develop an application, it is your responsibility to ensure a web s
 
         Properties props = new Properties();
         props.put(Endpoint.URI, "https://localhost:8081/example");
+        props.put("browserkit.title", "Example App");
         context.registerService(Endpoint.class.getName(), new Endpoint() {}, props);
+
+The Endpoint service must be registered with at least the following two properties:
+
+* `uri`: specifies the address of the HTTP(s) endpoint.
+* `browserkit.title`: specifies the title of the application. Also this property is used as a marker for the Endpoint to be picked up by BrowserKit. Your application may advertise other Endpoints for other purposes (e.g. back-end communications); they will be ignored if they do not specify the `browserkit.title` property.
+* TBD: other properties will be defined that allow control of the window placement, address bar, navigation controls, etc.
 
 N.B.: you should always try to use a dynamically assigned, free TCP port. If a static port is used then your application may conflict with other services on the computer, and with other BrowserKit-based applications.

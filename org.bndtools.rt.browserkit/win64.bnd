@@ -3,10 +3,6 @@ Include-Resource: \
 	@${swt}!/org/*, \
 	@${swt}!/*.dll
 Import-Package: !org.mozilla.xpcom, *
-Require-Capability: osgi.native; filter:= " \
-	(& \
-		(osgi.native.osname=Win32) \
-		(osgi.native.processor=x86-64) \
-	)"
+Require-Capability: osgi.native; filter:="(&(osgi.native.osname=Win32)(osgi.native.processor=x86-64))"
 
 Bundle-Name: BrowserKit for Windows x86-64

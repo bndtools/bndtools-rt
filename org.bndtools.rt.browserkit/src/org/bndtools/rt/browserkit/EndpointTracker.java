@@ -31,7 +31,7 @@ public class EndpointTracker extends ServiceTracker {
 	
 	private static Filter createFilter() {
 		try {
-			return FrameworkUtil.createFilter(String.format("(&(objectClass=%s)(|(uri=http:*)(uri=https:*)))", Endpoint.class.getName()));
+			return FrameworkUtil.createFilter(String.format("(&(objectClass=%s)(|(uri=http:*)(uri=https:*)(%s=*)))", Endpoint.class.getName(), BrowserKitConstants.WINDOW_TITLE));
 		} catch (InvalidSyntaxException e) {
 			throw new RuntimeException(e);
 		}

@@ -1,7 +1,0 @@
-Private-Package: org.bndtools.rt.browserkit.example
-Bundle-Activator: org.bndtools.rt.browserkit.example.ExampleActivator
-
-Require-Capability: org.bndtools.rt.browserkit; filter:="(version>=0.0)"; effective:=active
-
-# Remove this header inherited from bnd.bnd
-Provide-Capability:
