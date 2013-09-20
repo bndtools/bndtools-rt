@@ -6,9 +6,7 @@ Require-Capability: \
 	packager.manager; \
 		filter:="(&(version>=0.0.3)(!(version>=2.0)))"; \
 		effective:=active, \
-	osgi.native;filter:="(& \
-		(osgi.native.osname=Linux) \
-		(osgi.native.processor=arm) \
-	)"
+	osgi.native; \
+		filter:="(&(osgi.native.osname=Linux)(osgi.native.processor=arm))"
 Provide-Capability: packager.type;package.type=mosquitto;version:Version=1.0.2
 Service-Component: *
