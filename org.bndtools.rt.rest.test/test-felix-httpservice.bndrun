@@ -2,7 +2,10 @@
 -runfw: org.apache.felix.framework
 -runsystempackages: sun.reflect
 -runee: JavaSE-1.6
--runbundles: org.bndtools.rt.rest.test.cases;version=latest,\
+-runbundles: \
+	org.apache.felix.configadmin,\
+	org.apache.felix.fileinstall,\
+	org.bndtools.rt.rest.test.cases;version=latest,\
 	org.bndtools.rt.rest.test.example1;version=latest,\
 	org.bndtools.rt.rest.test.example2;version=latest,\
 	org.mockito.mockito-all,\
