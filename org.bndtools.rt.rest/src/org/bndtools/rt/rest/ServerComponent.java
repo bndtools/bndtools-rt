@@ -23,14 +23,12 @@ import org.osgi.service.component.ComponentContext;
 
 import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
-import aQute.bnd.annotation.component.ConfigurationPolicy;
 import aQute.bnd.annotation.metatype.Configurable;
 import aQute.bnd.annotation.metatype.Meta;
 
 @Component(
 		name = BundleConstants.EXTENDER_ID,
-		designateFactory = ServerComponent.Config.class,
-		configurationPolicy = ConfigurationPolicy.optional)
+		designateFactory = ServerComponent.Config.class)
 public class ServerComponent {
 	
 	private static final String HTTP_SCHEME = "http";
@@ -42,7 +40,7 @@ public class ServerComponent {
 	private ResourceServiceTracker serviceTracker;
 
 	interface Config {
-		@Meta.AD(required = false, deflt = "8080")
+		@Meta.AD
 		int port();
 		
 		@Meta.AD(required = false) // default null
