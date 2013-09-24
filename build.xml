@@ -20,6 +20,8 @@
 		<ant dir="org.bndtools.rt.repository.rest" target="release"/>
 		<ant dir="org.bndtools.rt.packager.mongodb" target="release"/>
 		<ant dir="org.bndtools.rt.packager.mosquitto" target="release"/>
+		<ant dir="org.bndtools.rt.executor" target="release"/>
+		<ant dir="org.bndtools.rt.store.mongo" target="release"/>
 	</target>
 
 	<target name="findbugs">
