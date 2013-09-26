@@ -34,6 +34,7 @@ public class ResourceClassTracker extends BundleTracker {
 	
 	private final RestAppServletManager manager;
 	private final LogService log;
+	private final Filter attribFilter;
 	
 	static final class RegisteredClass {
 		final String alias;
@@ -45,9 +46,10 @@ public class ResourceClassTracker extends BundleTracker {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ResourceClassTracker(BundleContext context, RestAppServletManager manager, LogService log) {
+	public ResourceClassTracker(BundleContext context, RestAppServletManager manager, Filter filter, LogService log) {
 		super(context, Bundle.ACTIVE | Bundle.STARTING, null);
 		this.manager = manager;
+		this.attribFilter = filter;
 		this.log = log;
 	}
 	
@@ -73,8 +75,10 @@ public class ResourceClassTracker extends BundleTracker {
 		} catch (InvalidSyntaxException e) {
 			log.log(LogService.LOG_ERROR, String.format("Invalid extender filter in bundle %s: %s.", bundle.getSymbolicName(), filterStr), e);
 		}
-		// we have a match!
 		
+		// We have a match... the bundle is targeting our extender.
+		
+		// Get the alias and class list
 		String alias = extenderAttrs.get("rest-alias");
 		if (alias == null)
 			alias = "";
@@ -83,6 +87,15 @@ public class ResourceClassTracker extends BundleTracker {
 			return null;
 		StringTokenizer tokenizer = new StringTokenizer(classListStr, ",");
 
+		// Check the attribute filter specified in the config
+		if (attribFilter != null) {
+			boolean matches = attribFilter.matches(extenderAttrs);
+			if (!matches) {
+				log.log(LogService.LOG_INFO, String.format("Ignoring bundle %s due to non-matching attribute filter: %s.", bundle.getSymbolicName(), attribFilter));
+				return null;
+			}
+		}
+		
 		// Load resource classes
 		Set<Class<?>> resourceClasses = new HashSet<Class<?>>();
 		while (tokenizer.hasMoreTokens()) {

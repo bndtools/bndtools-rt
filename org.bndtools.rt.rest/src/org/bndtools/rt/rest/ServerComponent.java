@@ -19,6 +19,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 
 import aQute.bnd.annotation.component.Activate;
@@ -45,6 +47,9 @@ public class ServerComponent {
 		
 		@Meta.AD(required = false) // default null
 		String host();
+		
+		@Meta.AD(required = false) // default null
+		String filter();
 	}
 
 	@Activate
@@ -59,6 +64,8 @@ public class ServerComponent {
 		connector.setPort(config.port());
 		connector.setHost(config.host());
 		
+		Filter filter = config.filter() != null ? FrameworkUtil.createFilter(config.filter()) : null;
+		
 		server = new Server();
 		server.setConnectors(new Connector[] { connector });
 		
@@ -70,7 +77,7 @@ public class ServerComponent {
 		List<URI> endpointAddresses = getLocalAddresses(HTTP_SCHEME, config.host(), config.port(), false);
 		manager = new RestAppServletManager(bc, servletContext.getServletHandler(), endpointAddresses);
 
-		classTracker = new ResourceClassTracker(bc, manager, logTracker);
+		classTracker = new ResourceClassTracker(bc, manager, filter, logTracker);
 		classTracker.open();
 		
 		serviceTracker = new ResourceServiceTracker(bc, manager, logTracker);

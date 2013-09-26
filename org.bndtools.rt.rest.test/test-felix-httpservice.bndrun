@@ -8,6 +8,7 @@
 	org.bndtools.rt.rest.test.cases;version=latest,\
 	org.bndtools.rt.rest.test.example1;version=latest,\
 	org.bndtools.rt.rest.test.example2;version=latest,\
+	org.bndtools.rt.rest.test.example3;version=latest,\
 	org.mockito.mockito-all,\
 	javax.inject,\
 	org.apache.felix.scr,\

@@ -1,0 +1,7 @@
+Private-Package: org.example.tests.examples
+Require-Capability: osgi.extender;\
+	filter:="(&(osgi.extender=bndtools.rt.rest)(version>=2.0)(!(version>=3.0)))";\
+	effective:=active;\
+	rest-alias=/example3;\
+	rest-classes="org.example.tests.examples.ClassResource1";\
+	rest-attrib=foo
