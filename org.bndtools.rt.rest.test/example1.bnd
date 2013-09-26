@@ -4,7 +4,7 @@ Service-Component: *
 Require-Capability: osgi.extender;\
 	filter:="(&(osgi.extender=bndtools.rt.rest)(version>=2.0)(!(version>=3.0)))";\
 	effective:=active;\
-	rest-alias=/example3;\
+	rest-alias=/example1;\
 	rest-classes="org.example.tests.examples.ClassResource1,\
 		org.example.tests.examples.ClassResource2,\
 		org.example.tests.examples.ClassResource3,\
