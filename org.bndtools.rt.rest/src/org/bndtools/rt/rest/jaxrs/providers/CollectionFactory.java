@@ -8,7 +8,7 @@
  * Contributors:
  *     Neil Bartlett - initial API and implementation
  ******************************************************************************/
-package org.bndtools.rt.rest;
+package org.bndtools.rt.rest.jaxrs.providers;
 
 import java.util.ArrayList;
 import java.util.Collection;

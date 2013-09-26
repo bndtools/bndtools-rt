@@ -28,6 +28,9 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
 
+import org.bndtools.rt.rest.jaxrs.providers.InjectAnnotationInjectableProvider;
+import org.bndtools.rt.rest.jaxrs.providers.OptionalAnnotationInjectableProvider;
+import org.bndtools.rt.rest.jaxrs.providers.TargetFilterAnnotationInjectableProvider;
 import org.bndtools.service.endpoint.Endpoint;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;

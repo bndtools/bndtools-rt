@@ -8,22 +8,21 @@
  * Contributors:
  *     Neil Bartlett - initial API and implementation
  ******************************************************************************/
-package org.bndtools.rt.rest;
+package org.bndtools.rt.rest.jaxrs.providers;
 
 import java.lang.reflect.Type;
 
+import javax.inject.Inject;
 import javax.ws.rs.ext.Provider;
-
-import org.bndtools.inject.TargetFilter;
 
 import com.sun.jersey.core.spi.component.ComponentContext;
 import com.sun.jersey.spi.inject.Injectable;
 import com.sun.jersey.spi.inject.InjectableProvider;
 
 @Provider
-public class TargetFilterAnnotationInjectableProvider extends BaseInjectableProvider implements InjectableProvider<TargetFilter, Type> {
+public class InjectAnnotationInjectableProvider extends BaseInjectableProvider implements InjectableProvider<Inject, Type> {
 
-	public Injectable<Object> getInjectable(ComponentContext context, TargetFilter annotation, Type type) {
+	public Injectable<Object> getInjectable(ComponentContext context, Inject annotation, Type type) {
 		return super.getInjectable(context, type);
 	}
 
