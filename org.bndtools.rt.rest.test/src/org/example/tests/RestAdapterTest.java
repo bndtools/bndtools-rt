@@ -15,14 +15,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.StringWriter;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,6 +28,7 @@ import junit.framework.TestCase;
 import org.bndtools.service.endpoint.Endpoint;
 import org.example.tests.api.MyRunnable;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -47,10 +44,14 @@ public class RestAdapterTest extends TestCase {
 	private static final AtomicBoolean initialised = new AtomicBoolean(false);
 	
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+	private final String localhost;
 	private final String address1;
+	private final String address2;
 	
 	public RestAdapterTest() throws Exception {
-		address1 = InetAddress.getLocalHost().getHostAddress() + ":" + PORT1;
+		localhost = InetAddress.getLocalHost().getHostAddress();
+		address1 = localhost + ":" + PORT1;
+		address2 = localhost + ":" + PORT2;
 	}
 	
 	@Override
@@ -63,32 +64,6 @@ public class RestAdapterTest extends TestCase {
 		}
 	}
 	
-	List<String> generateEndpoints(List<String> portsAndPaths) throws Exception {
-		List<InetAddress> addresses = new LinkedList<InetAddress>();
-		
-		for (Enumeration<NetworkInterface> netInterEnum = NetworkInterface.getNetworkInterfaces(); netInterEnum.hasMoreElements(); ) {
-			NetworkInterface netInter = netInterEnum.nextElement();
-			for (Enumeration<InetAddress> addressEnum = netInter.getInetAddresses(); addressEnum.hasMoreElements(); ) {
-				InetAddress address = addressEnum.nextElement();
-				if (address.isLoopbackAddress() || address.isMulticastAddress())
-					continue;
-				if (!(address instanceof Inet4Address))
-					continue;
-				addresses.add(address);
-			}
-		}
-		
-		List<String> result = new ArrayList<String>(addresses.size() * portsAndPaths.size());
-		for (String portAndPath : portsAndPaths) {
-			for (InetAddress address : addresses) {
-				String endpoint = "http://" + address.getHostAddress() + ":" + portAndPath;
-				result.add(endpoint);
-			}
-		}
-		Collections.sort(result);
-		return result;
-	}
-	
 	public void testEndpointServiceRegistered() throws Exception {
 		Thread.sleep(5000);
 		
@@ -98,21 +73,36 @@ public class RestAdapterTest extends TestCase {
 		for (ServiceReference ref : refs) {
 			assertEquals("*", ref.getProperty("service.exported.interfaces"));
 			String[] uris = (String[]) ref.getProperty(Endpoint.URI);
-			for (String uri : uris)
-				endpointUris.add(uri);
+			for (String uri : uris) {
+				StringBuilder entry = new StringBuilder().append(uri);
+				String[] propKeys = ref.getPropertyKeys();
+				for (String propKey : propKeys) {
+					if (!Constants.SERVICE_ID.equals(propKey) && !Constants.OBJECTCLASS.equals(propKey) && !Endpoint.URI.equals(propKey) && !"service.exported.interfaces".equals(propKey)) {
+						entry.append(';').append(propKey).append('=');
+						Object property = ref.getProperty(propKey);
+						if (property.getClass().isArray())
+							entry.append(Arrays.toString((Object[]) property));
+						else
+							entry.append(property);
+					}
+				}
+				endpointUris.add(entry.toString());
+			}
 		}
 		Collections.sort(endpointUris);
 		String actualUris = endpointUris.toString();
 		
-		List<String> expectedEndpoints = Arrays.asList(new String[] {
-				PORT1 + "/example1",
-				PORT1 + "/example3",
-				PORT2 + "/example3",
-				PORT1 + "",
-				PORT1 + "/singleton1",
-				PORT2 + "/singleton1"
+		List<String> expectedUriList = Arrays.asList(new String[] {
+				"http://" + localhost + ":" + PORT1 + "/example1",
+				"http://" + localhost + ":" + PORT1 + "/example3",
+				"http://" + localhost + ":" + PORT2 + "/example3",
+				"http://" + localhost + ":" + PORT1 + "",
+				"http://" + localhost + ":" + PORT1 + "/singleton1",
+				"http://" + localhost + ":" + PORT2 + "/singleton1"
 		});
-		String expectedUris = generateEndpoints(expectedEndpoints).toString();
+		Collections.sort(expectedUriList);
+		String expectedUris = expectedUriList.toString();
+
 		System.out.println("EXPECTED ENDPOINTS: " + expectedUris);
 		System.out.println("ACTUAL ENDPOINTS  : " + actualUris);
 		assertEquals(expectedUris, actualUris);
