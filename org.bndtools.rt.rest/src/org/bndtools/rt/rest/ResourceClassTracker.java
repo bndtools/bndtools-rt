@@ -10,7 +10,10 @@
  ******************************************************************************/
 package org.bndtools.rt.rest;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -32,6 +35,12 @@ import aQute.bnd.header.Parameters;
 @SuppressWarnings("rawtypes")
 public class ResourceClassTracker extends BundleTracker {
 	
+	public static final String REST_ALIAS = "REST-Alias";
+	public static final String REST_CLASSES = "REST-Classes";
+	public static final String DEFAULT_ALIAS = "";
+
+	private static final String CLASS_LIST_SEPARATOR = ",";
+
 	private final RestAppServletManager manager;
 	private final LogService log;
 	private final Filter attribFilter;
@@ -78,18 +87,34 @@ public class ResourceClassTracker extends BundleTracker {
 		
 		// We have a match... the bundle is targeting our extender.
 		
-		// Get the alias and class list
-		String alias = extenderAttrs.get("rest-alias");
-		if (alias == null)
-			alias = "";
-		String classListStr = extenderAttrs.get("rest-classes");
+		// Get the alias and attribs
+		String alias;
+		Map<String, String> attribs;
+		
+		String aliasStr = bundle.getHeaders().get(REST_ALIAS);
+		if (aliasStr == null) {
+			alias = DEFAULT_ALIAS;
+			attribs = Collections.emptyMap();
+		} else {
+			Parameters aliasParms = OSGiHeader.parseHeader(aliasStr);
+			if (aliasParms.size() != 1) {
+				log.log(LogService.LOG_ERROR, String.format("Invalid " + REST_ALIAS + " header in bundle %s: must specify exactly one alias.", bundle.getSymbolicName()));
+				return null;
+			}
+			Entry<String, Attrs> entry = aliasParms.entrySet().iterator().next();
+			alias = entry.getKey();
+			attribs = entry.getValue();
+		}
+		
+		// Get the class list
+		String classListStr = bundle.getHeaders().get(REST_CLASSES);
 		if (classListStr == null)
 			return null;
-		StringTokenizer tokenizer = new StringTokenizer(classListStr, ",");
+		StringTokenizer tokenizer = new StringTokenizer(classListStr, CLASS_LIST_SEPARATOR);
 
 		// Check the attribute filter specified in the config
 		if (attribFilter != null) {
-			boolean matches = attribFilter.matches(extenderAttrs);
+			boolean matches = attribFilter.matches(attribs);
 			if (!matches) {
 				log.log(LogService.LOG_INFO, String.format("Ignoring bundle %s due to non-matching attribute filter: %s.", bundle.getSymbolicName(), attribFilter));
 				return null;

@@ -113,6 +113,8 @@ public class RestAdapterTest extends TestCase {
 				PORT2 + "/singleton1"
 		});
 		String expectedUris = generateEndpoints(expectedEndpoints).toString();
+		System.out.println("EXPECTED ENDPOINTS: " + expectedUris);
+		System.out.println("ACTUAL ENDPOINTS  : " + actualUris);
 		assertEquals(expectedUris, actualUris);
 	}
 

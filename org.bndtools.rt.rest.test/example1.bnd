@@ -3,12 +3,14 @@ Service-Component: *
 
 Require-Capability: osgi.extender;\
 	filter:="(&(osgi.extender=bndtools.rt.rest)(version>=2.0)(!(version>=3.0)))";\
-	effective:=active;\
-	rest-alias=/example1;\
-	rest-classes="org.example.tests.examples.ClassResource1,\
-		org.example.tests.examples.ClassResource2,\
-		org.example.tests.examples.ClassResource3,\
-		org.example.tests.examples.ClassResource4,\
-		org.example.tests.examples.ClassResource5,\
-		org.example.tests.examples.ClassResource6,\
-		org.example.tests.examples.ClassResource7"
+	effective:=active
+
+REST-Alias=/example1
+REST-Classes=\
+	org.example.tests.examples.ClassResource1,\
+	org.example.tests.examples.ClassResource2,\
+	org.example.tests.examples.ClassResource3,\
+	org.example.tests.examples.ClassResource4,\
+	org.example.tests.examples.ClassResource5,\
+	org.example.tests.examples.ClassResource6,\
+	org.example.tests.examples.ClassResource7

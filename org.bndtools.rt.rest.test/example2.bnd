@@ -3,5 +3,6 @@ Private-Package: org.example.tests.examples
 # rest-alias left blank, will default to "/"
 Require-Capability: osgi.extender;\
 	filter:="(&(osgi.extender=bndtools.rt.rest)(version>=2.0)(!(version>=3.0)))";\
-	effective:=active;\
-	rest-classes="org.example.tests.examples.ClassResource1"
+	effective:=active
+
+REST-Classes: org.example.tests.examples.ClassResource1
