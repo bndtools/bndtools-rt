@@ -87,7 +87,7 @@ public class ServerComponent {
 	void deactivate() throws Exception {
 		serviceTracker.close();
 		classTracker.close();
-		manager.destroyAll();
+		manager.deleteAll();
 		server.stop();
 		logTracker.close();
 	}

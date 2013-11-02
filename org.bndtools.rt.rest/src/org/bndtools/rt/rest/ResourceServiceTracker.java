@@ -66,7 +66,7 @@ public class ResourceServiceTracker extends ServiceTracker {
 			@SuppressWarnings("unchecked")
 			Object service = context.getService(reference);
 			try {
-				manager.addSingletons(alias, Collections.singleton(service));
+				manager.addSingletons(alias, Collections.singleton(service), null);
 				result = new RegisteredResource(alias, service);
 			} catch (Exception e) {
 				log.log(LogService.LOG_ERROR, String.format("Error adding resource to alias '%s'.", alias), e);
@@ -82,7 +82,7 @@ public class ResourceServiceTracker extends ServiceTracker {
 		
 		RegisteredResource registered = (RegisteredResource) service;
 		try {
-			manager.removeSingletons(registered.alias, Collections.singleton(registered.resource));
+			manager.removeSingletons(registered.alias, Collections.singleton(registered.resource), null);
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, String.format("Error removing resource from alias '%s'.", registered.alias), e);
 		}

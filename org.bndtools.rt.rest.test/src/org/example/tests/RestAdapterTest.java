@@ -74,19 +74,10 @@ public class RestAdapterTest extends TestCase {
 			assertEquals("*", ref.getProperty("service.exported.interfaces"));
 			String[] uris = (String[]) ref.getProperty(Endpoint.URI);
 			for (String uri : uris) {
-				StringBuilder entry = new StringBuilder().append(uri);
-				String[] propKeys = ref.getPropertyKeys();
-				for (String propKey : propKeys) {
-					if (!Constants.SERVICE_ID.equals(propKey) && !Constants.OBJECTCLASS.equals(propKey) && !Endpoint.URI.equals(propKey) && !"service.exported.interfaces".equals(propKey)) {
-						entry.append(';').append(propKey).append('=');
-						Object property = ref.getProperty(propKey);
-						if (property.getClass().isArray())
-							entry.append(Arrays.toString((Object[]) property));
-						else
-							entry.append(property);
-					}
-				}
-				endpointUris.add(entry.toString());
+				String[] names = (String[]) ref.getProperty("names");
+				if (names != null && names.length > 0)
+					uri += Arrays.toString(names);
+				endpointUris.add(uri);
 			}
 		}
 		Collections.sort(endpointUris);
@@ -94,8 +85,8 @@ public class RestAdapterTest extends TestCase {
 		
 		List<String> expectedUriList = Arrays.asList(new String[] {
 				"http://" + localhost + ":" + PORT1 + "/example1",
-				"http://" + localhost + ":" + PORT1 + "/example3",
-				"http://" + localhost + ":" + PORT2 + "/example3",
+				"http://" + localhost + ":" + PORT1 + "/example3[fubar]",
+				"http://" + localhost + ":" + PORT2 + "/example3[fubar]",
 				"http://" + localhost + ":" + PORT1 + "",
 				"http://" + localhost + ":" + PORT1 + "/singleton1",
 				"http://" + localhost + ":" + PORT2 + "/singleton1"

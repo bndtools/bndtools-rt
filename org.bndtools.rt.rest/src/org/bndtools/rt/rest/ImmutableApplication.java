@@ -13,26 +13,50 @@ package org.bndtools.rt.rest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.bndtools.rt.rest.jaxrs.providers.InjectAnnotationInjectableProvider;
+import org.bndtools.rt.rest.jaxrs.providers.OptionalAnnotationInjectableProvider;
+import org.bndtools.rt.rest.jaxrs.providers.TargetFilterAnnotationInjectableProvider;
+
 public class ImmutableApplication extends Application {
 	
-	private final Set<Object> singletons;
+	private final Set<Class<?>> defaultClasses;
 	private final Set<Class<?>> classes;
+	private final Set<Class<?>> combinedClasses;
 	
-	public ImmutableApplication(Set<Class<?>> classes, Set<Object> singletons) {
+	private final Map<Object, Object> singletons;
+	
+	public ImmutableApplication(Set<Class<?>> classes, Map<Object, Object> singletons) {
+		this.defaultClasses = initDefaultClasses();
 		this.classes = (classes != null) ? classes : Collections.<Class<?>>emptySet();
-		this.singletons = (singletons != null) ? singletons : Collections.emptySet();
+		
+		this.combinedClasses = new HashSet<Class<?>>(this.defaultClasses.size() + this.classes.size());
+		this.combinedClasses.addAll(this.defaultClasses);
+		this.combinedClasses.addAll(this.classes);
+		
+		this.singletons = (singletons != null) ? singletons : Collections.emptyMap();
 	}
-	
+
+	private Set<Class<?>> initDefaultClasses() {
+		Set<Class<?>> cs = new HashSet<Class<?>>();
+		cs.add(InjectAnnotationInjectableProvider.class);
+		cs.add(OptionalAnnotationInjectableProvider.class);
+		cs.add(TargetFilterAnnotationInjectableProvider.class);
+		return cs;
+	}
+
 	public ImmutableApplication addSingletons(Collection<? extends Object> toAdd) {
 		Set<Class<?>> newClasses = new HashSet<Class<?>>(this.classes);
 		
-		Set<Object> newSingletons = new HashSet<Object>(this.singletons.size() + 1);
-		newSingletons.addAll(this.singletons);
-		newSingletons.addAll(toAdd);
+		Map<Object, Object> newSingletons = new IdentityHashMap<Object, Object>(this.singletons.size() + 1);
+		newSingletons.putAll(this.singletons);
+		for (Object object : toAdd)
+			newSingletons.put(object, null);
 		
 		return new ImmutableApplication(newClasses, newSingletons);
 	}
@@ -40,8 +64,9 @@ public class ImmutableApplication extends Application {
 	public ImmutableApplication removeSingletons(Collection<? extends Object> toRemove) {
 		Set<Class<?>> newClasses = new HashSet<Class<?>>(this.classes);
 		
-		Set<Object> newSingletons = new HashSet<Object>(this.singletons);
-		newSingletons.removeAll(toRemove);
+		Map<Object, Object> newSingletons = new IdentityHashMap<Object, Object>(this.singletons);
+		for (Object object : toRemove)
+			newSingletons.remove(object);
 		
 		return new ImmutableApplication(newClasses, newSingletons);
 	}
@@ -51,7 +76,7 @@ public class ImmutableApplication extends Application {
 		newClasses.addAll(this.classes);
 		newClasses.addAll(toAdd);
 		
-		Set<Object> newSingletons = new HashSet<Object>(this.singletons);
+		Map<Object, Object> newSingletons = new IdentityHashMap<Object, Object>(this.singletons);
 		
 		return new ImmutableApplication(newClasses, newSingletons);
 	}
@@ -60,19 +85,23 @@ public class ImmutableApplication extends Application {
 		Set<Class<?>> newClasses = new HashSet<Class<?>>(this.classes);
 		newClasses.removeAll(toRemove);
 		
-		Set<Object> newSingletons = new HashSet<Object>(this.singletons);
+		Map<Object, Object> newSingletons = new IdentityHashMap<Object, Object>(this.singletons);
 		
 		return new ImmutableApplication(newClasses, newSingletons);
 	}
 	
 	@Override
 	public Set<Class<?>> getClasses() {
-		return Collections.unmodifiableSet(classes);
+		return Collections.unmodifiableSet(combinedClasses);
 	}
 	
 	@Override
 	public Set<Object> getSingletons() {
-		return Collections.unmodifiableSet(singletons);
+		return Collections.unmodifiableSet(singletons.keySet());
+	}
+	
+	public boolean isEmpty() {
+		return classes.isEmpty() && singletons.isEmpty();
 	}
 
 	@Override

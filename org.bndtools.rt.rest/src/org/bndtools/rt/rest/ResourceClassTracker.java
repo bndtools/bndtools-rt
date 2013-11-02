@@ -37,8 +37,9 @@ public class ResourceClassTracker extends BundleTracker {
 	
 	public static final String REST_ALIAS = "REST-Alias";
 	public static final String REST_CLASSES = "REST-Classes";
-	public static final String DEFAULT_ALIAS = "";
+	public static final String REST_ENDPOINT_NAME = "REST-EndpointName";
 
+	private static final String DEFAULT_ALIAS = "";
 	private static final String CLASS_LIST_SEPARATOR = ",";
 
 	private final RestAppServletManager manager;
@@ -48,9 +49,11 @@ public class ResourceClassTracker extends BundleTracker {
 	static final class RegisteredClass {
 		final String alias;
 		final Set<Class<?>> classes;
-		RegisteredClass(String alias, Set<Class<?>> classes) {
+		final String name;
+		RegisteredClass(String alias, Set<Class<?>> classes, String name) {
 			this.alias = alias;
 			this.classes = classes;
+			this.name = name;
 		}
 	}
 
@@ -106,6 +109,14 @@ public class ResourceClassTracker extends BundleTracker {
 			attribs = entry.getValue();
 		}
 		
+		// Get endpoint name (default null)
+		String endpointName = bundle.getHeaders().get(REST_ENDPOINT_NAME);
+		if (endpointName != null) {
+			endpointName = endpointName.trim();
+			if (endpointName.length() == 0)
+				endpointName = null;
+		}
+		
 		// Get the class list
 		String classListStr = bundle.getHeaders().get(REST_CLASSES);
 		if (classListStr == null)
@@ -136,8 +147,8 @@ public class ResourceClassTracker extends BundleTracker {
 		// Register resource classes
 		if (!resourceClasses.isEmpty()) {
 			try {
-				manager.addClasses(alias, resourceClasses);
-				result = new RegisteredClass(alias, resourceClasses);
+				manager.addClasses(alias, resourceClasses, endpointName);
+				result = new RegisteredClass(alias, resourceClasses, endpointName);
 			} catch (Exception e) {
 				log.log(LogService.LOG_ERROR, String.format("Error adding resource class(es) to alias '%s'.", alias), e);
 			}
@@ -150,7 +161,7 @@ public class ResourceClassTracker extends BundleTracker {
 	public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
 		RegisteredClass registered = (RegisteredClass) object;
 		try {
-			manager.removeClasses(registered.alias, registered.classes);
+			manager.removeClasses(registered.alias, registered.classes, registered.name);
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, String.format("Error removing resource class(es) from alias '%s'.", registered.alias), e);
 		}

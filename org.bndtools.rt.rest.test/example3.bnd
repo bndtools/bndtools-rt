@@ -4,3 +4,4 @@ Require-Capability: osgi.extender;\
 	effective:=active
 REST-Alias: /example3; rest-attrib=foo
 REST-Classes: org.example.tests.examples.ClassResource1
+REST-EndpointName: fubar
