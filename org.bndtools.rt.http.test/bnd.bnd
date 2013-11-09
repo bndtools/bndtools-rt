@@ -1,0 +1,9 @@
+-buildpath: osgi.core;version='[4.2,5)',\
+	osgi.cmpn,\
+	junit.osgi,\
+	javax.servlet; version=3.0,\
+	org.restlet,\
+	org.mockito.mockito-all
+	
+Private-Package: org.bndtools.rt.rest.whiteboard.jetty.test
+Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
