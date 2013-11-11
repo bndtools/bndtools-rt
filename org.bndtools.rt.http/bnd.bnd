@@ -10,12 +10,14 @@
 	org.eclipse.jetty.http;version=${jetty-version},\
 	org.eclipse.jetty.servlet;version=${jetty-version},\
 	org.eclipse.jetty.security;version=${jetty-version},\
-	org.bndtools.service; version=latest
+	org.bndtools.service; version=latest, \
+	org.bndtools.rt.utils; version=project
 	
 jetty-version: 8.1
 
 Private-Package: org.bndtools.rt.rest.whiteboard.jetty
-Conditional-Package: org.bndtools.rt.utils.*, \
+Conditional-Package: \
+	org.bndtools.rt.utils.*, \
 	org.eclipse.jetty.*, \
 	aQute.bnd.annotation.*,\
 	aQute.libg.*

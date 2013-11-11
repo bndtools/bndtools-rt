@@ -97,7 +97,7 @@ public class ServerComponent {
 				Object aliasObj = reference.getProperty(PROP_ALIAS);
 				if (aliasObj != null && aliasObj instanceof String) {
 					String alias = (String) aliasObj;
-					servletManager.putAlias(alias, servlet);
+					servletManager.putAlias(alias, servlet, reference.getBundle());
 					
 					Map<String, Object> endpointAttribs = ServiceProperties.copyProperties(reference);
 					ServiceRegistration<Endpoint> svcReg = publisher.register(alias, endpointAttribs);
