@@ -1,5 +1,4 @@
 Private-Package: org.example.tests.examples
-Service-Component: *
 
 Require-Capability: osgi.extender;\
 	filter:="(&(osgi.extender=bndtools.rt.rest)(version>=2.0)(!(version>=3.0)))";\

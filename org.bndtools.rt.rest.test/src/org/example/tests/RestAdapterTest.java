@@ -14,6 +14,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.util.Dictionary;
@@ -24,6 +25,7 @@ import javax.servlet.Servlet;
 
 import org.bndtools.service.endpoint.Endpoint;
 import org.example.tests.api.MyRunnable;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -95,6 +97,8 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		// Check it's gone
 		refs = context.getAllServiceReferences(Servlet.class.getName(), null);
 		assertNull(refs);
+		endpointRefs = context.getAllServiceReferences(Endpoint.class.getName(), null);
+		assertNull(endpointRefs);
 
 		// Check I can't connect
 		resource = new ClientResource("http://" + address1 + "/test1/foo");
@@ -107,21 +111,63 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		}
 	}
 	
-	public void XtestSimpleClassResource() throws Exception {
+	private Bundle installAndStart(File file) throws Exception {
+		Bundle bundle = context.installBundle(file.getAbsoluteFile().toURL().toString());
+		bundle.start();
+		return bundle;
+	}
+
+	public void testSimpleClassResource() throws Exception {
+		// Install & start bundle
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
+		// Check for the servlet service
+		ServiceReference[] refs = context.getAllServiceReferences(Servlet.class.getName(), null);
+		assertNotNull(refs);
+		assertEquals(1, refs.length);
+		assertEquals("/example1", refs[0].getProperty("bndtools.rt.http.alias"));
+		
+		// Check for advertised Endpoint service
+		ServiceReference[] endpointRefs = context.getAllServiceReferences(Endpoint.class.getName(), null);
+		assertNotNull(endpointRefs);
+		assertEquals(1, endpointRefs.length);
+		assertEquals("*", endpointRefs[0].getProperty("service.exported.interfaces"));
+		
+		// Connect by HTTP
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo1");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
 		assertEquals("This is an easy resource (as plain text)", output.toString());
+		
+		// Uninstall bundle
+		exampleBundle.uninstall();
 	}
-	
 
-	public void XtestClassResourceDefaultAlias() throws Exception {
+	public void testClassResourceDefaultAlias() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example2.jar"));
+		
+		// Check for the servlet service
+		ServiceReference[] refs = context.getAllServiceReferences(Servlet.class.getName(), null);
+		assertNotNull(refs);
+		assertEquals(1, refs.length);
+		assertEquals("/", refs[0].getProperty("bndtools.rt.http.alias"));
+		
+		// Check for advertised Endpoint service
+		ServiceReference[] endpointRefs = context.getAllServiceReferences(Endpoint.class.getName(), null);
+		assertNotNull(endpointRefs);
+		assertEquals(1, endpointRefs.length);
+		assertEquals("*", endpointRefs[0].getProperty("service.exported.interfaces"));
+		
+		// Connect by HTTP
 		ClientResource resource = new ClientResource("http://" + address1 + "/foo1");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
 		assertEquals("This is an easy resource (as plain text)", output.toString());
+
+		// Clean up
+		exampleBundle.uninstall();
 	}
 	
 	public void XtestClassInjectionMissingMandatoryRef() throws Exception {

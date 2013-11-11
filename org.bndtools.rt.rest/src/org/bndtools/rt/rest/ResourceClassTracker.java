@@ -11,11 +11,15 @@
 package org.bndtools.rt.rest;
 
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import javax.servlet.Servlet;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -24,6 +28,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.namespace.extender.ExtenderNamespace;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.BundleTracker;
@@ -32,42 +37,32 @@ import aQute.bnd.header.Attrs;
 import aQute.bnd.header.OSGiHeader;
 import aQute.bnd.header.Parameters;
 
-@SuppressWarnings("rawtypes")
-public class ResourceClassTracker extends BundleTracker {
+import com.sun.jersey.spi.container.servlet.ServletContainer;
+
+public class ResourceClassTracker extends BundleTracker<ServiceRegistration<Servlet>> {
 	
 	public static final String REST_ALIAS = "REST-Alias";
 	public static final String REST_CLASSES = "REST-Classes";
 	public static final String REST_ENDPOINT_NAME = "REST-EndpointName";
 
-	private static final String DEFAULT_ALIAS = "";
+	private static final String DEFAULT_ALIAS = "/";
 	private static final String CLASS_LIST_SEPARATOR = ",";
 
 	private final LogService log;
-	private final Filter attribFilter;
 	
-	static final class RegisteredClass {
-		final String alias;
-		final Set<Class<?>> classes;
-		final String name;
-		RegisteredClass(String alias, Set<Class<?>> classes, String name) {
-			this.alias = alias;
-			this.classes = classes;
-			this.name = name;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public ResourceClassTracker(BundleContext context, Filter filter, LogService log) {
+	public ResourceClassTracker(BundleContext context, LogService log) {
 		super(context, Bundle.ACTIVE | Bundle.STARTING, null);
-		this.attribFilter = filter;
 		this.log = log;
 	}
 	
 	@Override
-	public Object addingBundle(Bundle bundle, BundleEvent event) {
-		RegisteredClass result = null;
-		
-		// Read header
+	public ServiceRegistration<Servlet> addingBundle(Bundle bundle, BundleEvent event) {
+		// Get the class list
+		String classListStr = bundle.getHeaders().get(REST_CLASSES);
+		if (classListStr == null)
+			return null;
+
+		// Check if this bundle requires our capability
 		String requires = bundle.getHeaders().get(Constants.REQUIRE_CAPABILITY);
 		if (requires == null)
 			return null;
@@ -106,31 +101,9 @@ public class ResourceClassTracker extends BundleTracker {
 			alias = entry.getKey();
 			attribs = entry.getValue();
 		}
-		
-		// Get endpoint name (default null)
-		String endpointName = bundle.getHeaders().get(REST_ENDPOINT_NAME);
-		if (endpointName != null) {
-			endpointName = endpointName.trim();
-			if (endpointName.length() == 0)
-				endpointName = null;
-		}
-		
-		// Get the class list
-		String classListStr = bundle.getHeaders().get(REST_CLASSES);
-		if (classListStr == null)
-			return null;
-		StringTokenizer tokenizer = new StringTokenizer(classListStr, CLASS_LIST_SEPARATOR);
 
-		// Check the attribute filter specified in the config
-		if (attribFilter != null) {
-			boolean matches = attribFilter.matches(attribs);
-			if (!matches) {
-				log.log(LogService.LOG_INFO, String.format("Ignoring bundle %s due to non-matching attribute filter: %s.", bundle.getSymbolicName(), attribFilter));
-				return null;
-			}
-		}
-		
 		// Load resource classes
+		StringTokenizer tokenizer = new StringTokenizer(classListStr, CLASS_LIST_SEPARATOR);
 		Set<Class<?>> resourceClasses = new HashSet<Class<?>>();
 		while (tokenizer.hasMoreTokens()) {
 			String className = tokenizer.nextToken().trim();
@@ -145,25 +118,27 @@ public class ResourceClassTracker extends BundleTracker {
 		// Register resource classes
 		if (!resourceClasses.isEmpty()) {
 			try {
-				// TODO
-//				manager.addClasses(alias, resourceClasses, endpointName);
-				result = new RegisteredClass(alias, resourceClasses, endpointName);
+				ImmutableApplication app = ImmutableApplication.empty().addClasses(resourceClasses);
+				ServletContainer servlet = new ServletContainer(app);
+				
+				Dictionary<String, Object> properties = new Hashtable<String, Object>();
+				properties.put("bndtools.rt.http.alias", alias);
+				for (Entry<String, String> attrib : attribs.entrySet()) {
+					properties.put(attrib.getKey(), attrib.getValue());
+				}
+				
+				ServiceRegistration<Servlet> registration = context.registerService(Servlet.class, servlet, properties);
+				return registration;
 			} catch (Exception e) {
 				log.log(LogService.LOG_ERROR, String.format("Error adding resource class(es) to alias '%s'.", alias), e);
 			}
 		}
-
-		return result;
+		
+		return null;
 	}
 	
 	@Override
-	public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
-		RegisteredClass registered = (RegisteredClass) object;
-		try {
-			// TODO
-//			manager.removeClasses(registered.alias, registered.classes, registered.name);
-		} catch (Exception e) {
-			log.log(LogService.LOG_ERROR, String.format("Error removing resource class(es) from alias '%s'.", registered.alias), e);
-		}
+	public void removedBundle(Bundle bundle, BundleEvent event, ServiceRegistration<Servlet> registration) {
+		registration.unregister();
 	}
 }
