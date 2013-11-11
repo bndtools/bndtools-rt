@@ -170,7 +170,9 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionMissingMandatoryRef() throws Exception {
+	public void testClassInjectionMissingMandatoryRef() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo2");
 		resource.setRetryOnError(false);
 		try {
@@ -186,9 +188,13 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 			
 			assertEquals(MyRunnable.class.getName(), output.toString());
 		}
+		
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionSatisfiedMandatoryRef() throws Exception {
+	public void testClassInjectionSatisfiedMandatoryRef() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -203,18 +209,24 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		verifyNoMoreInteractions(mockRunnable);
 		
 		svcReg.unregister();
+		exampleBundle.uninstall();
 	}
 
-	public void XtestClassInjectionUnsatisfiedOptionalRef() throws Exception {
+	public void testClassInjectionUnsatisfiedOptionalRef() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo3");
 		resource.setRetryOnError(false);
 		
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
 		assertEquals("NULL", output.toString());
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionSatisfiedOptionalRef() throws Exception {
+	public void testClassInjectionSatisfiedOptionalRef() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -226,18 +238,24 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		assertEquals("NOT NULL", output.toString());
 		
 		svcReg.unregister();
+		exampleBundle.uninstall();
 	}
 
-	public void XtestClassInjectionUnsatisfiedOptionalRefAlternateOrder() throws Exception {
+	public void testClassInjectionUnsatisfiedOptionalRefAlternateOrder() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo4");
 		resource.setRetryOnError(false);
 		
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
 		assertEquals("NULL", output.toString());
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionSatisfiedOptionalRefAlternateOrder() throws Exception {
+	public void testClassInjectionSatisfiedOptionalRefAlternateOrder() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -249,9 +267,12 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		assertEquals("NOT NULL", output.toString());
 		
 		svcReg.unregister();
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionUnsatisfiedFilterRef() throws Exception {
+	public void testClassInjectionUnsatisfiedFilterRef() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -263,9 +284,12 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		assertEquals("NULL", output.toString());
 		
 		svcReg.unregister();
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionSatisfiedFilterRef() throws Exception {
+	public void testClassInjectionSatisfiedFilterRef() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		Properties props = new Properties();
@@ -279,9 +303,12 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		assertEquals("NOT NULL", output.toString());
 		
 		svcReg.unregister();
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionCollection() throws Exception {
+	public void testClassInjectionCollection() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		MyRunnable mockRunnable1 = mock(MyRunnable.class);
 		MyRunnable mockRunnable2 = mock(MyRunnable.class);
 		
@@ -296,9 +323,12 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		
 		svcReg1.unregister();
 		svcReg2.unregister();
+		exampleBundle.uninstall();
 	}
 	
 	public void XtestClassInjectionCollectionUnsatisfied() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo6");
 		resource.setRetryOnError(false);
 		try {
@@ -314,9 +344,12 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 			
 			assertEquals(MyRunnable.class.getName(), output.toString());
 		}
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionCollectionOptionalSatisfied() throws Exception {
+	public void testClassInjectionCollectionOptionalSatisfied() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		MyRunnable mockRunnable1 = mock(MyRunnable.class);
 		MyRunnable mockRunnable2 = mock(MyRunnable.class);
 		
@@ -331,13 +364,17 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		
 		svcReg1.unregister();
 		svcReg2.unregister();
+		exampleBundle.uninstall();
 	}
 	
-	public void XtestClassInjectionCollectionOptionalUnsatisfied() throws Exception {
+	public void testClassInjectionCollectionOptionalUnsatisfied() throws Exception {
+		Bundle exampleBundle = installAndStart(new File("generated/org.bndtools.rt.rest.test.example1.jar"));
+		
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo7");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
 		resource.get(MediaType.TEXT_PLAIN).write(output);
 		assertEquals("0", output.toString());
+		exampleBundle.uninstall();
 	}
 }
