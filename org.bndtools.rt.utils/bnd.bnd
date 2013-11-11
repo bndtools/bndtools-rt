@@ -1,0 +1,5 @@
+-buildpath: \
+	osgi.core, \
+	osgi.cmpn
+Export-Package: org.bndtools.rt.utils.log,\
+	org.bndtools.rt.utils.classloader
