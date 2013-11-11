@@ -1,9 +1,8 @@
-# NB if either extender-id or Bundle-Version is changed, they MUST
+# NB if either extender-id or base-version is changed, they MUST
 # be updated also in BundleConstants.java
 extender-id: bndtools.rt.rest
-Bundle-Version: 2.0.0
+base-version: 2.0.0
 
-#
 -buildpath: osgi.core;version=4.3,\
 	osgi.cmpn;version=4.3,\
 	osgi.enterprise;version=5,\
@@ -18,6 +17,8 @@ Bundle-Version: 2.0.0
 	org.bndtools.rt.utils;version=project,\
 	ee.j2se;version='[1.5,1.6)'
 
+Bundle-Version: ${base-version}.${tstamp}
+Bundle-Activator: org.bndtools.rt.rest.Activator
 Private-Package: org.bndtools.rt.rest,\
 	org.bndtools.rt.rest.jaxrs.providers
 
@@ -73,11 +74,25 @@ Import-Package:\
 	org.objectweb.asm;resolution:=optional,\
 	!org.mortbay.*,\
 	*
-Service-Component: *
 
-Provide-Capability: osgi.extender;\
-	osgi.extender=${extender-id};\
-	version:Version=${Bundle-Version};\
-	uses:="org.bndtools.inject,javax.ws.rs,javax.ws.rs.core,javax.ws.rs.ext";\
-	effective:=active
-Bundle-Activator: org.bndtools.rt.rest.Activator
+uses: org.bndtools.inject, \
+	javax.ws.rs, \
+	javax.ws.rs.core, \
+	javax.ws.rs.ext, \
+	javax.servlet, \
+	javax.servlet.http
+
+Provide-Capability: \
+	osgi.extender; osgi.extender=${extender-id}; \
+		version:Version=${base-version}; \
+		uses:="${uses}"; \
+		effective:=active, \
+	osgi.whiteboard; osgi.whiteboard=${extender-id}; \
+		version:Version=${base-version}; \
+		uses:="${uses}"; \
+		effective:=active
+
+Require-Capability: \
+	osgi.whiteboard; \
+		filter:="(&(osgi.whiteboard=bndtools.rt.http)(version>=1.0)(!(version>=2.0)))"; \
+		effective:=active
