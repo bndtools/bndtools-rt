@@ -15,6 +15,8 @@
 	
 jetty-version: 8.1
 
+base-version: 1.0.0
+Bundle-Version: ${base-version}.${tstamp}
 Private-Package: org.bndtools.rt.rest.whiteboard.jetty
 Conditional-Package: \
 	org.bndtools.rt.utils.*, \
@@ -28,3 +30,9 @@ Import-Package: \
 	org.slf4j.*; version='[1.6, 2.0)',\
 	*
 Service-Component: *
+
+Provide-Capability:\
+	osgi.whiteboard; osgi.whiteboard=bndtools.rt.http; \
+		version:Version=${base-version}; \
+		uses:="javax.servlet, javax.servlet.http"; \
+		effective:=active
