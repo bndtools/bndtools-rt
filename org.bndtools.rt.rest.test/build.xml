@@ -4,7 +4,7 @@
 
 	<!-- override -->
 	<target name="test" depends="build">
-		<bndtest runfiles="test-felix-httpservice.bndrun" dir="${basedir}"/>
+		<bndtest runfiles="test1.bndrun" dir="${basedir}"/>
 	</target>
 
 </project>
