@@ -11,17 +11,25 @@
 package org.bndtools.rt.rest;
 
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Hashtable;
+
+import javax.servlet.Servlet;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
-@SuppressWarnings("rawtypes")
-public class ResourceServiceTracker extends ServiceTracker {
+import com.sun.jersey.spi.container.servlet.ServletContainer;
+
+public class ResourceServiceTracker extends ServiceTracker<Object, ServiceRegistration<Servlet>> {
 	
 	static final class RegisteredResource {
 		final String alias;
@@ -29,21 +37,21 @@ public class ResourceServiceTracker extends ServiceTracker {
 		RegisteredResource(String alias, Object resource) {
 			this.alias = alias;
 			this.resource = resource;
-			
 		}
 	}
 	
 	public static final String PROP_ALIAS = "osgi.rest.alias";
+	public static final String PROP_ENDPOINT_NAME = "osgi.rest.endpointName";
 	
 	private static final String FILTER_STRING = "(" + PROP_ALIAS + "=*)";
 	
-	private final RestAppServletManager manager;
+	private final BundleContext context;
 	private final LogService log;
 	
-	@SuppressWarnings("unchecked")
-	public ResourceServiceTracker(BundleContext context, RestAppServletManager manager, LogService log) throws InvalidSyntaxException {
+	public ResourceServiceTracker(BundleContext context, LogService log) throws InvalidSyntaxException {
 		super(context, createFilter(), null);
-		this.manager = manager;
+
+		this.context = context;
 		this.log = log;
 	}
 	
@@ -57,34 +65,34 @@ public class ResourceServiceTracker extends ServiceTracker {
 	}
 
 	@Override
-	public Object addingService(ServiceReference reference) {
-		Object result = null;
-		
+	public ServiceRegistration<Servlet> addingService(ServiceReference<Object> reference) {
 		Object aliasObj = reference.getProperty(PROP_ALIAS);
 		if (aliasObj != null && aliasObj instanceof String) {
 			String alias = (String) aliasObj;
-			@SuppressWarnings("unchecked")
+			
 			Object service = context.getService(reference);
-			try {
-				manager.addSingletons(alias, Collections.singleton(service), null);
-				result = new RegisteredResource(alias, service);
-			} catch (Exception e) {
-				log.log(LogService.LOG_ERROR, String.format("Error adding resource to alias '%s'.", alias), e);
+			ImmutableApplication app = ImmutableApplication.empty().addSingletons(Collections.singleton(service));
+			ServletContainer servlet = new ServletContainer(app);
+			
+			Dictionary<String, Object> properties = new Hashtable<String, Object>();
+			properties.put("bndtools.rt.http.alias", alias);
+			
+			String[] propertyKeys = reference.getPropertyKeys();
+			for (String key : propertyKeys) {
+				if (!Constants.OBJECTCLASS.equals(key) && !Constants.SERVICE_ID.equals(key) && !ComponentConstants.COMPONENT_ID.equals(key) && !PROP_ALIAS.equals(key))
+					properties.put(key, reference.getProperty(key));
 			}
+			
+			ServiceRegistration<Servlet> registration = context.registerService(Servlet.class, servlet, properties);
+			
+			return registration;
 		}
-		
-		return result;
+		return null;
 	}
 	
 	@Override
-	public void removedService(ServiceReference reference, Object service) {
+	public void removedService(ServiceReference<Object> reference, ServiceRegistration<Servlet> registration) {
+		registration.unregister();
 		context.ungetService(reference);
-		
-		RegisteredResource registered = (RegisteredResource) service;
-		try {
-			manager.removeSingletons(registered.alias, Collections.singleton(registered.resource), null);
-		} catch (Exception e) {
-			log.log(LogService.LOG_ERROR, String.format("Error removing resource from alias '%s'.", registered.alias), e);
-		}
 	}
 }

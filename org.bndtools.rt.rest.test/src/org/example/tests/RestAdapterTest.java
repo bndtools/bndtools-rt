@@ -16,19 +16,15 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.StringWriter;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import javax.servlet.Servlet;
 
 import org.bndtools.service.endpoint.Endpoint;
 import org.example.tests.api.MyRunnable;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -37,106 +33,81 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
 
-public class RestAdapterTest extends TestCase {
+public class RestAdapterTest extends AbstractDelayedTestCase {
 	
 	private static final int PORT1 = 18080;
-	private static final int PORT2 = 28080;
-	private static final AtomicBoolean initialised = new AtomicBoolean(false);
 	
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+	
 	private final String localhost;
 	private final String address1;
-	private final String address2;
 	
 	public RestAdapterTest() throws Exception {
 		localhost = InetAddress.getLocalHost().getHostAddress();
 		address1 = localhost + ":" + PORT1;
-		address2 = localhost + ":" + PORT2;
 	}
 	
-	@Override
-	protected void setUp() throws Exception {
-		boolean needToWait = initialised.compareAndSet(false, true);
-		if (needToWait) {
-			System.out.println("Tests1 waiting 10 seconds for system to settle.");
-			Thread.sleep(10000);
-			System.out.println("Waiting done, proceeding with tests");
-		}
-	}
-	
-	public void testEndpointServiceRegistered() throws Exception {
-		Thread.sleep(5000);
-		
-		List<String> endpointUris = new ArrayList<String>();
+	public void testNothingRegisteredAtFirst() throws Exception {
 		ServiceReference[] refs = context.getAllServiceReferences(Endpoint.class.getName(), null);
-		assertNotNull(refs);
-		for (ServiceReference ref : refs) {
-			assertEquals("*", ref.getProperty("service.exported.interfaces"));
-			String[] uris = (String[]) ref.getProperty(Endpoint.URI);
-			for (String uri : uris) {
-				String[] names = (String[]) ref.getProperty("names");
-				if (names != null && names.length > 0)
-					uri += Arrays.toString(names);
-				endpointUris.add(uri);
-			}
-		}
-		Collections.sort(endpointUris);
-		String actualUris = endpointUris.toString();
+		assertNull(refs);
 		
-		List<String> expectedUriList = Arrays.asList(new String[] {
-				"http://" + localhost + ":" + PORT1 + "/example1",
-				"http://" + localhost + ":" + PORT1 + "/example3[fubar]",
-				"http://" + localhost + ":" + PORT2 + "/example3[fubar]",
-				"http://" + localhost + ":" + PORT1 + "",
-				"http://" + localhost + ":" + PORT1 + "/singleton1",
-				"http://" + localhost + ":" + PORT2 + "/singleton1"
-		});
-		Collections.sort(expectedUriList);
-		String expectedUris = expectedUriList.toString();
-
-		System.out.println("EXPECTED ENDPOINTS: " + expectedUris);
-		System.out.println("ACTUAL ENDPOINTS  : " + actualUris);
-		assertEquals(expectedUris, actualUris);
-	}
-
-	public void testSimpleSingleton() throws Exception {
-		ClientResource resource = new ClientResource("http://" + address1 + "/singleton1/foo");
-		resource.setRetryOnError(false);
-		StringWriter output = new StringWriter();
-		resource.get(MediaType.TEXT_PLAIN).write(output);
-		assertEquals("This is an easy resource (as plain text)", output.toString());
-	}
-	
-	public void XtestSingletonMissingMandatoryRef() throws Exception {
-		ClientResource resource = new ClientResource("http://" + address1 + "/singleton2/foo");
+		ClientResource resource = new ClientResource("http://" + address1 + "/");
 		resource.setRetryOnError(false);
 		try {
-			resource.get(MediaType.TEXT_PLAIN);
-			fail("Should fail with ResourceException");
+			resource.get().write(new StringWriter());
+			fail("Should throw ResourceException");
 		} catch (ResourceException e) {
-			// expected
 			assertEquals(404, e.getStatus().getCode());
 		}
 	}
 	
-	public void testSingletonWithSatisfiedMandatoryRef() throws Exception {
-		MyRunnable mockRunnable = mock(MyRunnable.class);
+	public void testSimpleSingleton() throws Exception {
+		// Register the singleton service
+		Dictionary<String, Object> svcProps = new Hashtable<String, Object>();
+		svcProps.put("osgi.rest.alias", "/test1");
+		svcProps.put("foo", "bar");
+		ServiceRegistration svcReg = context.registerService(Object.class.getName(), new SingletonServiceResource1(), svcProps);
 		
-		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
+		// Check for advertised Servlet service
+		ServiceReference[] refs = context.getAllServiceReferences(Servlet.class.getName(), null);
+		assertNotNull(refs);
+		assertEquals(1, refs.length);
+		assertEquals("/test1", refs[0].getProperty("bndtools.rt.http.alias"));
+		assertEquals("bar", refs[0].getProperty("foo"));
 		
-		ClientResource resource = new ClientResource("http://" + address1 + "/singleton2/foo");
+		// Check for advertised Endpoint service
+		ServiceReference[] endpointRefs = context.getAllServiceReferences(Endpoint.class.getName(), null);
+		assertNotNull(endpointRefs);
+		assertEquals(1, endpointRefs.length);
+		assertEquals("*", endpointRefs[0].getProperty("service.exported.interfaces"));
+		assertEquals("bar", endpointRefs[0].getProperty("foo"));
+		
+		// Connect by HTTP
+		ClientResource resource = new ClientResource("http://" + address1 + "/test1/foo");
 		resource.setRetryOnError(false);
-		StringWriter output = new StringWriter();
-		resource.get(MediaType.TEXT_PLAIN).write(output);
-		assertEquals("This is an easy resource (as plain text)", output.toString());
-		
-		verify(mockRunnable).run();
-		verifyNoMoreInteractions(mockRunnable);
-		
+		StringWriter writer = new StringWriter();
+		resource.get(MediaType.TEXT_PLAIN).write(writer);
+		assertEquals("Hello World", writer.toString());
+
+		// Unregister
 		svcReg.unregister();
+		
+		// Check it's gone
+		refs = context.getAllServiceReferences(Servlet.class.getName(), null);
+		assertNull(refs);
+
+		// Check I can't connect
+		resource = new ClientResource("http://" + address1 + "/test1/foo");
+		resource.setRetryOnError(false);
+		try {
+			resource.get().write(new StringWriter());
+			fail("Should throw ResourceException");
+		} catch (ResourceException e) {
+			assertEquals(404, e.getStatus().getCode());
+		}
 	}
 	
-	public void testSimpleClassResource() throws Exception {
+	public void XtestSimpleClassResource() throws Exception {
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo1");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
@@ -145,7 +116,7 @@ public class RestAdapterTest extends TestCase {
 	}
 	
 
-	public void testClassResourceDefaultAlias() throws Exception {
+	public void XtestClassResourceDefaultAlias() throws Exception {
 		ClientResource resource = new ClientResource("http://" + address1 + "/foo1");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();
@@ -153,7 +124,7 @@ public class RestAdapterTest extends TestCase {
 		assertEquals("This is an easy resource (as plain text)", output.toString());
 	}
 	
-	public void testClassInjectionMissingMandatoryRef() throws Exception {
+	public void XtestClassInjectionMissingMandatoryRef() throws Exception {
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo2");
 		resource.setRetryOnError(false);
 		try {
@@ -171,7 +142,7 @@ public class RestAdapterTest extends TestCase {
 		}
 	}
 	
-	public void testClassInjectionSatisfiedMandatoryRef() throws Exception {
+	public void XtestClassInjectionSatisfiedMandatoryRef() throws Exception {
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -188,7 +159,7 @@ public class RestAdapterTest extends TestCase {
 		svcReg.unregister();
 	}
 
-	public void testClassInjectionUnsatisfiedOptionalRef() throws Exception {
+	public void XtestClassInjectionUnsatisfiedOptionalRef() throws Exception {
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo3");
 		resource.setRetryOnError(false);
 		
@@ -197,7 +168,7 @@ public class RestAdapterTest extends TestCase {
 		assertEquals("NULL", output.toString());
 	}
 	
-	public void testClassInjectionSatisfiedOptionalRef() throws Exception {
+	public void XtestClassInjectionSatisfiedOptionalRef() throws Exception {
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -211,7 +182,7 @@ public class RestAdapterTest extends TestCase {
 		svcReg.unregister();
 	}
 
-	public void testClassInjectionUnsatisfiedOptionalRefAlternateOrder() throws Exception {
+	public void XtestClassInjectionUnsatisfiedOptionalRefAlternateOrder() throws Exception {
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo4");
 		resource.setRetryOnError(false);
 		
@@ -220,7 +191,7 @@ public class RestAdapterTest extends TestCase {
 		assertEquals("NULL", output.toString());
 	}
 	
-	public void testClassInjectionSatisfiedOptionalRefAlternateOrder() throws Exception {
+	public void XtestClassInjectionSatisfiedOptionalRefAlternateOrder() throws Exception {
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -234,7 +205,7 @@ public class RestAdapterTest extends TestCase {
 		svcReg.unregister();
 	}
 	
-	public void testClassInjectionUnsatisfiedFilterRef() throws Exception {
+	public void XtestClassInjectionUnsatisfiedFilterRef() throws Exception {
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		ServiceRegistration svcReg = context.registerService(MyRunnable.class.getName(), mockRunnable, null);
@@ -248,7 +219,7 @@ public class RestAdapterTest extends TestCase {
 		svcReg.unregister();
 	}
 	
-	public void testClassInjectionSatisfiedFilterRef() throws Exception {
+	public void XtestClassInjectionSatisfiedFilterRef() throws Exception {
 		MyRunnable mockRunnable = mock(MyRunnable.class);
 		
 		Properties props = new Properties();
@@ -264,7 +235,7 @@ public class RestAdapterTest extends TestCase {
 		svcReg.unregister();
 	}
 	
-	public void testClassInjectionCollection() throws Exception {
+	public void XtestClassInjectionCollection() throws Exception {
 		MyRunnable mockRunnable1 = mock(MyRunnable.class);
 		MyRunnable mockRunnable2 = mock(MyRunnable.class);
 		
@@ -281,7 +252,7 @@ public class RestAdapterTest extends TestCase {
 		svcReg2.unregister();
 	}
 	
-	public void testClassInjectionCollectionUnsatisfied() throws Exception {
+	public void XtestClassInjectionCollectionUnsatisfied() throws Exception {
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo6");
 		resource.setRetryOnError(false);
 		try {
@@ -299,7 +270,7 @@ public class RestAdapterTest extends TestCase {
 		}
 	}
 	
-	public void testClassInjectionCollectionOptionalSatisfied() throws Exception {
+	public void XtestClassInjectionCollectionOptionalSatisfied() throws Exception {
 		MyRunnable mockRunnable1 = mock(MyRunnable.class);
 		MyRunnable mockRunnable2 = mock(MyRunnable.class);
 		
@@ -316,7 +287,7 @@ public class RestAdapterTest extends TestCase {
 		svcReg2.unregister();
 	}
 	
-	public void testClassInjectionCollectionOptionalUnsatisfied() throws Exception {
+	public void XtestClassInjectionCollectionOptionalUnsatisfied() throws Exception {
 		ClientResource resource = new ClientResource("http://" + address1 + "/example1/foo7");
 		resource.setRetryOnError(false);
 		StringWriter output = new StringWriter();

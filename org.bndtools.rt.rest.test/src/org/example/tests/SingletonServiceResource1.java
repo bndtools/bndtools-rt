@@ -8,28 +8,24 @@
  * Contributors:
  *     Neil Bartlett - initial API and implementation
  ******************************************************************************/
-package org.bndtools.rt.utils.log;
+package org.example.tests;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
-import static org.osgi.service.log.LogService.*;
+@Path("/foo")
+public class SingletonServiceResource1 {
 
-public final class LogUtils {
+    @GET
+    @Produces("text/html")
+    public String getHtml() {
+        return "<h1>Hello World</h1>";
+    }
 
-	private LogUtils() {
-	}
-
-	public static String formatLogLevel(int level) {
-		switch (level) {
-		case LOG_DEBUG:
-			return "DEBUG";
-		case LOG_INFO:
-			return "INFO";
-		case LOG_WARNING:
-			return "WARNING";
-		case LOG_ERROR:
-			return "ERROR";
-		default:
-			return "unknown";
-		}
-	}
+    @GET
+    @Produces("text/plain")
+    public String getPlain() {
+        return "Hello World";
+    }
 }

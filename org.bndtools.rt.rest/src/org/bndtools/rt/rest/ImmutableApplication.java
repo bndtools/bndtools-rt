@@ -31,7 +31,11 @@ public class ImmutableApplication extends Application {
 	
 	private final Map<Object, Object> singletons;
 	
-	public ImmutableApplication(Set<Class<?>> classes, Map<Object, Object> singletons) {
+	public static ImmutableApplication empty() {
+		return new ImmutableApplication(null, null);
+	}
+	
+	private ImmutableApplication(Set<Class<?>> classes, Map<Object, Object> singletons) {
 		this.defaultClasses = initDefaultClasses();
 		this.classes = (classes != null) ? classes : Collections.<Class<?>>emptySet();
 		

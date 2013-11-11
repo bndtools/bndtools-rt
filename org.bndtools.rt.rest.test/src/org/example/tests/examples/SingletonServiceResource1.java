@@ -17,7 +17,12 @@ import javax.ws.rs.Produces;
 import aQute.bnd.annotation.component.Activate;
 import aQute.bnd.annotation.component.Component;
 
-@Component(provide = Object.class, properties = "osgi.rest.alias=/singleton1")
+@Component(
+		provide = Object.class,
+		properties = {
+			"osgi.rest.alias=/singleton1",
+			"osgi.rest.endpointName=blob"
+		})
 @Path("/foo")
 public class SingletonServiceResource1 {
 

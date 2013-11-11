@@ -42,7 +42,6 @@ public class ResourceClassTracker extends BundleTracker {
 	private static final String DEFAULT_ALIAS = "";
 	private static final String CLASS_LIST_SEPARATOR = ",";
 
-	private final RestAppServletManager manager;
 	private final LogService log;
 	private final Filter attribFilter;
 	
@@ -58,9 +57,8 @@ public class ResourceClassTracker extends BundleTracker {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ResourceClassTracker(BundleContext context, RestAppServletManager manager, Filter filter, LogService log) {
+	public ResourceClassTracker(BundleContext context, Filter filter, LogService log) {
 		super(context, Bundle.ACTIVE | Bundle.STARTING, null);
-		this.manager = manager;
 		this.attribFilter = filter;
 		this.log = log;
 	}
@@ -147,7 +145,8 @@ public class ResourceClassTracker extends BundleTracker {
 		// Register resource classes
 		if (!resourceClasses.isEmpty()) {
 			try {
-				manager.addClasses(alias, resourceClasses, endpointName);
+				// TODO
+//				manager.addClasses(alias, resourceClasses, endpointName);
 				result = new RegisteredClass(alias, resourceClasses, endpointName);
 			} catch (Exception e) {
 				log.log(LogService.LOG_ERROR, String.format("Error adding resource class(es) to alias '%s'.", alias), e);
@@ -161,7 +160,8 @@ public class ResourceClassTracker extends BundleTracker {
 	public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
 		RegisteredClass registered = (RegisteredClass) object;
 		try {
-			manager.removeClasses(registered.alias, registered.classes, registered.name);
+			// TODO
+//			manager.removeClasses(registered.alias, registered.classes, registered.name);
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, String.format("Error removing resource class(es) from alias '%s'.", registered.alias), e);
 		}

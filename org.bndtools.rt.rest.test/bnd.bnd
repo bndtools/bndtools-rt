@@ -5,6 +5,7 @@
 	junit.osgi,\
 	org.mockito.mockito-all,\
 	javax.ws.rs.jsr311-api,\
+	javax.servlet; version=3.0,\
 	org.restlet,\
 	biz.aQute.bnd.annotation,\
 	javax.inject,\
