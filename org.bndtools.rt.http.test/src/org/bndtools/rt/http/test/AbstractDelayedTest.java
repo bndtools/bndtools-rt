@@ -1,4 +1,4 @@
-package org.bndtools.rt.rest.whiteboard.jetty.test;
+package org.bndtools.rt.http.test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

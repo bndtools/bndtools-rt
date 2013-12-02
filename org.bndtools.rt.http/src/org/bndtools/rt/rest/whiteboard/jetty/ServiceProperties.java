@@ -26,6 +26,8 @@ public final class ServiceProperties {
 		p.add(Constants.SERVICE_RANKING);
 		p.add(ComponentConstants.COMPONENT_ID);
 		p.add(ComponentConstants.COMPONENT_NAME);
+		p.add(ServerComponent.PROP_ALIAS);
+		p.add(ServerComponent.PROP_FILTER);
 
 		NON_COPYING_PROPERTIES = Collections.unmodifiableSet(p);
 	}

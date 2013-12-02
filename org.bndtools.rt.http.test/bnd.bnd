@@ -5,5 +5,5 @@
 	org.restlet,\
 	org.mockito.mockito-all
 	
-Private-Package: org.bndtools.rt.rest.whiteboard.jetty.test
+Private-Package: org.bndtools.rt.http.test
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
