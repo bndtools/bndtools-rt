@@ -2,7 +2,7 @@ package org.bndtools.rt.http.test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,10 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -28,9 +26,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.restlet.data.MediaType;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 
 import aQute.lib.io.IO;
 
@@ -43,16 +38,13 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 	private final String localhost;
-	private final String address1;
-	private final String address2;
 	
 	public ServletWhiteboardTest() throws Exception {
 		localhost = InetAddress.getLocalHost().getHostAddress();
-		address1 = localhost + ":" + PORT1;
-		address2 = localhost + ":" + PORT2;
 	}
 
 	private final HttpServlet sampleServlet = new HttpServlet() {
+		private static final long serialVersionUID = 1L;
 		@Override
 		protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 			ServletOutputStream stream = resp.getOutputStream();
@@ -71,26 +63,16 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 		
 		// Get the HTTP response
 		String url = "http://localhost:" + PORT1 + "/test1";
-		ClientResource resource = new ClientResource(url);
-		resource.setRetryOnError(false);
-		StringWriter output = new StringWriter();
-		resource.get(MediaType.TEXT_PLAIN).write(output);
-		assertEquals(MESSAGE, output.toString());
+		String output = IO.collect(new URL(url));
+		assertEquals(MESSAGE, output);
 
 		// Unregister servlet
 		reg.unregister();
 		
 		// Get the HTTP response again, should fail with 404
-		resource = new ClientResource(url);
-		resource.setRetryOnError(false);
-		output = new StringWriter();
-		
-		try {
-			resource.get().write(output);
-			fail("Should have return 404 Not Found");
-		} catch (ResourceException e) {
-			assertEquals(404, e.getStatus().getCode());
-		}
+		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+		int responseCode = connection.getResponseCode();
+		assertEquals(404, responseCode);
 	}
 	
 	public void testEndpointServicesPublished() throws Exception {
