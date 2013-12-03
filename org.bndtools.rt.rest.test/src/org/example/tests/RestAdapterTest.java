@@ -15,12 +15,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.servlet.Servlet;
 
 import org.bndtools.service.endpoint.Endpoint;
@@ -34,10 +39,13 @@ import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
+import aQute.lib.io.IO;
+
 
 public class RestAdapterTest extends AbstractDelayedTestCase {
 	
 	private static final int PORT1 = 18080;
+	private static final int HTTPS_PORT = 18443;
 	
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 	
@@ -109,6 +117,41 @@ public class RestAdapterTest extends AbstractDelayedTestCase {
 		} catch (ResourceException e) {
 			assertEquals(404, e.getStatus().getCode());
 		}
+	}
+	
+	public void testSecuredSingleton() throws Exception {
+		// Register the singleton service
+		Dictionary<String, Object> svcProps = new Hashtable<String, Object>();
+		svcProps.put("osgi.rest.alias", "/test2");
+		svcProps.put("filter", "(confidential=true)");
+		ServiceRegistration svcReg = context.registerService(Object.class.getName(), new SingletonServiceResource1(), svcProps);
+		
+		// Check for advertised Servlet service
+		ServiceReference[] refs = context.getAllServiceReferences(Servlet.class.getName(), null);
+		assertNotNull(refs);
+		assertEquals(1, refs.length);
+		assertEquals("/test2", refs[0].getProperty("bndtools.rt.http.alias"));
+		assertEquals("(confidential=true)", refs[0].getProperty("filter"));
+		
+		// Check for advertised Endpoint service
+		ServiceReference[] endpointRefs = context.getAllServiceReferences(Endpoint.class.getName(), null);
+		assertNotNull(endpointRefs);
+		assertEquals(1, endpointRefs.length);
+		assertEquals("*", endpointRefs[0].getProperty("service.exported.interfaces"));
+
+		// Connect by HTTPS
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(null, new TrustManager[] { new NoopTrustManager() }, null);
+		
+		HttpsURLConnection connection = (HttpsURLConnection) new URL("https://" + localhost + ":" + HTTPS_PORT + "/test2/foo").openConnection();
+		connection.setSSLSocketFactory(sslContext.getSocketFactory());
+		connection.setHostnameVerifier(new NoopHostnameVerifier());
+		connection.setRequestProperty("Accept", "text/plain");
+		String output = IO.collect(connection.getInputStream());
+		assertEquals("Hello World", output);
+
+		// Clean up
+		svcReg.unregister();
 	}
 	
 	private Bundle installAndStart(File file) throws Exception {

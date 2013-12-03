@@ -6,6 +6,8 @@ import junit.framework.TestCase;
 
 public abstract class AbstractDelayedTestCase extends TestCase {
 
+	private static final int DELAY_SECS = 3;
+	
 	private static final AtomicBoolean initialised = new AtomicBoolean(false);
 	
 	@Override
@@ -13,8 +15,8 @@ public abstract class AbstractDelayedTestCase extends TestCase {
 		super.setUp();
 		boolean needToWait = initialised.compareAndSet(false, true);
 		if (needToWait) {
-			System.out.println("Tests1 waiting 10 seconds for system to settle.");
-			Thread.sleep(10000);
+			System.out.printf("Tests1 waiting %d seconds for system to settle.%n", DELAY_SECS);
+			Thread.sleep(DELAY_SECS * 1000);
 			System.out.println("Waiting done, proceeding with tests");
 		}
 	}

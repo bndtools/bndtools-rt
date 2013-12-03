@@ -1,7 +1,7 @@
 # NB if either extender-id or base-version is changed, they MUST
 # be updated also in BundleConstants.java
 extender-id: bndtools.rt.rest
-base-version: 2.0.0
+base-version: 2.1.0
 
 -buildpath: osgi.core;version=4.3,\
 	osgi.cmpn;version=4.3,\
@@ -94,5 +94,5 @@ Provide-Capability: \
 
 Require-Capability: \
 	osgi.whiteboard; \
-		filter:="(&(osgi.whiteboard=bndtools.rt.http)(version>=1.0)(!(version>=2.0)))"; \
+		filter:="(&(osgi.whiteboard=bndtools.rt.http)(version>=1.1)(!(version>=2.0)))"; \
 		effective:=active
