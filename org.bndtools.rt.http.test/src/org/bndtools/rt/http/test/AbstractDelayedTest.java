@@ -13,8 +13,8 @@ public abstract class AbstractDelayedTest extends TestCase {
 		super.setUp();
 		boolean needToWait = initialised.compareAndSet(false, true);
 		if (needToWait) {
-			System.out.println("Tests1 waiting 10 seconds for system to settle.");
-			Thread.sleep(10000);
+			System.out.println("Tests1 waiting 3 seconds for system to settle.");
+			Thread.sleep(3000);
 			System.out.println("Waiting done, proceeding with tests");
 		}
 	}

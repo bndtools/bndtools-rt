@@ -25,7 +25,9 @@ import org.bndtools.service.endpoint.Endpoint;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -33,6 +35,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
@@ -49,9 +52,11 @@ import aQute.libg.tuple.Pair;
 public class ServerComponent {
 	
 	private static final String HTTP_SCHEME = "http";
+	private static final String HTTPS_SCHEME = "https";
 
 	static final String PROP_ALIAS = "bndtools.rt.http.alias";
 	static final String PROP_FILTER = "filter";
+
 
 	private LogTracker logTracker;
 	private Server server;
@@ -69,8 +74,17 @@ public class ServerComponent {
 		@Meta.AD(required = false) // default null
 		String filter();
 		
+		@Meta.AD(required = false, deflt = "false")
+		boolean confidential();
+		
 		@Meta.AD(required = false)
 		String[] mandatory();
+
+		@Meta.AD(required = false) // default null
+		String keyStorePath();
+		
+		@Meta.AD(required = false, deflt = "")
+		String keyStorePassword();
 	}
 
 	@Activate
@@ -82,9 +96,29 @@ public class ServerComponent {
 
 		@SuppressWarnings("unchecked")
 		final Dictionary<String, ?> configProps = context.getProperties();
-
 		Config config = Configurable.createConfigurable(Config.class, configProps);
-		SelectChannelConnector connector = new SelectChannelConnector();
+		
+		SelectChannelConnector connector;
+		String scheme;
+		
+		// Bug in bnd processing of boolean defaults...
+		boolean confidential = Boolean.parseBoolean((String) configProps.get("confidential"));
+		if (confidential) {
+			String keyStorePath = config.keyStorePath();
+			if (keyStorePath == null)
+				throw new ConfigurationException("keyStorePath", "Must be specified when confidential mode is enabled");
+			
+			SslContextFactory sslContextFactory = new SslContextFactory();
+			sslContextFactory.setKeyStorePath(keyStorePath);
+			sslContextFactory.setKeyStorePassword(config.keyStorePassword());
+			
+			connector = new SslSelectChannelConnector(sslContextFactory);
+			scheme = HTTPS_SCHEME;
+		} else {
+			connector = new SelectChannelConnector();
+			scheme = HTTP_SCHEME;
+		}
+		
 		connector.setPort(config.port());
 		connector.setHost(config.host());
 		
@@ -98,7 +132,7 @@ public class ServerComponent {
 		
 		servletManager = new ServletManager(servletContext.getServletHandler());
 		
-		final List<URI> endpointAddresses = getLocalAddresses(HTTP_SCHEME, config.host(), config.port(), false);
+		final List<URI> endpointAddresses = getLocalAddresses(scheme, config.host(), config.port(), false);
 		publisher = new EndpointPublisher(bc, endpointAddresses);
 		
 		final Set<String> mandatoryAttribs = new HashSet<String>();

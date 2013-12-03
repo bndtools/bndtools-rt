@@ -4,12 +4,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -25,6 +31,8 @@ import org.osgi.framework.ServiceRegistration;
 import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
+
+import aQute.lib.io.IO;
 
 
 public class ServletWhiteboardTest extends AbstractDelayedTest {
@@ -143,7 +151,7 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 	}
 	
 	public void testSecuredServlet() throws Exception {
-		String uri = "http://" + localhost + ":" + PORT2 + "/test2";
+		String uri = "https://" + localhost + ":" + PORT2 + "/test2";
 		ServiceReference[] refs;
 		
 		Properties props = new Properties();
@@ -160,12 +168,16 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 		System.out.println("EXPECTED ENDPOINTS: " + expectedUris);
 		System.out.println("ACTUAL ENDPOINTS  : " + actualUris);
 		assertEquals(expectedUris, actualUris);
+		
+		final SSLContext sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(null, new TrustManager[] { new NoopTrustManager() }, null);
+		
+		HttpsURLConnection connection = (HttpsURLConnection) new URL(uri).openConnection();
+		connection.setSSLSocketFactory(sslContext.getSocketFactory());
+		connection.setHostnameVerifier(new NoopHostnameVerifier());
 
-		ClientResource resource = new ClientResource(uri);
-		resource.setRetryOnError(false);
-		StringWriter output = new StringWriter();
-		resource.get(MediaType.TEXT_PLAIN).write(output);
-		assertEquals(MESSAGE, output.toString());
+		String output = IO.collect(connection.getInputStream());
+		assertEquals(MESSAGE, output);
 
 		reg.unregister();
 	}

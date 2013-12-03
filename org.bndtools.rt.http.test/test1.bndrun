@@ -1,4 +1,7 @@
--runvm: -ea,-Djava.util.logging.config.file=logging.properties
+-runvm: -ea,\
+	-Djava.util.logging.config.file=logging.properties,\
+	-Dfelix.fileinstall.dir=${basedir}/load,\
+	-Dfelix.fileinstall.noInitialDelay=true
 -runfw: org.apache.felix.framework; version='[4.2.1,4.3)'
 -runsystempackages: sun.reflect
 -runee: JavaSE-1.6

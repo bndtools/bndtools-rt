@@ -3,7 +3,9 @@
 	junit.osgi,\
 	javax.servlet; version=3.0,\
 	org.restlet,\
-	org.mockito.mockito-all
+	org.mockito.mockito-all,\
+	biz.aQute.bndlib; version=2.0
 	
 Private-Package: org.bndtools.rt.http.test
+Conditional-Package: aQute.lib.*
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
