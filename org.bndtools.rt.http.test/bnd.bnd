@@ -8,3 +8,5 @@
 Private-Package: org.bndtools.rt.http.test
 Conditional-Package: aQute.lib.*
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
+
+Include-Resource: static=static

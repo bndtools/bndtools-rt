@@ -22,7 +22,8 @@ Conditional-Package: \
 	org.bndtools.rt.utils.*, \
 	org.eclipse.jetty.*, \
 	aQute.bnd.annotation.*,\
-	aQute.libg.*
+	aQute.libg.*,\
+	aQute.lib.*
 
 Import-Package: \
 	javax.servlet.*; version='[2.6, 4.0)', \

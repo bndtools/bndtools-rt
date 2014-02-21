@@ -24,6 +24,7 @@ import org.bndtools.rt.utils.log.LogTracker;
 import org.bndtools.service.endpoint.Endpoint;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -55,6 +56,7 @@ public class ServerComponent {
 	private static final String HTTPS_SCHEME = "https";
 
 	static final String PROP_ALIAS = "bndtools.rt.http.alias";
+	static final String PROP_RESOURCE_PREFIX = "bndtools.rt.http.resource.prefix";
 	static final String PROP_FILTER = "filter";
 
 
@@ -125,8 +127,12 @@ public class ServerComponent {
 		server = new Server();
 		server.setConnectors(new Connector[] { connector });
 		
+		HandlerList handlerList = new HandlerList();
+		final BundleContentHandler resourceHandler = new BundleContentHandler();
+		handlerList.addHandler(resourceHandler);
 		ServletContextHandler servletContext = new ServletContextHandler();
-		server.setHandler(servletContext);
+		handlerList.addHandler(servletContext);
+		server.setHandler(handlerList);
 		
 		server.start();
 		
@@ -146,6 +152,7 @@ public class ServerComponent {
 				Servlet servlet = bc.getService(reference);
 				Object aliasObj = reference.getProperty(PROP_ALIAS);
 				Object filterObj = reference.getProperty(PROP_FILTER);
+				Object resourcePrefixObj = reference.getProperty(PROP_RESOURCE_PREFIX);
 
 				Filter filter = null;
 				String filterStr = null;
@@ -175,6 +182,11 @@ public class ServerComponent {
 					String alias = (String) aliasObj;
 					servletManager.putAlias(alias, servlet, reference.getBundle());
 					
+					if (resourcePrefixObj != null && resourcePrefixObj instanceof String) {
+						String resourcePrefix = (String) resourcePrefixObj;
+						resourceHandler.addAlias(alias, reference.getBundle(), resourcePrefix);
+					}
+					
 					Map<String, Object> endpointAttribs = ServiceProperties.copyProperties(reference);
 					ServiceRegistration<Endpoint> svcReg = publisher.register(alias, endpointAttribs);
 					
@@ -186,6 +198,7 @@ public class ServerComponent {
 			public void removedService(ServiceReference<Servlet> reference, Pair<String, ServiceRegistration<Endpoint>> registration) {
 				registration.getSecond().unregister();
 				servletManager.removeAlias(registration.getFirst());
+				resourceHandler.removeAlias(registration.getFirst());
 				bc.ungetService(reference);
 			}
 		};

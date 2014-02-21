@@ -163,4 +163,25 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 
 		reg.unregister();
 	}
+	
+	public void testRegisterResource() throws Exception {
+		// Register servlet
+		Properties props = new Properties();
+		props.setProperty("bndtools.rt.http.alias", "/test2");
+		props.setProperty("bndtools.rt.http.resource.prefix", "/static");
+		ServiceRegistration reg = context.registerService(Servlet.class.getName(), sampleServlet, props);
+		
+		// Get the HTTP response
+		String url = "http://localhost:" + PORT1 + "/test2/ulysses.txt";
+		String output = IO.collect(new URL(url));
+		assertEquals("Stately, plump Buck Mulligan...", output);
+
+		// Unregister servlet
+		reg.unregister();
+		
+		// Get the HTTP response again, should fail with 404
+		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+		int responseCode = connection.getResponseCode();
+		assertEquals(404, responseCode);
+	}
 }
