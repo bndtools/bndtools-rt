@@ -14,9 +14,14 @@ import java.util.Properties;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +39,7 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 	
 	private static final int PORT1 = 18080;
 	private static final int PORT2 = 18443;
+	private static final String FILTER_PREFIX = "FILTERED!!!\n";
 	private static final String MESSAGE = "Hello World!";
 
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
@@ -54,6 +60,26 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 			stream.close();
 		}
 	};
+	
+	private final Filter sampleFilter = new Filter() {
+
+		@Override
+		public void destroy() {}
+
+		@Override
+		public void doFilter(ServletRequest req, ServletResponse resp,
+				FilterChain chain) throws IOException, ServletException {
+			ServletOutputStream stream = resp.getOutputStream();
+			PrintWriter writer = new PrintWriter(stream);
+			writer.print(FILTER_PREFIX);
+			writer.flush();
+			chain.doFilter(req, resp);
+		}
+
+		@Override
+		public void init(FilterConfig arg0) throws ServletException {}
+		
+	};
 
 	public void testHttpServletRegisterAndUnregister() throws Exception {
 		// Register servlet
@@ -64,6 +90,33 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 		// Get the HTTP response
 		String url = "http://localhost:" + PORT1 + "/test1";
 		String output = IO.collect(new URL(url));
+		assertEquals(MESSAGE, output);
+
+		// Unregister servlet
+		reg.unregister();
+		
+		// Get the HTTP response again, should fail with 404
+		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+		int responseCode = connection.getResponseCode();
+		assertEquals(404, responseCode);
+	}
+
+	public void testFilteredHttpServletRegisterAndUnregister() throws Exception {
+		// Register servlet
+		Properties props = new Properties();
+		props.setProperty("bndtools.rt.http.alias", "/test1");
+		ServiceRegistration reg = context.registerService(Servlet.class.getName(), sampleServlet, props);
+		ServiceRegistration reg2 = context.registerService(Filter.class.getName(), sampleFilter, props);
+		
+		// Get the HTTP response
+		String url = "http://localhost:" + PORT1 + "/test1";
+		String output = IO.collect(new URL(url));
+		assertEquals(FILTER_PREFIX + MESSAGE, output);
+		
+		// Unregister filter and check output changes
+		reg2.unregister();
+		
+		output = IO.collect(new URL(url));
 		assertEquals(MESSAGE, output);
 
 		// Unregister servlet

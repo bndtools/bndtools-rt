@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 import org.bndtools.rt.utils.log.LogTracker;
@@ -31,7 +32,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -63,7 +63,9 @@ public class ServerComponent {
 	private LogTracker logTracker;
 	private Server server;
 	private ServletManager servletManager;
+	private FilterManager filterManager;
 	private ServiceTracker<Servlet,Pair<String, ServiceRegistration<Endpoint>>> servletTracker;
+	private ServiceTracker<Filter,Filter> filterTracker;
 	private EndpointPublisher publisher;
 
 	static interface Config {
@@ -137,6 +139,7 @@ public class ServerComponent {
 		server.start();
 		
 		servletManager = new ServletManager(servletContext.getServletHandler());
+		filterManager = new FilterManager(servletContext.getServletHandler());
 		
 		final List<URI> endpointAddresses = getLocalAddresses(scheme, config.host(), config.port(), false);
 		publisher = new EndpointPublisher(bc, endpointAddresses);
@@ -154,28 +157,8 @@ public class ServerComponent {
 				Object filterObj = reference.getProperty(PROP_FILTER);
 				Object resourcePrefixObj = reference.getProperty(PROP_RESOURCE_PREFIX);
 
-				Filter filter = null;
-				String filterStr = null;
-				if (filterObj != null && filterObj instanceof String) {
-					filterStr = (String) filterObj;
-					try {
-						filter = FrameworkUtil.createFilter(filterStr);
-					} catch (InvalidSyntaxException e) {
-						logTracker.log(LogService.LOG_WARNING, "Invalid container filter on Servlet service", e);
-					}
-				}
-				if (filter != null) {
-					if (!filter.match(configProps)) {
-						logTracker.log(LogService.LOG_INFO, "Excluding Servlet service based on container filter: " + filterStr);
-						return null;
-					}
-				}
-				
-				if (mandatoryAttribs != null) for (String mandatoryAttrib : mandatoryAttribs) {
-					if (filterStr == null || filterStr.indexOf(mandatoryAttrib) < 0) {
-						logTracker.log(LogService.LOG_INFO, String.format("Excluding Servlet service: no match for mandatory attribute %s in filter: %s", mandatoryAttrib, filterStr));
-						return null;
-					}
+				if(reject(configProps, mandatoryAttribs, filterObj)) {
+					return null;
 				}
 
 				if (aliasObj != null && aliasObj instanceof String) {
@@ -202,15 +185,82 @@ public class ServerComponent {
 				bc.ungetService(reference);
 			}
 		};
+
+		String filterFilterStr = String.format("(&(%s=%s)(%s=*))", Constants.OBJECTCLASS, javax.servlet.Filter.class.getName(), PROP_ALIAS);
+		filterTracker = new ServiceTracker<Filter,Filter>(bc, FrameworkUtil.createFilter(filterFilterStr), null) {
+			@Override
+			public Filter addingService(ServiceReference<Filter> reference) {
+				Filter filter = bc.getService(reference);
+				Object aliasObj = reference.getProperty(PROP_ALIAS);
+				Object filterObj = reference.getProperty(PROP_FILTER);
+				Object resourcePrefixObj = reference.getProperty(PROP_RESOURCE_PREFIX);
+				
+				if(reject(configProps, mandatoryAttribs, filterObj)) {
+					bc.ungetService(reference);
+					return null;
+				}
+				
+				if (aliasObj != null && aliasObj instanceof String) {
+					String alias = (String) aliasObj;
+					filterManager.addFilter(alias, filter, reference);
+					
+					if (resourcePrefixObj != null && resourcePrefixObj instanceof String) {
+						String resourcePrefix = (String) resourcePrefixObj;
+						resourceHandler.addAlias(alias, reference.getBundle(), resourcePrefix);
+					}
+					return filter;
+				} else {
+					bc.ungetService(reference);
+					return null;
+				}
+			}
+			
+			@Override
+			public void removedService(ServiceReference<Filter> reference, Filter filter) {
+				filterManager.removeFilter(reference);
+				bc.ungetService(reference);
+			}
+		};
+		
+		filterTracker.open();
 		servletTracker.open();
 	}
 	
 	void deactivate() throws Exception {
 		servletTracker.close();
+		filterTracker.close();
 		server.stop();
 		logTracker.close();
 	}
 	
+	private boolean reject(final Dictionary<String, ?> configProps,
+			final Set<String> mandatoryAttribs, Object filterObj) {
+		org.osgi.framework.Filter filter = null;
+		String filterStr = null;
+		if (filterObj != null && filterObj instanceof String) {
+			filterStr = (String) filterObj;
+			try {
+				filter = FrameworkUtil.createFilter(filterStr);
+			} catch (InvalidSyntaxException e) {
+				logTracker.log(LogService.LOG_WARNING, "Invalid container filter on Servlet service", e);
+			}
+		}
+		if (filter != null) {
+			if (!filter.match(configProps)) {
+				logTracker.log(LogService.LOG_INFO, "Excluding Servlet service based on container filter: " + filterStr);
+				return true;
+			}
+		}
+		
+		if (mandatoryAttribs != null) for (String mandatoryAttrib : mandatoryAttribs) {
+			if (filterStr == null || filterStr.indexOf(mandatoryAttrib) < 0) {
+				logTracker.log(LogService.LOG_INFO, String.format("Excluding Servlet service: no match for mandatory attribute %s in filter: %s", mandatoryAttrib, filterStr));
+				return true;
+			}
+		}
+		return false;
+	}
+
 	List<URI> getLocalAddresses(String scheme, String requestedHost, int port, boolean enableIPv6) throws SocketException, URISyntaxException, UnknownHostException {
 		List<URI> uris;
 		if (requestedHost == null) {
