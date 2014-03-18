@@ -153,6 +153,11 @@ public class ServerComponent {
 			@Override
 			public Pair<String, ServiceRegistration<Endpoint>> addingService(ServiceReference<Servlet> reference) {
 				Servlet servlet = bc.getService(reference);
+				
+				if(servlet == null) {
+					return null;
+				}
+				
 				Object aliasObj = reference.getProperty(PROP_ALIAS);
 				Object filterObj = reference.getProperty(PROP_FILTER);
 				Object resourcePrefixObj = reference.getProperty(PROP_RESOURCE_PREFIX);
