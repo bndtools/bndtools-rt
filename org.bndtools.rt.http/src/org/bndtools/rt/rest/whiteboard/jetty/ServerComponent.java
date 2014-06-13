@@ -78,8 +78,9 @@ public class ServerComponent {
 		@Meta.AD(required = false) // default null
 		String filter();
 		
+		// Bug in bnd processing of boolean properties => use String instead
 		@Meta.AD(required = false, deflt = "false")
-		boolean confidential();
+		String confidential();
 		
 		@Meta.AD(required = false)
 		String[] mandatory();

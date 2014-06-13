@@ -70,6 +70,7 @@ public class BundleContentHandler extends AbstractHandler {
 					IO.copy(in, out);
 				} finally {
 					IO.close(out);
+					baseRequest.setHandled(true);
 				}
 			}
 		}
