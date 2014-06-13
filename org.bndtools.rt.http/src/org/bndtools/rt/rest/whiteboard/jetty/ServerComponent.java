@@ -270,19 +270,39 @@ public class ServerComponent {
 	List<URI> getLocalAddresses(String scheme, String requestedHost, int port, boolean enableIPv6) throws SocketException, URISyntaxException, UnknownHostException {
 		List<URI> uris;
 		if (requestedHost == null) {
-			// Find all local interface addresses except loopback or multicast
-			uris = new LinkedList<URI>();
+			// Find all local interface addresses except multicast
+			List<InetAddress> addresses = new LinkedList<InetAddress>();
 			for (Enumeration<NetworkInterface> netInterEnum = NetworkInterface.getNetworkInterfaces(); netInterEnum.hasMoreElements(); ) {
-				NetworkInterface netInter = netInterEnum.nextElement();
-				for (Enumeration<InetAddress> addresses = netInter.getInetAddresses(); addresses.hasMoreElements(); ) {
-					InetAddress address = addresses.nextElement();
-					if (address.isLoopbackAddress() || address.isMulticastAddress())
+				NetworkInterface iface = netInterEnum.nextElement();
+				for (Enumeration<InetAddress> addressEnum = iface.getInetAddresses(); addressEnum.hasMoreElements(); ) {
+					InetAddress address = addressEnum.nextElement();
+					if (address.isMulticastAddress())
 						continue;
 					if (!enableIPv6 && address instanceof Inet4Address)
-						uris.add(new URI(scheme, null, address.getHostAddress(), port, null, null, null));
+						addresses.add(address);
 					else if (enableIPv6 && address instanceof Inet6Address)
-						// see IETF RFC 2732, literal IPv6 address must be surrounded with [..]
-						uris.add(new URI(scheme, null, "[" + address.getHostAddress() + "]", port, null, null, null));
+						addresses.add(address);
+				}
+			}
+
+			// Find the loopback addresses
+			Set<InetAddress> loopbackAddresses = new HashSet<InetAddress>();
+			for (InetAddress address : addresses) {
+				if (address.isLoopbackAddress()) loopbackAddresses.add(address);
+			}
+
+			// If we ONLY have loopback addresses then leave them in. Otherwise remove them leaving only real network addresses.
+			if (loopbackAddresses.size() < addresses.size())
+				addresses.removeAll(loopbackAddresses);
+
+			// Translate to URIs
+			uris = new LinkedList<URI>();
+			for (InetAddress address : addresses) {
+				if (address instanceof Inet6Address) {
+					// see IETF RFC 2732, literal IPv6 address must be surrounded with [..]
+					uris.add(new URI(scheme, null, "[" + address.getHostAddress() + "]", port, null, null, null));
+				} else {
+					uris.add(new URI(scheme, null, address.getHostAddress(), port, null, null, null));
 				}
 			}
 		} else {
