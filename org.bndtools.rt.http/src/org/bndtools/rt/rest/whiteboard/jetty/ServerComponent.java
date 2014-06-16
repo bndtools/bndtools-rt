@@ -197,6 +197,11 @@ public class ServerComponent {
 			@Override
 			public Filter addingService(ServiceReference<Filter> reference) {
 				Filter filter = bc.getService(reference);
+				
+				if(filter == null) {
+					return null;
+				}
+				
 				Object aliasObj = reference.getProperty(PROP_ALIAS);
 				Object filterObj = reference.getProperty(PROP_FILTER);
 				Object resourcePrefixObj = reference.getProperty(PROP_RESOURCE_PREFIX);
