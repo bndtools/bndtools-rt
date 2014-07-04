@@ -128,7 +128,7 @@ public class ServerComponent {
 			// because it might not be set, which is assumed to be false
 			// but confuses the filter and mandatory attrs.
 			//
-			configProps.put("confidential", false);
+			configProps.put("confidential", "false");
 		}
 		
 		connector.setPort(config.port());
