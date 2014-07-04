@@ -136,6 +136,14 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 		// Register servlet with some attributes
 		Properties props = new Properties();
 		props.setProperty("bndtools.rt.http.alias", "/test1");
+		
+		//
+		// This is unsecure, so check if we can require this. This
+		// used to fail.
+		//
+		
+		props.setProperty("filter", "(confidential=false)");
+		
 		props.setProperty("foo", "bar");
 		props.put("bar", 123);
 		ServiceRegistration reg = context.registerService(Servlet.class.getName(), sampleServlet, props);
@@ -144,13 +152,22 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 		assertNotNull(refs);
 		String actualUris = formatEndpointServices(refs);
 		
+		String expectedUri = "http://" + localhost + ":" + PORT1 + "/test1;bar=123;foo=bar";
 		String expectedUris = formatEndpointServices(new String[] {
-				"http://" + localhost + ":" + PORT1 + "/test1;bar=123;foo=bar"
+				expectedUri
 		});
 
+		
 		System.out.println("EXPECTED ENDPOINTS: " + expectedUris);
 		System.out.println("ACTUAL ENDPOINTS  : " + actualUris);
-		assertEquals(expectedUris, actualUris);
+
+		//
+		// The following test did not work when you had multiple interfaces
+		//		assertEquals(expectedUris, actualUris);
+		//
+		// Now just verifies that our URL is actually there
+		//
+		assertTrue( actualUris.contains(expectedUri));
 		
 		reg.unregister();
 	}
@@ -164,11 +181,11 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 	private static String formatEndpointServices(ServiceReference[] refs) {
 		List<String> endpointUris = new ArrayList<String>();
 		for (ServiceReference ref : refs) {
-			StringBuilder builder = new StringBuilder();
 			
 			assertEquals("*", ref.getProperty("service.exported.interfaces"));
 			String[] uris = (String[]) ref.getProperty("uri");
 			for (String uri : uris) {
+				StringBuilder builder = new StringBuilder();
 				builder.append(uri);
 				String[] keys = ref.getPropertyKeys();
 				Arrays.sort(keys);
@@ -202,7 +219,14 @@ public class ServletWhiteboardTest extends AbstractDelayedTest {
 		
 		System.out.println("EXPECTED ENDPOINTS: " + expectedUris);
 		System.out.println("ACTUAL ENDPOINTS  : " + actualUris);
-		assertEquals(expectedUris, actualUris);
+		
+		//
+		// The following test did not work when you had multiple interfaces
+		//		assertEquals(expectedUris, actualUris);
+		//
+		// Now just verifies that our URL is actually there
+		//
+		assertTrue( actualUris.contains(uri));
 		
 		final SSLContext sslContext = SSLContext.getInstance("TLS");
 		sslContext.init(null, new TrustManager[] { new NoopTrustManager() }, null);
