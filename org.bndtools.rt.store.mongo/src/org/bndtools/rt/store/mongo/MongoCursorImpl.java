@@ -1,16 +1,29 @@
 package org.bndtools.rt.store.mongo;
 
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.regex.*;
-
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bndtools.service.store.Cursor;
 
-import aQute.lib.converter.*;
+import aQute.lib.converter.Converter;
 
-import com.mongodb.*;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 public class MongoCursorImpl<T> implements Cursor<T> {
 	static Pattern	QUERY	= Pattern.compile("(-)?(\\w+):([^()=><]+)");
@@ -246,7 +259,7 @@ public class MongoCursorImpl<T> implements Cursor<T> {
 	}
 
 	MongoCursorImpl<T> appendAll(String field, Set<String> set) throws Exception {
-		Object test = store.mcnv.toMongo(set);
+		store.mcnv.toMongo(set);
 		combineUpdate(field, "$pushAll", store.mcnv.toMongo(set));
 		return this;
 	}

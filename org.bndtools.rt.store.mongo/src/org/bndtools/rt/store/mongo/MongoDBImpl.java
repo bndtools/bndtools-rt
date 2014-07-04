@@ -120,8 +120,8 @@ public class MongoDBImpl implements org.bndtools.service.store.DB {
 		}
 	}
 
-	@Reference(optional=true, dynamic=true)
-	public void setLogService(LogService log) {
+	@Reference
+	public synchronized void setLogService(LogService log) {
 		this.log = log;
 	}
 
