@@ -16,7 +16,7 @@
 jetty-version: 8.1
 
 base-version: 1.3.0
-Bundle-Version: 1.3.0
+Bundle-Version: 1.4.0
 Private-Package: org.bndtools.rt.rest.whiteboard.jetty
 Conditional-Package: \
 	org.bndtools.rt.utils.*, \
