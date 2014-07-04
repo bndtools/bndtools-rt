@@ -100,7 +100,7 @@ public class ServerComponent {
 		logTracker.open();
 
 		@SuppressWarnings("unchecked")
-		final Dictionary<String, ?> configProps = context.getProperties();
+		final Dictionary<String, Object> configProps = context.getProperties();
 		Config config = Configurable.createConfigurable(Config.class, configProps);
 		
 		SelectChannelConnector connector;
