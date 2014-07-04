@@ -122,6 +122,13 @@ public class ServerComponent {
 		} else {
 			connector = new SelectChannelConnector();
 			scheme = HTTP_SCHEME;
+			
+			//
+			// Make sure that the confidential property is there 
+			// because it might not be set, which is assumed to be false
+			// but confuses the filter and mandatory attrs.
+			//
+			configProps.put("confidential", false);
 		}
 		
 		connector.setPort(config.port());
