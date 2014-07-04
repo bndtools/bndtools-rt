@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import aQute.libg.tuple.Pair;
 		designateFactory = ServerComponent.Config.class)
 public class ServerComponent {
 	
+	private static final String CONFIDENTIAL = "confidential";
 	private static final String HTTP_SCHEME = "http";
 	private static final String HTTPS_SCHEME = "https";
 
@@ -99,15 +101,20 @@ public class ServerComponent {
 		logTracker = new LogTracker(bc);
 		logTracker.open();
 
-		@SuppressWarnings("unchecked")
-		final Dictionary<String, Object> configProps = context.getProperties();
-		Config config = Configurable.createConfigurable(Config.class, configProps);
+		//
+		// We need to create a copy because potentially 
+		// we need to add the confidential property
+		//
+		
+		final Hashtable<String,Object>  configProps = copyDictionary(context.getProperties());
+		
+		Config config = Configurable.createConfigurable(Config.class, (Map<String,Object>)configProps);
 		
 		SelectChannelConnector connector;
 		String scheme;
 		
 		// Bug in bnd processing of boolean defaults...
-		boolean confidential = Boolean.parseBoolean((String) configProps.get("confidential"));
+		boolean confidential = Boolean.parseBoolean((String) configProps.get(CONFIDENTIAL));
 		if (confidential) {
 			String keyStorePath = config.keyStorePath();
 			if (keyStorePath == null)
@@ -128,7 +135,8 @@ public class ServerComponent {
 			// because it might not be set, which is assumed to be false
 			// but confuses the filter and mandatory attrs.
 			//
-			configProps.put("confidential", "false");
+			
+			configProps.put(CONFIDENTIAL, false);
 		}
 		
 		connector.setPort(config.port());
@@ -244,6 +252,19 @@ public class ServerComponent {
 		servletTracker.open();
 	}
 	
+	private Hashtable<String, Object> copyDictionary(Dictionary<?,?> properties) {
+		Hashtable<String, Object> copy = new Hashtable<String,Object>();
+		
+		Enumeration<?> e = properties.keys();
+		while ( e.hasMoreElements()) {
+			Object key = e.nextElement();
+			Object value = properties.get(key);
+			if ( key instanceof String && value != null) 
+				copy.put((String) key, value);
+		}
+		return copy;
+	}
+
 	void deactivate() throws Exception {
 		servletTracker.close();
 		filterTracker.close();
