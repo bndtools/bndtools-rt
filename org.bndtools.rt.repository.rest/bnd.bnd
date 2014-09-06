@@ -2,7 +2,7 @@
 	osgi.core,\
 	osgi.cmpn,\
 	biz.aQute.bnd.annotation,\
-	biz.aQute.bndlib,\
+	biz.aQute.bndlib; version=2.0,\
 	biz.aQute.repository,\
 	aQute.libg,\
 	junit.osgi,\

@@ -17,12 +17,45 @@ Import-Package: javax.activation;resolution:=optional,\
 
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 
--buildpath: osgi.core;version='[4.2,5)',\
+-buildpath: \
+	osgi.core;version='[4.2,5)',\
 	osgi.cmpn,\
 	junit.osgi,\
 	org.mockito.mockito-all,\
 	osgi.r5,\
-	biz.aQute.bndlib,\
+	biz.aQute.bndlib; version=2.0,\
 	org.bndtools.rt.repository.rest;version=project,\
 	com.sun.jersey.jersey-client,\
 	javax.ws.rs.jsr311-api
+
+
+-runsystempackages: sun.reflect,javax.xml.stream;version=1.0
+-runpath: org.mockito.mockito-all
+-runbundles: \
+	org.bndtools.rt.repository.rest.test;version=latest,\
+	org.bndtools.rt.rest;version=latest,\
+	org.bndtools.inject;version=latest,\
+	jackson-annotations,\
+	jackson-core,\
+	jackson-databind,\
+	javax.inject,\
+	org.apache.felix.http.jetty,\
+	javax.servlet;version=2.5,\
+	osgi.cmpn;version=4.2,\
+	org.bndtools.rt.repository.rest.server;version=latest,\
+	biz.aQute.bndlib; version='[2.0,2.1)',\
+	org.apache.felix.scr,\
+	org.apache.felix.fileinstall,\
+	org.apache.felix.configadmin,\
+	org.bndtools.rt.repository.rest.client;version=latest,\
+	biz.aQute.repository; version='[2.0,2.1)'
+-runfw: org.apache.felix.framework;version='[4.0.3,4.0.3]'
+-runee: JavaSE-1.6
+#-runproperties: org.osgi.framework.bootdelegation=sun.reflect
+-runvm: -ea,\
+	-Djava.util.logging.config.file=logging.properties,\
+	-Dfelix.fileinstall.dir=${basedir}/load,\
+	-Dfelix.fileinstall.noInitialDelay=true
+
+# add to -runvm if debug required
+x-debug: -Xdebug, "-Xrunjdwp:transport=dt_socket,server=y,address=9001,suspend=y"

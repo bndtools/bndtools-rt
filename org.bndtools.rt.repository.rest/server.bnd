@@ -9,4 +9,10 @@ Export-Package: org.bndtools.rt.repository.api,\
 
 Service-Component: org.bndtools.rt.*
 
-Require-Capability: osgi.extender;filter:="(&(osgi.extender=bndtools.rt.rest)(version>=1.0)(!(version>=2.0)))"
+Require-Capability: \
+	osgi.extender; \
+		filter:="(&\
+			(osgi.extender=bndtools.rt.rest)\
+			(version>=2.0)\
+			(!(version>=3.0))\
+		)"

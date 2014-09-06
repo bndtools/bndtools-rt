@@ -18,8 +18,8 @@
 	org.osgi.impl.bundle.bindex;version='[2.2.0,2.2.1)'
 -runee: JavaSE-1.6
 -runfw: org.apache.felix.framework
--buildpath: osgi.core;version=4.3,\
-	osgi.cmpn,\
+-buildpath: osgi.core; version=4.3.1,\
+	osgi.cmpn; version=4.3.1,\
 	biz.aQute.bnd.annotation,\
 	junit.osgi,\
 	org.bndtools.rt.executor;version=latest,\

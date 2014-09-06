@@ -1,3 +1,17 @@
 -nobundles: true
 -dependson: \
-	org.bndtools.rt.packager
+	org.bndtools.inject, \
+	org.bndtools.rt.browserkit.example, \
+	org.bndtools.rt.caffeine, \
+	org.bndtools.rt.executor.test, \
+	org.bndtools.rt.http, \
+	org.bndtools.rt.http.test, \
+	org.bndtools.rt.packager, \
+	org.bndtools.rt.packager.mongodb, \
+	org.bndtools.rt.packager.mosquitto, \
+	org.bndtools.rt.rest, \
+	org.bndtools.rt.rest.test, \
+	org.bndtools.rt.timer, \
+	org.bndtools.rt.timer.test, \
+	org.bndtools.rt.utils, \
+	org.bndtools.service

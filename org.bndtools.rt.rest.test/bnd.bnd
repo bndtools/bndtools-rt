@@ -13,3 +13,27 @@
 	org.bndtools.service;version=latest,\
 	ee.j2se;version='[1.5,1.6)'
 -sub: *.bnd
+
+-runvm: -ea,\
+	-Djava.util.logging.config.file=logging.properties,\
+	-Dfelix.fileinstall.dir=${basedir}/load,\
+	-Dfelix.fileinstall.noInitialDelay=true
+-runfw: org.apache.felix.framework
+-runsystempackages: sun.reflect
+-runee: JavaSE-1.6
+-runpath: org.mockito.mockito-all
+-runbundles: org.apache.felix.configadmin,\
+	org.apache.felix.fileinstall,\
+	org.bndtools.rt.rest.test.cases;version=latest,\
+	javax.inject,\
+	org.apache.felix.scr,\
+	osgi.cmpn,\
+	org.restlet,\
+	org.bndtools.service;version=latest,\
+	org.bndtools.rt.rest;version=latest,\
+	javax.servlet;version=3.0.0,\
+	javax.ws.rs.jsr311-api;version=1.1.1,\
+	org.bndtools.rt.http;version=latest,\
+	slf4j.api,\
+	ch.qos.logback.classic,\
+	ch.qos.logback.core

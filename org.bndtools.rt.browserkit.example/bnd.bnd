@@ -1,3 +1,4 @@
+-dependson: org.bndtools.rt.browserkit
 -buildpath: osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\

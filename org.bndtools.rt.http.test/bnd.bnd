@@ -10,3 +10,27 @@ Conditional-Package: aQute.lib.*
 Test-Cases: ${classes;CONCRETE;EXTENDS;junit.framework.TestCase}
 
 Include-Resource: static=static
+
+# Run Settings
+-runvm: -ea,\
+	-Djava.util.logging.config.file=logging.properties,\
+	-Dfelix.fileinstall.dir=${basedir}/load,\
+	-Dfelix.fileinstall.noInitialDelay=true
+-runfw: org.apache.felix.framework; version='[4.2.1,4.3)'
+-runsystempackages: sun.reflect
+-runee: JavaSE-1.6
+-runbundles: org.bndtools.rt.http;version=latest,\
+	org.bndtools.rt.http.test;version=latest,\
+	org.apache.felix.scr,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.gogo.shell,\
+	javax.servlet;version=3.0.0,\
+	org.restlet;version=2.0.11,\
+	slf4j.api;version=1.6.2,\
+	ch.qos.logback.classic;version=1.0.0,\
+	ch.qos.logback.core;version=1.0.0,\
+	org.apache.felix.log;version=1.0.1,\
+	org.apache.felix.fileinstall;version=3.2.4,\
+	org.apache.felix.configadmin;version=1.6.0,\
+	org.bndtools.service;version=latest
